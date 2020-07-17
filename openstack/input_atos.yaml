@@ -1,0 +1,26 @@
+ssh-key-name: 154-48-185-209-xOpera
+image-name: centos7
+openstack-network-name: orchestrator-network
+security-groups: default,sodalite-remote-access,sodalite-uc
+flavor-name: m1.medium
+docker-network: sodalite
+docker-public-registry-url: registry.hub.docker.com
+docker-private-registry-url: 154.48.185.207
+docker-registry-cert-country-name: SI
+docker-registry-cert-organization-name: XLAB
+docker-registry-cert-email-address: some_email@email.com
+postgres_env:
+  POSTGRES_USER: username
+  POSTGRES_PASSWORD: password
+  POSTGRES_DB: postgres
+xopera_env:
+  XOPERA_GIT_TYPE: gitlab
+  XOPERA_GIT_URL: https://gitlab.com
+  XOPERA_GIT_AUTH_TOKEN: some_token
+  XOPERA_VERBOSE_MODE: debug
+  XOPERA_DATABASE_IP: xopera-postgres
+  XOPERA_DATABASE_NAME: postgres
+  XOPERA_DATABASE_USER: username
+  XOPERA_DATABASE_PASSWORD: password
+image_builder_env:
+  REGISTRY_IP: 154.48.185.207  
