@@ -7,3 +7,9 @@ This repository contains the TOSCA/Ansible SODALITE stack deployment blueprints 
 This repository contains two deployment blueprints for the SODALITE platform supporting [openstack](https://www.openstack.org/) private cloud deployment and local machine docker setup (not reccomended for real development). 
 
 NOTE: SODALITE currently uses the version [xOpera version 0.5.7](https://pypi.org/project/opera/0.5.7/) since xOpera is beeing developed to support [OASIS TOSCA Simple Profile in YAML version 1.3](https://www.oasis-open.org/news/announcements/tosca-simple-profile-in-yaml-v1-3-oasis-standard-published).
+
+NOTE: Use `prepare.sh` to copy `modules` folder containing generic SODALITE types into use-cases folders. 
+
+NOTE: Input YAML files provided  in the repository are not supposed to be used as it is, but rather serve as a sample to be populated with actual values, depending on the environment.
+
+NOTE: Certificate installation requires `ca.key` and `ca.crt` that are not provided in the repository for security reasons. 
