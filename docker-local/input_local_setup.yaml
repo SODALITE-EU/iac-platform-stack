@@ -1,0 +1,6 @@
+ssh-key-name: some_key
+image-name: "ubuntu-18.04 x86_64"
+openstack-network-name: xlab
+security-groups: default,remote_access
+flavor-name: m1.medium
+blueprint-path: ~/projects/xopera/iac-platform-stack/docker-local/

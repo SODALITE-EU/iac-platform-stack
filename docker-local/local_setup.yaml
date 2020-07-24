@@ -1,0 +1,41 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+imports:
+  - modules/openstack/openstack_vm.yaml
+  - modules/sodalite/types.yaml
+
+topology_template:
+
+  inputs:  
+    ssh-key-name:  
+      type: string 
+    image-name:  
+      type: string 
+    openstack-network-name:  
+      type: string 
+    security-groups:  
+      type: string    
+    flavor-name:  
+      type: string                   
+    blueprint-path:  
+      type: string     
+
+  node_templates: 
+
+    sodalite-local-vm:  
+      type: sodalite.nodes.OpenStack.VM 
+      properties:  
+        name:  sodalite-demo-local
+        key_name:         { get_input: ssh-key-name } 
+        image:            { get_input: image-name }
+        network:          { get_input: openstack-network-name } 
+        security_groups:  { get_input: security-groups } 
+        flavor:           { get_input: flavor-name }
+        username: ubuntu
+
+    sodalite-opera:  
+      type:  sodalite.nodes.ConfigureOpera 
+      properties:
+        blueprint_path: { get_input: blueprint-path }
+      requirements:
+        - host: sodalite-local-vm
