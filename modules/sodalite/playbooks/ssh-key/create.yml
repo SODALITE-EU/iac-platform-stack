@@ -27,5 +27,6 @@
 
 
   roles:
-    - geerlingguy.repo-epel
-    - geerlingguy.pip
+    - role: geerlingguy.repo-epel
+      when: ansible_distribution == "CentOS"
+    - role: geerlingguy.pip

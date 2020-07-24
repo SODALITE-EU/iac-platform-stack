@@ -47,7 +47,44 @@ node_types:
             implementation:
               primary: playbooks/config/create_conf.yml
               dependencies: 
-                - artifacts/iac_blueprint_builder.json.tmpl                
+                - artifacts/iac_blueprint_builder.json.tmpl        
+                
+  sodalite.nodes.Configuration.IDE:
+    derived_from: sodalite.nodes.Configuration
+    properties:
+      template_name:
+        description: Filename of configuration template
+        required: True
+        type: string   
+        default: "sodalite.properties.tmpl"
+      iac_blueprint_builder_endpoint:
+        description: URL IAC blueprint builder API
+        required: True
+        type: string   
+      semantic_web_endpoint:
+        description: URL Sematic Web API
+        required: True
+        type: string   
+      xopera_endpoint:
+        description: URL xOpera REST API
+        required: False
+        type: string
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              dir:                                      { default: { get_property: [ SELF, dir ] } }
+              filename:                                 { default: { get_property: [ SELF, filename ] } }
+              template_name:                            { default: { get_property: [ SELF, template_name ] } }
+              iac_blueprint_builder_endpoint:           { default: { get_property: [ SELF, iac_blueprint_builder_endpoint ] } }
+              semantic_web_endpoint:                    { default: { get_property: [ SELF, semantic_web_endpoint ] } }
+              xopera_endpoint:                          { default: { get_property: [ SELF, xopera_endpoint ] } }
+            implementation:
+              primary: playbooks/config/create_conf.yml
+              dependencies: 
+                - artifacts/sodalite.properties.tmpl                     
 
   sodalite.nodes.ConfigureKeys:
     derived_from: tosca.nodes.SoftwareComponent
@@ -63,3 +100,22 @@ node_types:
           delete: 
             implementation:
               primary: playbooks/ssh-key/delete.yml
+
+  sodalite.nodes.ConfigureOpera:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      blueprint_path:
+        description: Absolute path of SODALITE blueprint folder
+        required: True
+        type: string   
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:      
+            inputs:
+              blueprint_path:           { default: { get_property: [ SELF, blueprint_path ] } } 
+              ansible_user:             { default: { get_property: [ SELF, host, username ] } } 
+            implementation:
+              primary: playbooks/opera/configure.yml
+          
