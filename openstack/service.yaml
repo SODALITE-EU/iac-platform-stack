@@ -171,6 +171,7 @@ topology_template:
         - network: docker-network 
         - dependency: xopera-openstack-keys
         - dependency: xopera-postgres-container
+        - dependency: docker-registry-certificate
 
     xopera-nginx-container:
       type: sodalite.nodes.DockerizedComponent
@@ -188,6 +189,7 @@ topology_template:
         - registry: docker-public-registry   
         - network: docker-network           
         - dependency: xopera-flask-container
+        - dependency: docker-registry-certificate
 
     # iac-blueprint-builder 
     # https://github.com/SODALITE-EU/iac-blueprint-builder 
@@ -238,6 +240,7 @@ topology_template:
         - dependency: image-builder-flask
         - network: docker-network 
         - registry: docker-public-registry 
+        - dependency: docker-registry-certificate
 
     # semantic-reasoner     
     # https://github.com/SODALITE-EU/semantic-reasoner 
@@ -339,4 +342,4 @@ topology_template:
         ports:  ['5006:5000']
       requirements:
         - host: docker-host
-        - registry: docker-public-registry           
+        - registry: docker-public-registry         
