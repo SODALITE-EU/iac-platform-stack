@@ -147,6 +147,36 @@ topology_template:
         - dependency: xopera-flask-container
         - dependency: docker-registry-certificate
 
+    #image registry
+    docker-registry-container:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: registry
+        image_name: library/registry:2
+        ports:
+          - "443:443"
+        #TODO
+        #get filenames from docker-registry-certificate
+        ca_cert: "/certs/ca.crt"
+        client_cert: "/certs/image.docker.local.crt"
+        client_key: "/certs/image.docker.local.key"
+        etc_hosts:
+          registry.docker.local: 127.0.0.1
+        volumes:
+          - "/home/localregistry/registry:/var/lib/registry"
+          - "/home/xopera/certs:/certs"
+        env:
+          REGISTRY_HTTP_ADDR: 0.0.0.0:443
+          REGISTRY_HTTP_TLS_CLIENTCAS: "[/certs/ca.crt]"
+          REGISTRY_HTTP_TLS_CERTIFICATE: "/certs/image.docker.local.crt"
+          REGISTRY_HTTP_TLS_KEY: "/certs/image.docker.local.key"
+        docker_network_name:  { get_property: [ SELF, network, name ] }  
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry   
+        - network: docker-network   
+        - dependency: docker-registry-certificate 
+
     # iac-blueprint-builder 
     # https://github.com/SODALITE-EU/iac-blueprint-builder 
     iac-builder-container:

@@ -2,7 +2,7 @@ docker-network: sodalite
 dockerhub-user: 
 dockerhub-pass: 
 docker-public-registry-url: registry.hub.docker.com
-docker-private-registry-url: 10.10.43.54
+docker-private-registry-url: registry
 docker-registry-cert-country-name: SI
 docker-registry-cert-organization-name: XLAB
 docker-registry-cert-email-address: some_email@email.com
@@ -20,4 +20,4 @@ xopera_env:
   XOPERA_DATABASE_USER: username
   XOPERA_DATABASE_PASSWORD: password
 image_builder_env:
-  REGISTRY_IP: 10.10.43.54
+  REGISTRY_IP: registry
