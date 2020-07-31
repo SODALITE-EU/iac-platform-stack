@@ -11,6 +11,9 @@
         flavor: "{{ flavor }}"
         network: "{{ network }}"
         security_groups: "{{ security_groups }}"
+        meta:
+          prometheus_io_scrape: true
+          prometheus_io_port: 9100
       register: server_info
 
     - name: Set attributes
