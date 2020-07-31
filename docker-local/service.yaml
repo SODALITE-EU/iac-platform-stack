@@ -255,7 +255,11 @@ topology_template:
           WAIT_HOSTS: graph-db:7200
           graphdb:  http://graph-db:7200
           bugPredictorServer:  http://tosca-smells:8080/  
+          ansiblePath: /usr/local/tomcat/webapps/Ansibles/
+          reasonerServer: http://semantic-web:8080/
         ports:  ['8080:8080']
+        volumes:
+          - "/tmp/tomcat/webapps/Ansibles:/usr/local/tomcat/webapps/Ansibles"   
       requirements:
         - host: docker-host
         - registry: docker-public-registry   
