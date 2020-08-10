@@ -184,15 +184,18 @@ topology_template:
       properties:
         alias: iac-builder
         image_name: sodaliteh2020/iac-blueprint-builder
+        docker_network_name:  { get_property: [ SELF, network, name ] }
         restart_policy: always
         ports: 
         - "8081:8080"
         - "80:80"
         env:
-          XOPERA_ENDPOINT_KEY: xopera-nginx:5001
+          XOPERA_ENDPOINT: http://xopera-nginx:80
       requirements:
         - host: docker-host
         - registry: docker-public-registry 
+        - network: docker-network    
+        - dependency: xopera-nginx-container
 
     # image-builder     
     # https://github.com/SODALITE-EU/image-builder  
@@ -237,7 +240,7 @@ topology_template:
         docker_network_name:  { get_property: [ SELF, network, name ] }
         image_name: sodaliteh2020/graph_db
         restart_policy: always
-        ports:  ['7200:7200']
+        #ports:  ['7200:7200']
         exposed_ports:  ['7200']
       requirements:
         - host: docker-host
@@ -253,6 +256,7 @@ topology_template:
         restart_policy: always
         env:
           WAIT_HOSTS: graph-db:7200
+          environment: docker
           graphdb:  http://graph-db:7200
           bugPredictorServer:  http://tosca-smells:8080/  
           ansiblePath: /usr/local/tomcat/webapps/Ansibles/
@@ -289,6 +293,7 @@ topology_template:
         image_name: sodaliteh2020/toscasmells
         restart_policy: always
         env:
+          environment: docker
           WAIT_HOSTS: graph-db:7200
           graphdb: graph-db:7200
         ports:  ['8082:8080']
