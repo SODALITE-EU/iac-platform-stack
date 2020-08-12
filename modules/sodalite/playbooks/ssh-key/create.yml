@@ -23,8 +23,13 @@
             path: "{{ ssh_path }}{{ key_name }}.pubk"
             format: OpenSSH
             privatekey_path: "{{ ssh_path }}{{ key_name }}"
-
-
+        - slurp:
+            src: "{{ ssh_path }}{{ key_name }}.pubk"
+          register: key
+        - authorized_key:
+            user: "{{ ansible_user }}"
+            state: present
+            key: '{{ key.content | b64decode }}'
 
   roles:
     - role: geerlingguy.repo-epel
