@@ -39,12 +39,7 @@ fi
 
 echo
 echo "Installing required Ansible roles"
-ansible-galaxy install geerlingguy.docker, geerlingguy.pip, geerlingguy.repo-epel
-
-echo
-echo "Copying modules"
-rm -r -f docker-local/modules/
-cp -r modules docker-local/
+ansible-galaxy install -r ./docker-local/requirements.yml
 
 echo
 echo
