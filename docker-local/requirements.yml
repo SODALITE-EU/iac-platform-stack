@@ -1,5 +1,5 @@
 roles:
   # Install a roles from Ansible Galaxy.
-  - name: geerlingguy.docker
-  - name: geerlingguy.pip
-  - name: geerlingguy.repo-epel
+  - src: geerlingguy.docker
+  - src: geerlingguy.pip
+  - src: geerlingguy.repo-epel
