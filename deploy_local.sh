@@ -63,6 +63,16 @@ export SODALITE_GIT_TOKEN=$TOKEN_INPUT
 
 envsubst < ./docker-local/input.yaml.tmpl > ./docker-local/input.yaml
 
+echo
+echo "Generating TLS key and certificate"
+openssl genrsa -out modules/docker/artifacts/ca.key 4096
+openssl req -new -x509 -key modules/docker/artifacts/ca.key -out modules/docker/artifacts/ca.crt -subj "/C=SI/O=XLAB/CN=$SODALITE_EMAIL"
+
+echo
+echo "Copying modules"
+rm -r -f docker-local/modules/
+cp -r modules docker-local/
+
 unset SODALITE_GIT_TOKEN                                                                                                                                                                                                                                                                                                     unset SODALITE_EMAIL
 unset SODALITE_DB_USERNAME
 unset SODALITE_DB_PASSWORD
