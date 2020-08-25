@@ -11,9 +11,9 @@ In order to proceed with local docker installation use `deploy_local.sh` script 
     Install xOpera and required modules as described here: [xOpera](https://github.com/xlab-si/xopera-opera)    
         *NOTE: Use `--system-site-packages` flag when setting up Python virtual environment in order to avoid this [issue](https://github.com/ansible/ansible/issues/14468)*
 1. ### Install required Ansible roles. 
-    Ansible roles are listed in the [requirements.yaml](docker-local/requirements.yaml) Roles installation can be performed using this command:
+    Ansible roles are listed in the [requirements.yml](docker-local/requirements.yml) Roles installation can be performed using this command:
     ```
-    ansible-galaxy install -r docker-local/requirements.yaml
+    ansible-galaxy install -r docker-local/requirements.yml
     ```
 1. ### Generate TLS certificate and key files.
      SODALITE stack requires a private Docker registry to store Docker images. For demonstration purposes a Docker registry container is deployed as a part of SODALITE stack blueprint. In order to make registry accessible to external hosts, is must be secured using TLS certificate. [Docker private registry configuration](https://docs.docker.com/registry/deploying/) TLS certificate and key required for that are not provided in the repository for security reasons and can be generated using the following commands:
@@ -27,12 +27,11 @@ In order to proceed with local docker installation use `deploy_local.sh` script 
     cp -r modules docker-local/
     cp -r modules openstack/
     ```
-
 1. ### Set up inputs for deployment.
-    Input YAML files provided  in the repository are not supposed to be used as is, but rather serve as a sample to be populated with actual values. In order for SODALITE stack deployment to proceed some of inputs must be defined. Namely 
-    `docker-registry-cert-email-address` used for Docker self signed certificate and Gitlab auth token `XOPERA_GIT_AUTH_TOKEN` that grants access to git repository for TOSCA blueprints. To provide inputs manually edit `inputs.yaml` file.
+    Input YAML files provided  in the repository are not supposed to be used as is, but rather serve as a template to be populated with actual values. In order for SODALITE stack deployment to proceed some of inputs must be defined. Namely 
+    `docker-registry-cert-email-address` used for Docker self signed certificate and Gitlab auth token `XOPERA_GIT_AUTH_TOKEN` that grants access to git repository for TOSCA blueprints. To provide inputs manually edit `input.yaml.tmpl` file and save it as `input.yaml`.
 
-    Openstack deployment of SODALITE stack requires a VM to de instantiated thus these parameters have to be defined: SSH key, image, flavor and network names plus a coma separated list of security groups.
+    Openstack deployment of SODALITE stack requires a VM to be instantiated therefore these parameters have to be defined: SSH key, image, flavor and network names plus a comma separated list of security groups.
     ```
     ssh-key-name: 
     image-name: 
@@ -46,6 +45,7 @@ In order to proceed with local docker installation use `deploy_local.sh` script 
 1. ### Install SODALITE IDE
     Install SODALITE IDE as described here: [SODALITE IDE GitHub](https://github.com/SODALITE-EU/ide). Use **Installation from the Sodalite IDE source code** scenario.
 1. ### Configure SODALITE IDE backend connection
+    Proceed with SODALITE IDE configuration as described in the [IDE Tutorial](https://docs.google.com/document/d/1w6wYJbTZvBbt5LD6sXReXbx1uPDjefYFAU5KEv8X_8w/edit)
     * Open IDE preference page: menu Window/Preferences. 
     * Search for Sodalite in search text. Click on Sodalite Backend
         
@@ -60,5 +60,4 @@ In order to proceed with local docker installation use `deploy_local.sh` script 
 
 NOTE: SODALITE currently uses the version [xOpera version 0.5.7](https://pypi.org/project/opera/0.5.7/) since xOpera is being developed to support [OASIS TOSCA Simple Profile in YAML version 1.3](https://www.oasis-open.org/news/announcements/tosca-simple-profile-in-yaml-v1-3-oasis-standard-published).
 
-NOTE: .
 
