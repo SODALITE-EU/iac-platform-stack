@@ -353,18 +353,18 @@ topology_template:
       requirements:
         - host: sodalite-vm   
     
-    ide-container:
-      type: sodalite.nodes.DockerizedComponent
-      properties:
-        image_name: sodaliteh2020/sodalite-ide
-        docker_network_name:  { get_property: [ SELF, network, name ] }
-        volumes:
-          - "/tmp/.X11-unix:/tmp/.X11-unix"   
-          - /tmp/sodalite.properties:/sodalite/eclipse/sodalite.properties     
-        alias: sodalite-ide
-        env: 
-          DISPLAY=:0
-      requirements:
-        - host: docker-host
-        - registry: docker-public-registry  
-        - network: docker-network         
+    # ide-container:
+    #   type: sodalite.nodes.DockerizedComponent
+    #   properties:
+    #     image_name: sodaliteh2020/sodalite-ide
+    #     docker_network_name:  { get_property: [ SELF, network, name ] }
+    #     volumes:
+    #       - "/tmp/.X11-unix:/tmp/.X11-unix"   
+    #       - /tmp/sodalite.properties:/sodalite/eclipse/sodalite.properties     
+    #     alias: sodalite-ide
+    #     env: 
+    #       DISPLAY=:0
+    #   requirements:
+    #     - host: docker-host
+    #     - registry: docker-public-registry  
+    #     - network: docker-network         
