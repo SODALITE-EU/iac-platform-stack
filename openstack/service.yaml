@@ -72,7 +72,7 @@ topology_template:
             remote_ip_prefix: 0.0.0.0/0 
           5000_ports:  
             port_range_min: 5000
-            port_range_max: 5005
+            port_range_max: 5007
             protocol: tcp 
             remote_ip_prefix: 0.0.0.0/0
           https_port:
@@ -254,7 +254,7 @@ topology_template:
         docker_network_name:  { get_property: [ SELF, network, name ] }
         image_name: sodaliteh2020/graph_db
         restart_policy: always
-        #ports:  ['7200:7200']
+        ports:  ['7200:7200']
         exposed_ports:  ['7200']
       requirements:
         - host: docker-host
@@ -283,6 +283,7 @@ topology_template:
         - registry: docker-public-registry   
         - network: docker-network     
         - dependency: know-db-container
+        - dependency: tosca-smells-container
 
     # iac-quality-framework   
     # https://github.com/SODALITE-EU/iac-quality-framework
@@ -309,7 +310,7 @@ topology_template:
         env:
           environment: docker
           WAIT_HOSTS: graph-db:7200
-          graphdb: graph-db:7200
+          graphdb: http://graph-db:7200
         ports:  ['8082:8080']
         exposed_ports:  ['8080']
       requirements:
@@ -352,3 +353,64 @@ topology_template:
       requirements:
         - host: docker-host
         - registry: docker-public-registry         
+    # refactoring-ml
+    # https://github.com/SODALITE-EU/refactoring-ml      
+    rule-based-refactorer-container:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: rule-based-refactorer
+        image_name: sodaliteh2020/rule_based_refactorer
+        restart_policy: always
+        ports:  ['8083:8080']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        env:  
+          #prometheus container yet to be added  
+          #prometheus: http://prometheus:9090
+          xopera: http://xopera-nginx:5000
+          refacopdiscoverer: http://refactoring-option-discoverer:8080
+          perfpredictor: http://performance-predictor-refactoring:5000
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry 
+        - network: docker-network   
+        - dependency: xopera-nginx-container
+        - dependency: performance-predictor-refactoring-container
+        - dependency: refactoring-option-discoverer-container
+        
+    performance-predictor-refactoring-container:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: performance-predictor-refactoring
+        image_name: sodaliteh2020/fo_perf_predictor_api
+        restart_policy: always
+        ports:  ['5007:5000']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        env:  
+          #prometheus container yet to be added  
+          #prometheus: http://prometheus:9090
+          xopera: http://xopera-nginx:5000
+          refacopdiscoverer: http://refactoring-option-discoverer:8080
+          perfpredictor: http://performance-predictor-refactoring:5000
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry 
+        - network: docker-network  
+        - dependency: xopera-nginx-container
+        - dependency: refactoring-option-discoverer-container
+
+    # https://github.com/SODALITE-EU/refactoring-option-discoverer
+    refactoring-option-discoverer-container:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: refactoring-option-discoverer
+        image_name: sodaliteh2020/refactoring_option_discoverer
+        restart_policy: always
+        ports:  ['8084:8080']
+        env:
+          graphdb: http://graph-db:7200
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry  
+        - network: docker-network         
+        - dependency: know-db-container        
