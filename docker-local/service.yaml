@@ -240,7 +240,7 @@ topology_template:
         docker_network_name:  { get_property: [ SELF, network, name ] }
         image_name: sodaliteh2020/graph_db
         restart_policy: always
-        #ports:  ['7200:7200']
+        ports:  ['7200:7200']
         exposed_ports:  ['7200']
       requirements:
         - host: docker-host
@@ -269,6 +269,7 @@ topology_template:
         - registry: docker-public-registry   
         - network: docker-network     
         - dependency: know-db-container
+        - dependency: tosca-smells-container
 
     # iac-quality-framework   
     # https://github.com/SODALITE-EU/iac-quality-framework
@@ -295,7 +296,7 @@ topology_template:
         env:
           environment: docker
           WAIT_HOSTS: graph-db:7200
-          graphdb: graph-db:7200
+          graphdb: http://graph-db:7200
         ports:  ['8082:8080']
         exposed_ports:  ['8080']
       requirements:
