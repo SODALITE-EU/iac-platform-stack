@@ -342,16 +342,16 @@ topology_template:
     # IDE    
     # https://github.com/SODALITE-EU/ide   
     # requires X11 system     
-    ide-config:
-      type: sodalite.nodes.Configuration.IDE
-      properties:
-        dir: /tmp
-        filename: sodalite.properties
-        iac_blueprint_builder_endpoint: iac-builder:80       
-        semantic_web_endpoint: semantic-web:8080                 
-        xopera_endpoint: xopera-nginx:5000            
-      requirements:
-        - host: sodalite-vm   
+    # ide-config:
+    #   type: sodalite.nodes.Configuration.IDE
+    #   properties:
+    #     dir: /tmp
+    #     filename: sodalite.properties
+    #     iac_blueprint_builder_endpoint: iac-builder:80       
+    #     semantic_web_endpoint: semantic-web:8080                 
+    #     xopera_endpoint: xopera-nginx:5000            
+    #   requirements:
+    #     - host: sodalite-vm   
     
     # ide-container:
     #   type: sodalite.nodes.DockerizedComponent
