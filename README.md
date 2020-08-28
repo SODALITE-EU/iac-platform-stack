@@ -6,7 +6,32 @@ Implementation of the blueprint and integration tests for the SODALITE platform 
 SODALITE uses IaC, namely the well known Topology and Orchestration Specification for Cloud Applications [TOSCA](https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=tosca) OASIS standard for modelling the infrastructure and application deployment. The TOSCA lifecycle operation interfaces are implemented in [Ansible](https://www.ansible.com/) playbooks and roles. 
 This repository contains two TOSCA/Ansible SODALITE stack deployment blueprints which can be deployed by SODALITE orchestrator [xOpera](https://github.com/xlab-si/xopera-opera). First `service.yaml` blueprint located in `./openstack` folder designed for the SODALITE platform supporting [openstack](https://www.openstack.org/) private cloud deployment. Second one, located in `./docker-local` folder represents a local machine docker setup  (not recommended for real development).
 
-In order to proceed with local docker installation use `deploy_local.sh` script that checks and installs all components required for deployment (pip, xOpera, Ansible Roles, etc), provides means for setting up input variables necessary for deployment and starts the deployment itself (script does not include SODALITE IDE installation and configuration). Otherwise one can set up prerequisites for SODALITE stack deployment manually, following these steps:
+## SODALITE stack contents
+Here is the list of SODALITE stack components, with corresponding Docker images that are in fact deployed by blueprints. **Network alias** is used for container cross referencing in internal Docker network. **Container port** indicates the port exposed by Docker container, while **Host port** shows the mapped port that is published on localhost or Openstack VM.
+
+| Name | GitHub repository | Docker Image | Network alias | Container ports | Host ports |
+| --- | --- | --- | --- | --- | --- |
+| Docker registry |  | https://hub.docker.com/_/registry | registry | 443 | 443 |
+| Postgres DB for xOpera |  | https://hub.docker.com/_/postgres | xopera-postgres | 5432 | 5432 |
+| xOpera Core | https://github.com/SODALITE-EU/xopera-rest-api | https://hub.docker.com/r/sodaliteh2020/xopera-flask | xopera-flask | 5000 |  |
+| xOpera REST API | https://github.com/SODALITE-EU/xopera-rest-api | https://hub.docker.com/r/sodaliteh2020/xopera-nginx | xopera-nginx | 80, 443 | 5000, 5001 |
+| IaC Blueprint Builder | https://github.com/SODALITE-EU/iac-blueprint-builder | https://hub.docker.com/r/sodaliteh2020/iac-blueprint-builder | iac-builder | 80, 8080 | 80, 8081 |
+| Docker image builder Core |https://github.com/SODALITE-EU/image-builder | https://hub.docker.com/r/sodaliteh2020/image-builder-flask | image-builder-flask | 5000 |  |
+| Docker image builder API | https://github.com/SODALITE-EU/image-builder | https://hub.docker.com/r/sodaliteh2020/image-builder-nginx | image-builder-nginx | 443 | 5002 |
+| Knowledge Database | https://github.com/SODALITE-EU/semantic-reasoner | https://hub.docker.com/r/sodaliteh2020/graph_db | graph-db | 7200 | 7200 |
+| Semantic Reasoner API | https://github.com/SODALITE-EU/semantic-reasoner | https://hub.docker.com/r/sodaliteh2020/semantic_web | semantic-web | 8080| 8080 |
+| IaC Metrics Framework API | https://github.com/SODALITE-EU/iac-quality-framework | https://hub.docker.com/r/sodaliteh2020/iacmetrics | iac-metrics | 5000 | 5003 |
+| TOSCA Defect Prediction API | https://github.com/SODALITE-EU/defect-prediction | https://hub.docker.com/r/sodaliteh2020/toscasmells | tosca-smells | 8080 | 8082 |
+| Ansible Defect Prediction API | https://github.com/SODALITE-EU/defect-prediction | https://hub.docker.com/r/sodaliteh2020/ansiblesmells | ansible-smells | 5000 | 5004 |
+| TOSCA Syntax Verifier API | https://github.com/SODALITE-EU/verification | https://hub.docker.com/r/sodaliteh2020/toscasynverifier | tosca-syntax | 5000 | 5005 |
+| Workflow Verifier API| https://github.com/SODALITE-EU/verification | https://hub.docker.com/r/sodaliteh2020workflowverifier | workflow-verifier | 5000 | 5006 |
+| Rule-based Refactoring API | https://github.com/SODALITE-EU/refactoring-ml | https://hub.docker.com/r/sodaliteh2020/rule_based_refactorer | rule-based-refactorer | 8080 | 8083 |
+| Performance Prediction API | https://github.com/SODALITE-EU/refactoring-ml | https://hub.docker.com/r/sodaliteh2020/fo_perf_predictor_api | performance-predictor-refactoring | 5000 | 5007 |
+| Refactoring Option Discovery API | https://github.com/SODALITE-EU/refactoring-option-discoverer | https://hub.docker.com/r/sodaliteh2020/refactoring_option_discoverer | refactoring-option-discoverer | 8080 | 8084 |
+
+
+## SODALITE stack installation
+In order to proceed with local docker installation use `deploy_local.sh` script (for Ubuntu Linux distribution) that checks and installs all components required for deployment (pip, xOpera, Ansible Roles, etc), provides means for setting up input variables necessary for deployment and starts the deployment itself (script does not include SODALITE IDE installation and configuration). Otherwise one can set up prerequisites for SODALITE stack deployment manually, following these steps:
 1. ### Install xOpera 
     Install xOpera and required modules as described here: [xOpera](https://github.com/xlab-si/xopera-opera)    
         *NOTE: Use `--system-site-packages` flag when setting up Python virtual environment in order to avoid this [issue](https://github.com/ansible/ansible/issues/14468)*
