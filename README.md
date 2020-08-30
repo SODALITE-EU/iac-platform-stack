@@ -1,6 +1,6 @@
 [![SODALITE](images/sodalite-logo.png)](https://www.sodalite.eu/)
 # IaC platform stack
-
+ 
 Implementation of the blueprint and integration tests for the SODALITE platform stack
 
 SODALITE uses IaC, namely the well known Topology and Orchestration Specification for Cloud Applications [TOSCA](https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=tosca) OASIS standard for modelling the infrastructure and application deployment. The TOSCA lifecycle operation interfaces are implemented in [Ansible](https://www.ansible.com/) playbooks and roles. 
