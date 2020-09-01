@@ -34,7 +34,7 @@ if [ -z "$OPERA_INSTALLED" ]; then
     sudo apt install -y python3-venv python3-wheel python-wheel-common
     sudo apt install -y ansible
     python3 -m venv --system-site-packages .venv && . .venv/bin/activate
-    pip3 install opera
+    pip3 install "opera==0.5.7"
 fi
 
 echo

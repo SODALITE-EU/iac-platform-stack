@@ -96,7 +96,7 @@ topology_template:
     xopera-postgres-container:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name: library/postgres:latest
+        image_name: library/postgres:13
         volumes:
           - "/home/postgres:/var/lib/postgresql/data"
         ports: ['5432:5432']
@@ -113,7 +113,7 @@ topology_template:
       properties:
         alias: xopera-flask
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/xopera-flask
+        image_name: sodaliteh2020/xopera-flask:M18Release
         restart_policy: always
         volumes:
           - "/var/run/docker.sock:/var/run/docker.sock"
@@ -134,7 +134,7 @@ topology_template:
       properties:
         alias: xopera-nginx
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/xopera-nginx
+        image_name: sodaliteh2020/xopera-nginx:M18Release
         restart_policy: always
         ports:  ['5001:443', '5000:80']
         #exposed_ports:  ['443', '5000']
@@ -183,11 +183,11 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: iac-builder
-        image_name: sodaliteh2020/iac-blueprint-builder
+        image_name: sodaliteh2020/iac-blueprint-builder:24
         docker_network_name:  { get_property: [ SELF, network, name ] }
         restart_policy: always
         ports: 
-          - "8081:80"
+        - "8081:80"
         env:
           XOPERA_ENDPOINT: http://xopera-nginx:80
       requirements:
@@ -201,7 +201,7 @@ topology_template:
     image-builder-flask:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name:  sodaliteh2020/image-builder-flask
+        image_name:  sodaliteh2020/image-builder-flask:v0.2.1
         docker_network_name:  { get_property: [ SELF, network, name ] }
         exposed_ports:  ['5000']
         env: { get_input: image_builder_env }
@@ -216,7 +216,7 @@ topology_template:
     image-builder-nginx:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name: sodaliteh2020/image-builder-nginx
+        image_name: sodaliteh2020/image-builder-nginx:v0.2.1
         docker_network_name:  { get_property: [ SELF, network, name ] }
         ports:  ['5002:443']
         #exposed_ports:  ['443']
@@ -237,7 +237,7 @@ topology_template:
       properties:
         alias: graph-db
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/graph_db
+        image_name: sodaliteh2020/graph_db:172
         restart_policy: always
         ports:  ['7200:7200']
         exposed_ports:  ['7200']
@@ -251,7 +251,7 @@ topology_template:
       properties:
         alias: semantic-web
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/semantic_web
+        image_name: sodaliteh2020/semantic_web:172
         restart_policy: always
         env:
           WAIT_HOSTS: graph-db:7200
@@ -276,7 +276,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: iac-metrics
-        image_name: sodaliteh2020/iacmetrics
+        image_name: sodaliteh2020/iacmetrics:8
         restart_policy: always
         ports:  ['5003:5000']
       requirements:
@@ -290,7 +290,7 @@ topology_template:
       properties:
         alias: tosca-smells
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/toscasmells
+        image_name: sodaliteh2020/toscasmells:124
         restart_policy: always
         env:
           environment: docker
@@ -308,7 +308,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: ansible-smells
-        image_name: sodaliteh2020/ansiblesmells
+        image_name: sodaliteh2020/ansiblesmells:124
         restart_policy: always
         ports:  ['5004:5000']
       requirements:
@@ -321,7 +321,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: tosca-syntax
-        image_name: sodaliteh2020/toscasynverifier
+        image_name: sodaliteh2020/toscasynverifier:8
         restart_policy: always
         ports:  ['5005:5000']
       requirements:
@@ -332,25 +332,24 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: workflow-verifier
-        image_name: sodaliteh2020/workflowverifier
+        image_name: sodaliteh2020/workflowverifier:8
         restart_policy: always
         ports:  ['5006:5000']
       requirements:
         - host: docker-host
-        - registry: docker-public-registry           
-
+        - registry: docker-public-registry
     # refactoring-ml
     # https://github.com/SODALITE-EU/refactoring-ml      
     rule-based-refactorer-container:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: rule-based-refactorer
-        image_name: sodaliteh2020/rule_based_refactorer
+        image_name: sodaliteh2020/rule_based_refactorer:49
         restart_policy: always
         ports:  ['8083:8080']
         docker_network_name:  { get_property: [ SELF, network, name ] }
         env:  
-          #prometheus container yet to be added  
+          #prometheus container yet to be added
           #prometheus: http://prometheus:9090
           xopera: http://xopera-nginx:5000
           refacopdiscoverer: http://refactoring-option-discoverer:8080
@@ -367,12 +366,12 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: performance-predictor-refactoring
-        image_name: sodaliteh2020/fo_perf_predictor_api
+        image_name: sodaliteh2020/fo_perf_predictor_api:49
         restart_policy: always
         ports:  ['5007:5000']
         docker_network_name:  { get_property: [ SELF, network, name ] }
         env:  
-          #prometheus container yet to be added  
+          #prometheus container yet to be added
           #prometheus: http://prometheus:9090
           xopera: http://xopera-nginx:5000
           refacopdiscoverer: http://refactoring-option-discoverer:8080
@@ -389,7 +388,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: refactoring-option-discoverer
-        image_name: sodaliteh2020/refactoring_option_discoverer
+        image_name: sodaliteh2020/refactoring_option_discoverer:60
         restart_policy: always
         ports:  ['8084:8080']
         env:
