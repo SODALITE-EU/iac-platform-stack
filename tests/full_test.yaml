@@ -1,0 +1,347 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+imports:
+  - modules/tests/test_definitions.yaml
+  - modules/util/utils.yaml
+
+node_types:
+  sodalite.nodes.Tests.Text.Command.INPUTS:
+    derived_from: sodalite.nodes.Tests.Text.Command
+    description: Command test node used to deploy with inputs.yaml provided
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              command:                { default: { get_property: [ SELF, command ] } }
+              dir:                    { default: { get_property: [ SELF, dir ] } }
+              executable:             { default: { get_property: [ SELF, executable ] } }
+              comparable_string:      { default: { get_property: [ SELF, comparable_string ] } }
+              regex:                  { default: { get_property: [ SELF, regex ] } }
+              compare_to:             { default: { get_property: [ SELF, compare_to ] } }
+              host_os:                { default: { get_property: [ SELF, host_os ] } }
+            implementation:
+              primary: modules/tests/command/response_body.yaml
+              dependencies:
+                - artifacts/input.yaml
+
+topology_template:
+
+  inputs:
+    blueprint-builder-address:
+      type: string
+    xopera-rest-address:
+      type: string
+    image-builder-address:
+      type: string
+    csar-path:
+      type: string
+      description: This is a file folder (without a filename!)
+      default: "/tmp/xopera-test-tmp/"
+    csar-name:
+      type: string
+      description: Optional csar name (deployment.json by default). Used for testing sema
+      default: deployment.json
+    sematic-reasoner-call:
+      type: string
+
+  node_templates:
+
+    # SEMANTIC REASONER
+
+    ## DOWNLOAD IMAGE
+    sem-reasoner-json-image-download:
+      type: sodalite.nodes.Tests.Text.URI.Download.Keep
+      properties:
+        comparable_string:  '.*www\.sodalite\.eu.*'
+        url:                { get_input: sematic-reasoner-call }
+        download_directory: { get_input: csar-path }
+        filename:           { get_input: csar-name }
+        timeout: 300
+        regex: true
+
+
+    # BLUEPRINT BUILDER
+
+    ## CONCAT URL FOR DOCS TEST
+    bp-builder-concat-docs-path:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        prefix:
+        input: { get_input: blueprint-builder-address }
+        suffix: "docs"
+
+    # TRY TO CONNECT TO THE ROOT
+    bp-builder-connect-test:
+      type: sodalite.nodes.Tests.Text.URI
+      properties:
+        comparable_string: ".*iac-blueprint-builder.*"
+        url: { get_attribute: [ SELF, input_component, output ] }
+        regex: true
+      requirements:
+        - input_component: bp-builder-concat-docs-path
+
+    ## CONCAT URL FOR THE DOWNLOADED JSON
+    bp-builder-concat-json-path:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        prefix: { get_input: csar-path }
+        input:  { get_input: csar-name }
+
+    ## APPEND JSON BODY
+    bp-builder-append-json-body:
+      type: sodalite.nodes.Utils.append.File
+      properties:
+        bof: |-
+          {
+          "name": "deptest",
+          "data":
+        path:  { get_attribute: [ SELF, input_component, output ] }
+        eof: |
+          }
+      requirements:
+        - input_component: bp-builder-concat-json-path
+
+    ## READ THE DOWNLOADED JSON
+    bp-builder-read-downloaded-json:
+      type: sodalite.nodes.Utils.read.File
+      properties:
+        path:   { get_attribute: [ SELF, input_component, output ] }
+      requirements:
+        - input_component: bp-builder-concat-json-path
+
+    bp-builder-concat-add-url:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        prepreprefix:   'curl -X POST "'
+        preprefix:      { get_input: blueprint-builder-address }
+        prefix:         'parse" -H  "accept: */*" -H  "Content-Type: application/json" -d @'
+        input:          { get_attribute: [ SELF, input_component, output ] }
+      requirements:
+        - input_component: bp-builder-concat-json-path
+
+    ## SEND JSON TO BP BUILDER
+    bp-builder-upload-test:
+      type: sodalite.nodes.Tests.Text.Command
+      properties:
+        command:            { get_attribute: [ SELF, input_component, output ] }
+        comparable_string:  '.*Revision saved*'
+        regex:              true
+      requirements:
+        - input_component: bp-builder-concat-add-url
+
+
+    # XOPERA REST API
+
+    ## TRY TO CONNECT TO THE ROOT
+    xopera-connect-test:
+      type: sodalite.nodes.Tests.Text.URI
+      properties:
+        comparable_string: ".*xOpera REST API.*"
+        url: { get_input: xopera-rest-address }
+        regex: true
+
+    ## CONCAT URL FOR Key Test
+    concat-key-pair-url:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        input: { get_input: xopera-rest-address }
+        suffix: "ssh/keys/public"
+
+    ## TEST KEY PAIR ENDPOINT
+    xopera-rest-public-key-test:
+      type: sodalite.nodes.Tests.Text.URI
+      properties:
+        url:                { get_attribute: [ SELF, input_component, output ] }
+        comparable_string:  '.*"key_pair_name": .*"public_key": .*'
+        regex:              true
+      requirements:
+        - input_component: concat-key-pair-url
+
+    ## GET BLUEPRINT TOKEN FROM THE BLUEPRINT BUILDER TEST NODE
+    filter-update-url:
+      type: sodalite.nodes.Utils.extract.JSON
+      properties:
+        input:  { get_attribute: [ SELF, input_component, checked_against ] }
+        key:    blueprint_token
+      requirements:
+        - input_component: bp-builder-upload-test
+
+    ## CONCAT URL FOR CSAR DEPLOYMENT
+    concat-deploy-url:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        preprefix:  { get_input: xopera-rest-address }
+        prefix:     'deploy/'
+        input:      { get_attribute: [ SELF, input_component, output ] }
+      requirements:
+        - input_component: filter-update-url
+
+    ##########################################################
+
+    ## CONCAT URL FOR THE DEPLOY REQUEST
+    concat-deploy-curl:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        prefix: >-
+          curl -X POST "
+        input:  { get_attribute: [ SELF, input_component, output ] }
+        suffix: >-
+          " -H  "accept: application/json" -H  "Content-Type: multipart/form-data" -F "inputs_file=@input.yaml;type=application/x-yaml"
+      requirements:
+        - input_component: concat-deploy-url
+
+    ## DEPLOY CSAR WITH INPUTS
+    xopera-rest-deploy-csar-test:
+      type: sodalite.nodes.Tests.Text.Command.INPUTS
+      properties:
+        command:            { get_attribute: [ SELF, input_component, output ] }
+        comparable_string:  '.*Deploy job started*'
+        regex:              true
+      requirements:
+        - input_component: concat-deploy-curl
+
+    #######################################################################
+
+    ## GET SESSION TOKEN FROM THE CSAR DEPLOYMENT
+    filter-status-url:
+      type: sodalite.nodes.Utils.extract.JSON
+      properties:
+        input:  { get_attribute: [ SELF, input_component, checked_against ] }
+        key:        session_token
+      requirements:
+        - input_component: xopera-rest-deploy-csar-test
+
+    ## CONCAT URL USED TO TEST THE DEPLOYMENT'S STATUS
+    concat-status-url:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        preprefix:  { get_input: xopera-rest-address }
+        prefix:     'info/status?format=long&token='
+        input:      { get_attribute: [ SELF, input_component, output ] }
+      requirements:
+        - input_component: filter-status-url
+
+    ## TEST DEPLOYMENT'S STATUS AND WAIT TILL SUCCESS/FAILURE
+    xopera-rest-deploy-status-csar-test:
+      type: sodalite.nodes.Tests.Text.URI.Response
+      properties:
+        url:                { get_attribute: [ SELF, input_component, output ] }
+        comparable_string:  201
+        method:             GET
+        wait_for_code:      true
+        status_code:
+          - 201
+        timeout:            120
+        max_retries:        60
+        retry_delay:        40
+      requirements:
+        - input_component: concat-status-url
+
+    ## UNDEPLOY THE DEPLOYMENT
+    xopera-rest-undeploy-csar-test:
+      type: sodalite.nodes.Tests.Text.URI
+      properties:
+        url:                { get_attribute: [ SELF, input_component, output ] }
+        comparable_string:  '.*Undeploy job started*'
+        method:             DELETE
+        regex:              true
+        status_code:        202
+      requirements:
+        - input_component: concat-deploy-url
+        - dependency: xopera-rest-deploy-status-csar-test
+
+    ## GET SESSION TOKEN FROM THE CSAR UNDEPLOYMENT
+    filter-status-url-undeploy:
+      type: sodalite.nodes.Utils.extract.JSON
+      properties:
+        input:  { get_attribute: [ SELF, input_component, checked_against ] }
+        key:        session_token
+      requirements:
+        - input_component: xopera-rest-undeploy-csar-test
+
+    ## CONCAT URL USED TO TEST THE DEPLOYMENT'S STATUS
+    concat-status-url-undeploy:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        preprefix:  { get_input: xopera-rest-address }
+        prefix:     'info/status?format=long&token='
+        input:      { get_attribute: [ SELF, input_component, output ] }
+      requirements:
+        - input_component: filter-status-url-undeploy
+
+    ## TEST UNDEPLOYMENT STATUS
+    xopera-rest-undeploy-status-csar-test:
+      type: sodalite.nodes.Tests.Text.URI.Response
+      properties:
+        url:                { get_attribute: [ SELF, input_component, output ] }
+        comparable_string:   201
+        method:             GET
+        wait_for_code:      true
+        status_code:
+          - 201
+        timeout:            120
+        max_retries:        60
+        retry_delay:        40
+      requirements:
+        - input_component: concat-status-url-undeploy
+
+    ## CONCAT THE URL USED FOR CSAR DELETION
+    concat-delete-url:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        preprefix:  { get_input: xopera-rest-address }
+        prefix:     'manage/'
+        input:      { get_attribute: [ SELF, input_component, output ] }
+      requirements:
+        - input_component: filter-update-url
+
+    ## DELETE THE CSAR
+    xopera-rest-delete-csar-test:
+      type: sodalite.nodes.Tests.Text.URI
+      properties:
+        url:                { get_attribute: [ SELF, input_component, output ] }
+        comparable_string:  '.*Successfully removed.*'
+        method:             DELETE
+        regex:              true
+        timeout: 120
+      requirements:
+        - input_component: concat-delete-url
+
+  outputs:
+    ## SEMANTIC REASONER
+    sr_download_node:
+      description: Node that downloads json images from the semantic reasoner
+      value: { get_attribute: [ sem-reasoner-json-image-download, status ] }
+
+    ## BP BUILDER
+    bp_builder_connect_node:
+      description: 'Verifies connection by connecting to the "/docs" endpoint and matching some string on that site'
+      value: { get_attribute: [ bp-builder-connect-test, status ] }
+    bp_builder_upload_test:
+      description: Uploads the json from the semantic reasoner to the blueprint builder that passes it to xOpera Rest API
+      value: { get_attribute: [ bp-builder-upload-test, status ] }
+
+    ## XOPERA REST
+    xopera_root_connect_node:
+      description: Verifies connection by connecting to the root xOpera Rest API endpoint and matching some string on that site
+      value: { get_attribute: [ xopera-connect-test, status ] }
+    xopera_public_key_node:
+      description: Verifies if the ssh key endpoint is working
+      value: { get_attribute: [ xopera-rest-public-key-test, status ] }
+    xopera_deploy_node:
+      description: Deploys the deployment generated using the blueprint builder
+      value: { get_attribute: [ xopera-rest-deploy-csar-test, status ] }
+    xopera_deployment_status_node:
+      description: Waits for the deployment to finish and fails if not successful before a timeout
+      value: { get_attribute: [ xopera-rest-deploy-status-csar-test, status ] }
+    xopera_undeploy_node:
+      description: Undeploys the deployment
+      value: { get_attribute: [ xopera-rest-undeploy-csar-test, status ] }
+    xopera_undeployment_status_node:
+      description: Waits for the undeployment to finish and fails if not successful before a timeout
+      value: { get_attribute: [ xopera-rest-undeploy-status-csar-test, status ] }
+    xopera_delete_node:
+      description: Deletes the deployment
+      value: { get_attribute: [ xopera-rest-delete-csar-test, status ] }

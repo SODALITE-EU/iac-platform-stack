@@ -1,0 +1,4 @@
+blueprint-builder-address: http://[STACK IP]:8081/
+xopera-rest-address: https://[STACK IP]:5001/
+image-builder-address: https://[STACK IP]:5002/
+sematic-reasoner-call: http://160.40.52.200:8084/reasoner-api/v0.6/aadm?aadmIRI=https://www.sodalite.eu/ontologies/workspace/1/vbeit9auui3d3j0tdekbljfndl/AADM_92aj0uo7t6l6u8mv5tmh99pjnb
