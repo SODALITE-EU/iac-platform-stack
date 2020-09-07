@@ -1,0 +1,159 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+node_types:
+  sodalite.nodes.Utils.concat:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      prepreprefix:
+        type: string
+        description: Serves as an input for the util
+        default: ""
+      preprefix:
+        type: string
+        description: Serves as an input for the util
+        default: ""
+      prefix:
+        type: string
+        description: Serves as an input for the util
+        default: ""
+      input:
+        type: string
+        description: Regex to match the text against
+        default: ""
+      suffix:
+        type: string
+        description: Regex to match the text against
+        default: ""
+      postsuffix:
+        type: string
+        description: Regex to match the text against
+        default: ""
+      postpostsuffix:
+        type: string
+        description: Regex to match the text against
+        default: ""
+    attributes:
+      output:
+        type: string
+        description: Serves as a return value of the util
+      dev_var:
+        type: string
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              prepreprefix:     { default: { get_property: [ SELF, prepreprefix ] } }
+              preprefix:        { default: { get_property: [ SELF, preprefix ] } }
+              prefix:           { default: { get_property: [ SELF, prefix ] } }
+              input:            { default: { get_property: [ SELF, input ] } }
+              suffix:           { default: { get_property: [ SELF, suffix ] } }
+              postsuffix:       { default: { get_property: [ SELF, postsuffix ] } }
+              postpostsuffix:   { default: { get_property: [ SELF, postpostsuffix ] } }
+            implementation:
+              primary: playbooks/concat.yaml
+    requirements:
+      - input_component:
+          capability: tosca.capabilities.Node
+          node: sodalite.nodes.Utils.extract.JSON
+          relationship: tosca.relationships.DependsOn
+          occurrences: [ 0, UNBOUNDED ]
+
+  sodalite.nodes.Utils.extract.JSON:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      input:
+        type: string
+        description: Serves as an input for the util
+      key:
+        type: string
+        description: Regex to match the text against
+    attributes:
+      output:
+        type: string
+        description: Serves as a return value of the util
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              input:                { default: { get_property: [ SELF, input ] } }
+              key:                  { default: { get_property: [ SELF, key ] } }
+            implementation:
+              primary: playbooks/extract_json.yaml
+    capabilities:
+      input_component:
+        type: tosca.capabilities.Node
+        valid_source_types: ['tosca.nodes.SoftwareComponent']
+    requirements:
+      - input_component:
+          capability: tosca.capabilities.Node
+          node: sodalite.nodes.Tests
+          relationship: tosca.relationships.DependsOn
+          occurrences: [ 0, UNBOUNDED ]
+
+  sodalite.nodes.Utils.read.File:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      path:
+        type: string
+        description: Path to the file
+    attributes:
+      output:
+        type: string
+        description: Serves as a return value of the util
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              path:                 { default: { get_property: [ SELF, path ] } }
+            implementation:
+              primary: playbooks/file/read.yaml
+    capabilities:
+      input_component:
+        type: tosca.capabilities.Node
+        valid_source_types: ['tosca.nodes.SoftwareComponent']
+    requirements:
+      - input_component:
+          capability: tosca.capabilities.Node
+          node: sodalite.nodes.Tests
+          relationship: tosca.relationships.DependsOn
+          occurrences: [ 0, UNBOUNDED ]
+
+  sodalite.nodes.Utils.append.File:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      path:
+        type: string
+        description: Path to the file
+      bof:
+        type: string
+        description: Text to append at the beginning
+      eof:
+        type: string
+        description: Text to append at the end
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              path:                 { default: { get_property: [ SELF, path ] } }
+              bof:                  { default: { get_property: [ SELF, bof ] } }
+              eof:                  { default: { get_property: [ SELF, eof ] } }
+            implementation:
+              primary: playbooks/file/append.yaml
+    capabilities:
+      input_component:
+        type: tosca.capabilities.Node
+        valid_source_types: ['tosca.nodes.SoftwareComponent']
+    requirements:
+      - input_component:
+          capability: tosca.capabilities.Node
+          node: sodalite.nodes.Tests
+          relationship: tosca.relationships.DependsOn
+          occurrences: [ 0, UNBOUNDED ]

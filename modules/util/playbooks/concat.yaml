@@ -1,0 +1,8 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Evaluate the expression
+      set_stats:
+        data:
+          output: "{{ (prepreprefix | default('', true) + preprefix | default('', true) + prefix | default('', true) + ((input | to_nice_json) if input is mapping else (input | default('', true))) + suffix | default('', true) + postsuffix | default('', true) + postpostsuffix) | string }}"

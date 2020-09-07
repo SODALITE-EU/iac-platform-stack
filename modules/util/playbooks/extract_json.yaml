@@ -1,0 +1,8 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Try parsing JSON
+      set_stats:
+        data:
+          output: "{{ input[key] }}"

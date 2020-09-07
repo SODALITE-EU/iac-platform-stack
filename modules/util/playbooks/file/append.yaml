@@ -1,0 +1,14 @@
+---
+- hosts: all
+
+  tasks:
+    - name: line insert
+      lineinfile:
+        path: "{{ path }}"
+        line: "{{ bof }}"
+        insertbefore: BOF
+
+    - name: Insert a line at the end of a file.
+      lineinfile:
+        path: "{{ path }}"
+        line: "{{ eof }}"
