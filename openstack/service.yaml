@@ -412,4 +412,9 @@ topology_template:
         - host: docker-host
         - registry: docker-public-registry  
         - network: docker-network         
-        - dependency: know-db-container        
+        - dependency: know-db-container
+
+  outputs:
+    public_ip_address:
+      description: Returns the IP
+      value: { get_attribute: [ sodalite-vm, ansible_ip ] }
