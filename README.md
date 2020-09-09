@@ -68,7 +68,22 @@ In order to proceed with local docker installation use `deploy_local.sh` script 
 1. ### Run blueprint deployment. 
     Go to the folder containing `service.yaml` TOSCA blueprint file (`./docker-local` or `./openstack`) and run the following command `opera deploy -i input.yaml service.yaml`
 1. ### Install SODALITE IDE
-    Install SODALITE IDE as described here: [SODALITE IDE GitHub](https://github.com/SODALITE-EU/ide). Use **Installation from the Sodalite IDE source code** scenario.
+    SODALITE IDE can be installed either as a Docker container or from source code on GitHub.
+    In order to run IDE as a Docker container use the following commands:
+    * for Ubuntu
+    `docker run --name sodalite-ide -it -d -e DISPLAY=:0 -v /tmp/.X11-unix:/tmp/.X11-unix sodaliteh2020/sodalite-ide`
+    * for Windows Docker Desktop installation 
+    `docker run --name sodalite-ide -it -d -e DISPLAY=host.docker.internal:0.0 -v /tmp/.X11-unix:/tmp/.X11-unix sodaliteh2020/sodalite-ide`
+
+    *NOTE: SODALITE IDE Docker image uses X11 windowing system. Using Windows for IDE Docker image installation requires an X server (e.g VcXsrv) and additional configuration.*
+
+    To install SODALITE IDE from source code proceed with instructions described here: [SODALITE IDE GitHub](https://github.com/SODALITE-EU/ide). Use **Installation from the Sodalite IDE source code** scenario.
+
+1. ### Test Semantic Reasoner API
+    Send a GET HTTP request to http://localhost:8080/reasoner-api/v0.6/testReasoner. This request will provide information whether Semantic Reasoner and Graph DB are configured correctly and populate Graph DB with basic TOSCA 1.3 normative type definitions.
+
+    For Openstack deployment configuration substitute `localhost` with VM public IP address.
+   
 1. ### Configure SODALITE IDE backend connection
     Proceed with SODALITE IDE configuration as described in the [IDE Tutorial](https://docs.google.com/document/d/1w6wYJbTZvBbt5LD6sXReXbx1uPDjefYFAU5KEv8X_8w/edit)
     * Open IDE preference page: menu Window/Preferences. 
@@ -82,6 +97,14 @@ In order to proceed with local docker installation use `deploy_local.sh` script 
         * http://localhost:5000/ for xOPERA
 
         For Openstack deployment configuration substitute `localhost` with VM public IP address. 
+
+1. ### Work with Abstract Application Deployment Models (AADM) and Resource Models (RM)
+    IDE Docker image already contains some AADM and RM examples that can be found in Model Explorer (Window -> Show View -> Model Explorer)
+    ![Examples](images/models.png)
+
+    If IDE is installed from source code, examples can be found [here](https://github.com/SODALITE-EU/ide/tree/master/dsl/org.sodalite.dsl.examples).
+    
+    Check [IDE Tutorial](https://docs.google.com/document/d/1w6wYJbTZvBbt5LD6sXReXbx1uPDjefYFAU5KEv8X_8w/edit) for details.
 
 NOTE: SODALITE currently uses the version [xOpera version 0.5.7](https://pypi.org/project/opera/0.5.7/) since xOpera is being developed to support [OASIS TOSCA Simple Profile in YAML version 1.3](https://www.oasis-open.org/news/announcements/tosca-simple-profile-in-yaml-v1-3-oasis-standard-published).
 
