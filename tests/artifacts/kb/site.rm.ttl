@@ -1,0 +1,274 @@
+# baseURI: https://www.sodalite.eu/ontologies/exchange/rm/
+# imports: https://www.sodalite.eu/ontologies/exchange/
+
+@prefix : <https://www.sodalite.eu/ontologies/exchange/rm/> .
+@prefix exchange: <https://www.sodalite.eu/ontologies/exchange/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:
+  rdf:type owl:Ontology ;
+  owl:imports exchange: ;
+  owl:versionInfo "Created by the SODALITE IDE" ;
+.
+
+:RM_1
+  rdf:type exchange:RM ;
+  exchange:userId "27827d44-0f6c-11ea-8d71-362b9e155667" ;
+.
+
+	
+:Parameter_1
+  rdf:type exchange:Parameter ;
+  exchange:name "property" ;  
+  exchange:value 'destination' ; 
+.
+
+:Parameter_2
+  rdf:type exchange:Parameter ;
+  exchange:name "entity" ;  
+  exchange:value 'SELF' ; 
+.
+
+
+:Parameter_3
+  rdf:type exchange:Parameter ;
+  exchange:name "get_property" ;
+  exchange:hasParameter :Parameter_1 ;
+  exchange:hasParameter :Parameter_2 ;
+.	
+:Parameter_4
+  rdf:type exchange:Parameter ;
+  exchange:name "property" ;  
+  exchange:value 'username' ; 
+.
+
+:Parameter_5
+  rdf:type exchange:Parameter ;
+  exchange:name "entity" ;  
+  exchange:value 'SELF' ; 
+.
+
+:Parameter_6
+  rdf:type exchange:Parameter ;
+  exchange:name "req_cap" ;  
+  exchange:value 'host' ; 
+.
+
+:Parameter_7
+  rdf:type exchange:Parameter ;
+  exchange:name "get_property" ;
+  exchange:hasParameter :Parameter_4 ;
+  exchange:hasParameter :Parameter_5 ;
+  exchange:hasParameter :Parameter_6 ;
+.	
+
+
+
+:Parameter_8
+  rdf:type exchange:Parameter ;
+  exchange:name "default" ;  
+  exchange:hasParameter :Parameter_3 ; 
+.
+
+:Parameter_9
+  rdf:type exchange:Parameter ;
+  exchange:name "destination" ;
+  exchange:hasParameter :Parameter_8 ;
+.	
+
+:Parameter_10
+  rdf:type exchange:Parameter ;
+  exchange:name "default" ;  
+  exchange:hasParameter :Parameter_7 ; 
+.
+
+:Parameter_11
+  rdf:type exchange:Parameter ;
+  exchange:name "ansible_user" ;
+  exchange:hasParameter :Parameter_10 ;
+.	
+
+:Parameter_12
+  rdf:type exchange:Parameter ;
+  exchange:name "inputs" ;
+  exchange:hasParameter :Parameter_9 ;
+  exchange:hasParameter :Parameter_11 ;
+.
+
+:Parameter_13
+  rdf:type exchange:Parameter ;
+  exchange:name "path" ;
+  exchange:value '/workspace/test2/test5/create.yaml' ;
+.
+
+:Parameter_14
+  rdf:type exchange:Parameter ;
+  exchange:name "content" ;
+  exchange:value '---\n- hosts: all\n  become: yes\n  tasks:\n    - name: Install sample site\n      copy:\n        dest: "{{ destination }}"\n        src: site.html        ' ;
+.
+
+
+:Parameter_15
+  rdf:type exchange:Parameter ;
+  exchange:name "primary" ;
+  exchange:hasParameter :Parameter_13 ;
+  exchange:hasParameter :Parameter_14 ;
+.
+
+:Parameter_16
+  rdf:type exchange:Parameter ;
+  exchange:name "path" ;
+  exchange:value '/workspace/test2/test5/site.html' ; 
+ .
+
+:Parameter_17
+  rdf:type exchange:Parameter ;
+  exchange:name "content" ;
+  exchange:value '<!doctype html>\n<html lang="en">\n<head>\n    <title>Sodalite stack test site</title>\n</head>\n<body>\n    <header>\n        <div style="width: 600px;">\n            <a href="/" title="Home" rel="home" class="site-logo site-logo-pages">\n                <img src="https://www.sodalite.eu/sites/sodalite.eu/themes/soda/logo.svg" alt="Home">\n            </a>\n        </div>\n    </header>\n    <div>\n        <h2>Welcome to SODALITE test site deployed by SODALITE stack :)</h2>\n    </div>\n</body>\n</html>\n' ;
+.
+
+:Parameter_18
+  rdf:type exchange:Parameter ;
+  exchange:name "file" ;
+  exchange:hasParameter :Parameter_16 ;
+  exchange:hasParameter :Parameter_17 ;
+.
+
+
+:Parameter_19
+  rdf:type exchange:Parameter ;
+  exchange:name "dependencies" ;
+  exchange:hasParameter :Parameter_18 ; 
+.
+
+:Parameter_20
+  rdf:type exchange:Parameter ;
+  exchange:name "implementation" ;
+  exchange:hasParameter :Parameter_15 ;
+ exchange:hasParameter :Parameter_19 ;
+.
+
+:Parameter_21
+  rdf:type exchange:Parameter ;
+  exchange:name "create" ;
+  exchange:hasParameter :Parameter_12 ;
+  exchange:hasParameter :Parameter_20 ;
+.
+
+:Parameter_22
+  rdf:type exchange:Parameter ;
+  exchange:name "path" ;
+  exchange:value '/workspace/test2/test5/delete.yaml' ;
+.
+
+:Parameter_23
+  rdf:type exchange:Parameter ;
+  exchange:name "content" ;
+  exchange:value '---\n- hosts: all\n  become: yes\n  tasks:\n    - name: Install sample site\n      file:\n        path: "{{ destination }}"\n        state: absent' ;
+.
+
+
+:Parameter_24
+  rdf:type exchange:Parameter ;
+  exchange:name "primary" ;
+  exchange:hasParameter :Parameter_22 ;
+  exchange:hasParameter :Parameter_23 ;
+.
+
+
+:Parameter_25
+  rdf:type exchange:Parameter ;
+  exchange:name "implementation" ;
+  exchange:hasParameter :Parameter_24 ;
+.
+
+:Parameter_26
+  rdf:type exchange:Parameter ;
+  exchange:name "delete" ;
+  exchange:hasParameter :Parameter_25 ;
+.
+
+:Parameter_27
+  rdf:type exchange:Parameter ;
+  exchange:name "type" ;
+  exchange:value 'string' ;
+.
+
+:Parameter_28
+  rdf:type exchange:Parameter ;
+  exchange:name "required" ;
+  exchange:value 'false' ;
+.
+
+:Parameter_29
+  rdf:type exchange:Parameter ;
+  exchange:name "default" ;
+  exchange:value '/usr/share/nginx/html/index.html' ;	  
+.
+
+
+
+
+
+:Property_1
+  rdf:type exchange:Property ;
+  exchange:name "destination" ;
+  exchange:hasParameter :Parameter_27 ;
+  exchange:hasParameter :Parameter_28 ;
+  exchange:hasParameter :Parameter_29 ;
+.
+
+
+:Parameter_30
+  rdf:type exchange:Parameter ;
+  exchange:name "type" ;
+  exchange:value 'tosca.interfaces.node.lifecycle.Standard' ;
+.
+
+:Parameter_31
+  rdf:type exchange:Parameter ;
+  exchange:name "operations" ;
+  exchange:hasParameter :Parameter_21 ;
+  exchange:hasParameter :Parameter_26 ;
+.
+
+:Interface_1
+  rdf:type exchange:Interface ;
+  exchange:name "Standard" ;
+  exchange:hasParameter :Parameter_30 ;
+  exchange:hasParameter :Parameter_31 ;
+.
+
+
+:Parameter_32
+  rdf:type exchange:Parameter ;
+  exchange:name "capability" ;
+  exchange:value 'tosca.capabilities.Compute' ;
+.
+
+
+:Parameter_33
+  rdf:type exchange:Parameter ;
+  exchange:name "relationship" ;	  
+  exchange:value 'tosca.relationships.HostedOn' ;
+.
+
+:Requirement_1
+  rdf:type exchange:Requirement ;
+  exchange:name "host" ;
+  exchange:hasParameter :Parameter_32 ;
+  exchange:hasParameter :Parameter_33 ;
+.		
+
+:Node_1
+  rdf:type exchange:Node ;
+  exchange:name "sodalite.nodes.nginx.Site" ;
+  exchange:derivesFrom "tosca.nodes.SoftwareComponent" ;
+  exchange:properties :Property_1 ; 
+  exchange:requirements :Requirement_1 ; 
+  exchange:interfaces :Interface_1 ; 
+.  
+

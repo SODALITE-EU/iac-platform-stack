@@ -1,14 +1,2 @@
-ssh-key-name: [KEY NAME OF THE XOPERA REST API FROM THE SODALITE STACK DEPLOYMENT]
-image-name: "centos-7 x86_64"
-openstack-network-name: xlab
-security-groups: default,remote_access,snow
-flavor-name: m1.medium
-docker-network: snow
-docker-registry-url: 154.48.185.207
-docker-registry-cert-country-name: SI
-docker-registry-cert-organization-name: XLAB
-docker-registry-cert-email-address:
-mysql-db-pass: somepassword
-mysql-env:
-  MYSQL_DATABASE: wc_crawler_db
-  MYSQL_ROOT_PASSWORD: somepassword
+docker-host-ip: 172.17.0.1
+username: centos

@@ -227,7 +227,9 @@ pipeline {
                 ).trim()
                 def test_output_yaml = readYaml text: sodalite_output
 
-                def critical_nodes = [  "sr_download_node",
+                def critical_nodes = [  "sr_connect_node",
+                                        "sr_upload_node",
+                                        "sr_download_node",
                                         "bp_builder_connect_node",
                                         "bp_builder_upload_test",
                                         "xopera_root_connect_node",
@@ -235,7 +237,8 @@ pipeline {
                                         "xopera_deploy_node",
                                         "xopera_deployment_status_node",
                                         "xopera_undeploy_node",
-                                        "xopera_delete_node"                ]
+                                        "xopera_delete_node",
+                                        "web_connect_node"              ]
 
                 def warning_nodes = [   "xopera_undeployment_status_node"   ]
 

@@ -1,0 +1,142 @@
+# baseURI: https://www.sodalite.eu/ontologies/exchange/sodalite/
+# imports: https://www.sodalite.eu/ontologies/exchange/
+
+@prefix : <https://www.sodalite.eu/ontologies/exchange/sodalite/> .
+@prefix exchange: <https://www.sodalite.eu/ontologies/exchange/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:
+  rdf:type owl:Ontology ;
+  owl:imports exchange: ;
+  owl:versionInfo "Created by the SODALITE IDE" ;
+.
+
+:AADM_1
+  rdf:type exchange:AADM ;
+  exchange:userId "27827d44-0f6c-11ea-8d71-362b9e155667" ;
+.
+
+
+:Parameter_1
+  rdf:type exchange:Parameter ;
+  exchange:name "type" ;
+  exchange:value "string" ;
+.
+:Input_1
+  rdf:type exchange:Input ;
+  exchange:name "docker-host-ip" ;
+  exchange:hasParameter :Parameter_1 ;
+.
+:Parameter_2
+  rdf:type exchange:Parameter ;
+  exchange:name "type" ;
+  exchange:value "string" ;
+.
+:Input_2
+  rdf:type exchange:Input ;
+  exchange:name "username" ;
+  exchange:hasParameter :Parameter_2 ;
+.
+
+
+
+:Property_1
+  rdf:type exchange:Property ;
+  exchange:name "username" ;
+  exchange:value "{ get_input: username }" ;
+.
+:Property_2
+  rdf:type exchange:Property ;
+  exchange:name "docker_registry_url" ;
+  exchange:value "registry.hub.docker.com" ;
+.
+:Property_3
+  rdf:type exchange:Property ;
+  exchange:name "destination" ;
+  exchange:value "/tmp/index.html" ;
+.
+:Property_4
+  rdf:type exchange:Property ;
+  exchange:name "image_name" ;
+  exchange:value "library/nginx:latest" ;
+.
+:Property_5
+  rdf:type exchange:Property ;
+  exchange:name "volumes" ;
+  exchange:listValue "/tmp/index.html:/usr/share/nginx/html/index.html" ;
+.
+:Property_6
+  rdf:type exchange:Property ;
+  exchange:name "ports" ;
+  exchange:listValue "5555:80" ;
+.
+:Property_7
+  rdf:type exchange:Property ;
+  exchange:name "alias" ;
+  exchange:value "nginx-sodalite-test" ;
+.
+:Property_8
+  rdf:type exchange:Property ;
+  exchange:name "registry_url" ;
+  exchange:value "fixme" ;
+.
+
+
+:Requirement_1
+  rdf:type exchange:Requirement ;
+  exchange:name "host" ;
+  exchange:value "sodalite-vm" ;
+.
+:Requirement_2
+  rdf:type exchange:Requirement ;
+  exchange:name "host" ;
+  exchange:value "sodalite-vm" ;
+.
+:Requirement_3
+  rdf:type exchange:Requirement ;
+  exchange:name "host" ;
+  exchange:value "sodalite-vm" ;
+.
+:Requirement_4
+  rdf:type exchange:Requirement ;
+  exchange:name "registry" ;
+  exchange:value "docker-public-registry" ;
+.
+
+
+:Template_1
+  rdf:type exchange:Template ;
+  exchange:name "sodalite-vm" ;
+  exchange:type "sodalite.nodes.Compute" ;
+  exchange:properties :Property_1 ;
+.  
+:Template_2
+  rdf:type exchange:Template ;
+  exchange:name "docker-public-registry" ;
+  exchange:type "sodalite.nodes.DockerRegistry" ;
+  exchange:properties :Property_2 ;
+  exchange:requirements :Requirement_1 ; 
+.  
+:Template_3
+  rdf:type exchange:Template ;
+  exchange:name "site" ;
+  exchange:type "sodalite.nodes.nginx.Site" ;
+  exchange:properties :Property_3 ;
+  exchange:requirements :Requirement_2 ; 
+.  
+:Template_4
+  rdf:type exchange:Template ;
+  exchange:name "nginx-container" ;
+  exchange:type "sodalite.nodes.DockerizedComponent" ;
+  exchange:properties :Property_4 ;
+  exchange:properties :Property_5 ;
+  exchange:properties :Property_6 ;
+  exchange:properties :Property_7 ;
+  exchange:properties :Property_8 ;
+  exchange:requirements :Requirement_3 ; 
+  exchange:requirements :Requirement_4 ; 
+.  
+

@@ -1,0 +1,12 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Read the file
+      shell: "cat {{ path }}"
+      register: file_contents
+
+    - name: Return file contents
+      set_stats:
+        data:
+          output: "{{ file_contents.stdout | urlencode }}"

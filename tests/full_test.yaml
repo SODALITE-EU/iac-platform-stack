@@ -1,5 +1,11 @@
 tosca_definitions_version: tosca_simple_yaml_1_3
 
+# BP Builder: http://ip/docs/
+# xOpera Rest: https://ip:5001/
+# Image Builder: https://ip:5002/
+# Semantic Reasoner: http://ip:8080/
+# Test Endpoint: http://ip:5555/
+
 imports:
   - modules/tests/test_definitions.yaml
   - modules/util/utils.yaml
@@ -26,6 +32,25 @@ node_types:
               dependencies:
                 - artifacts/input.yaml
 
+  sodalite.nodes.Utils.read.File.TTL:
+    derived_from: sodalite.nodes.Utils.read.File
+    description: File read node used to read a file from the artifacts folder
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              path:                 { default: { get_property: [ SELF, path ] } }
+            implementation:
+              primary: playbooks/read.yaml
+              dependencies:
+                - artifacts/kb/compute.rm.ttl
+                - artifacts/kb/site.rm.ttl
+                - artifacts/kb/sodalite.aadm.ttl
+                - artifacts/kb/docker_registry.rm.ttl
+                - artifacts/kb/docker_component.rm.ttl
+
 topology_template:
 
   inputs:
@@ -34,6 +59,10 @@ topology_template:
     xopera-rest-address:
       type: string
     image-builder-address:
+      type: string
+    sematic-reasoner-address:
+      type: string
+    test-site-address:
       type: string
     csar-path:
       type: string
@@ -50,17 +79,197 @@ topology_template:
 
     # SEMANTIC REASONER
 
+    ## CONCAT URL FOR TESTING THE SEMANTIC REASONER
+    sem-reasoner-concat-test-path:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        input:  { get_input: sematic-reasoner-address }
+        suffix: "reasoner-api/v0.6/testReasoner"
+
+    ## TEST SEMANTIC REASONER
+    sem-reasoner-connect-test:
+      type: sodalite.nodes.Tests.Text.URI
+      properties:
+        comparable_string: "Successfully connected to both defect predictor and graph-db"
+        url: { get_attribute: [ SELF, input_component, output ] }
+        timeout: 300
+      requirements:
+        - input_component: sem-reasoner-concat-test-path
+
+    ## READ FILES TO BE UPLOADED
+    sem-reasoner-read-compute-rm:
+      type: sodalite.nodes.Utils.read.File.TTL
+      properties:
+        path: compute.rm.ttl
+
+    sem-reasoner-read-site-rm:
+      type: sodalite.nodes.Utils.read.File.TTL
+      properties:
+        path: site.rm.ttl
+
+    sem-reasoner-read-docker-registry-rm:
+      type: sodalite.nodes.Utils.read.File.TTL
+      properties:
+        path: docker_registry.rm.ttl
+
+    sem-reasoner-read-docker-component-rm:
+      type: sodalite.nodes.Utils.read.File.TTL
+      properties:
+        path: docker_component.rm.ttl
+
+    sem-reasoner-read-sodalite-aadm:
+      type: sodalite.nodes.Utils.read.File.TTL
+      properties:
+        path: sodalite.aadm.ttl
+
+    ## CONCAT UPLOAD URLS
+    sem-reasoner-concat-upload-compute-rm:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        prepreprefix:   'curl -d "rmTTL='
+        preprefix:      { get_attribute: [ SELF, input_component, output ] }
+        prefix:         '&rmURI=" -H "Content-Type: application/x-www-form-urlencoded" -X POST '
+        input:          { get_input: sematic-reasoner-address }
+        suffix:         'reasoner-api/v0.6/saveRM/'
+      requirements:
+        - input_component: sem-reasoner-read-compute-rm
+
+    sem-reasoner-concat-upload-site-rm:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        prepreprefix:   'curl -d "rmTTL='
+        preprefix:      { get_attribute: [ SELF, input_component, output ] }
+        prefix:         '&rmURI=" -H "Content-Type: application/x-www-form-urlencoded" -X POST '
+        input:          { get_input: sematic-reasoner-address }
+        suffix:         'reasoner-api/v0.6/saveRM/'
+      requirements:
+        - input_component: sem-reasoner-read-site-rm
+
+    sem-reasoner-concat-upload-docker-registry-rm:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        prepreprefix:   'curl -d "rmTTL='
+        preprefix:      { get_attribute: [ SELF, input_component, output ] }
+        prefix:         '&rmURI=" -H "Content-Type: application/x-www-form-urlencoded" -X POST '
+        input:          { get_input: sematic-reasoner-address }
+        suffix:         'reasoner-api/v0.6/saveRM/'
+      requirements:
+        - input_component: sem-reasoner-read-docker-registry-rm
+
+    sem-reasoner-concat-upload-docker-component-rm:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        prepreprefix:   'curl -d "rmTTL='
+        preprefix:      { get_attribute: [ SELF, input_component, output ] }
+        prefix:         '&rmURI=" -H "Content-Type: application/x-www-form-urlencoded" -X POST '
+        input:          { get_input: sematic-reasoner-address }
+        suffix:         'reasoner-api/v0.6/saveRM/'
+      requirements:
+        - input_component: sem-reasoner-read-docker-component-rm
+
+    sem-reasoner-concat-upload-sodalite-aadm:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        prepreprefix:   'curl -d "aadmTTL='
+        preprefix:      { get_attribute: [ SELF, input_component, output ] }
+        prefix:         '&aadmURI=" -H "Content-Type: application/x-www-form-urlencoded" -X POST '
+        input:          { get_input: sematic-reasoner-address }
+        suffix:         'reasoner-api/v0.6/saveAADM/'
+      requirements:
+        - input_component: sem-reasoner-read-sodalite-aadm
+
+    ## UPLOAD DEPENDENCIES
+    sem-reasoner-upload-compute-rm:
+      type: sodalite.nodes.Tests.Text.Command.INPUTS
+      properties:
+        command:            { get_attribute: [ SELF, input_component, output ] }
+        comparable_string:  '.*"rmuri".*'
+        regex:              true
+      requirements:
+        - input_component: sem-reasoner-concat-upload-compute-rm
+
+    sem-reasoner-upload-site-rm:
+      type: sodalite.nodes.Tests.Text.Command.INPUTS
+      properties:
+        command:            { get_attribute: [ SELF, input_component, output ] }
+        comparable_string:  '.*"rmuri".*'
+        regex:              true
+      requirements:
+        - input_component: sem-reasoner-concat-upload-site-rm
+
+    sem-reasoner-upload-docker-registry-rm:
+      type: sodalite.nodes.Tests.Text.Command.INPUTS
+      properties:
+        command:            { get_attribute: [ SELF, input_component, output ] }
+        comparable_string:  '.*"rmuri".*'
+        regex:              true
+      requirements:
+        - input_component: sem-reasoner-concat-upload-docker-registry-rm
+
+    sem-reasoner-upload-docker-component-rm:
+      type: sodalite.nodes.Tests.Text.Command.INPUTS
+      properties:
+        command:            { get_attribute: [ SELF, input_component, output ] }
+        comparable_string:  '.*"rmuri".*'
+        regex:              true
+      requirements:
+        - input_component: sem-reasoner-concat-upload-docker-component-rm
+
+    ## UPLOAD IMAGE
+    sem-reasoner-upload-sodalite-aadm:
+      type: sodalite.nodes.Tests.Text.Command.INPUTS
+      properties:
+        command:            { get_attribute: [ SELF, input_component, output ] }
+        comparable_string:  '.*"aadmuri".*'
+        regex:              true
+      requirements:
+        - input_component: sem-reasoner-concat-upload-sodalite-aadm
+
+    ## GET IMAGE TOKEN
+    sem-reasoner-filter-returned-url:
+      type: sodalite.nodes.Utils.extract.JSON
+      properties:
+        input:  { get_attribute: [ SELF, input_component, checked_against ] }
+        key:    "aadmuri"
+      requirements:
+        - input_component: sem-reasoner-upload-sodalite-aadm
+
+    ## REMOVE JAVA ESCAPES
+    sem-reasoner-unescape-returned-url:
+      type: sodalite.nodes.Utils.replace
+      properties:
+        input:        { get_attribute: [ SELF, input_component, output ] }
+        to_replace:   "\\"
+      requirements:
+        - input_component: sem-reasoner-filter-returned-url
+
+    ## CONCAT DOWNLOAD URL
+    sem-reasoner-turtle-download-concat:
+      type: sodalite.nodes.Utils.concat
+      properties:
+        preprefix:      { get_input: sematic-reasoner-address }
+        prefix:         'reasoner-api/v0.6/aadm?aadmIRI='
+        input:          { get_attribute: [ SELF, input_component, output ] }
+      requirements:
+        - input_component: sem-reasoner-unescape-returned-url
+
     ## DOWNLOAD IMAGE
     sem-reasoner-json-image-download:
       type: sodalite.nodes.Tests.Text.URI.Download.Keep
       properties:
         comparable_string:  '.*www\.sodalite\.eu.*'
-        url:                { get_input: sematic-reasoner-call }
+        url:                { get_attribute: [ SELF, input_component, output ] }
         download_directory: { get_input: csar-path }
         filename:           { get_input: csar-name }
         timeout: 300
         regex: true
-
+        wait_for_code:      true
+        max_retries:        10
+        retry_delay:        30
+        status_code:
+          - 200
+      requirements:
+        - input_component: sem-reasoner-turtle-download-concat
 
     # BLUEPRINT BUILDER
 
@@ -234,10 +443,21 @@ topology_template:
         status_code:
           - 201
         timeout:            120
-        max_retries:        60
-        retry_delay:        40
+        max_retries:        30
+        retry_delay:        20
       requirements:
         - input_component: concat-status-url
+
+    ## TEST THE DEPLOYMENT
+    test-web-connect-test:
+      type: sodalite.nodes.Tests.Text.URI
+      properties:
+        comparable_string: ".*Welcome to SODALITE test site deployed by SODALITE stack :\).*"
+        url: { get_input: sematic-reasoner-address }
+        regex: true
+      requirements:
+        - dependency: xopera-rest-deploy-status-csar-test
+
 
     ## UNDEPLOY THE DEPLOYMENT
     xopera-rest-undeploy-csar-test:
@@ -311,6 +531,12 @@ topology_template:
 
   outputs:
     ## SEMANTIC REASONER
+    sr_connect_node:
+      description: 'Verifies connection by connection to the "/reasoner-api/v0.6/testReasoner" endpoint and matching its success string'
+      value: { get_attribute: [ sem-reasoner-connect-test, status ] }
+    sr_upload_node:
+      description: Node that uploads turtle format images to the knowledge base
+      value: { get_attribute: [ sem-reasoner-upload-sodalite-aadm, status ] }
     sr_download_node:
       description: Node that downloads json images from the semantic reasoner
       value: { get_attribute: [ sem-reasoner-json-image-download, status ] }
@@ -345,3 +571,8 @@ topology_template:
     xopera_delete_node:
       description: Deletes the deployment
       value: { get_attribute: [ xopera-rest-delete-csar-test, status ] }
+
+    ## TEST WEB TEST
+    web_connect_node:
+      description: Tests connection to the deployed test website
+      value: { get_attribute: [ test-web-connect-test, status ] }
