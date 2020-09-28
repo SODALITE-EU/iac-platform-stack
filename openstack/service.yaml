@@ -54,12 +54,28 @@ topology_template:
     image_builder_env:
       type: map  
 
+    prometheus_os_auth_url: 
+      type: string
+    prometheus_os_username: 
+      type: string
+    prometheus_os_password: 
+      type: string
+    prometheus_os_project_id:  
+      type: string
+    prometheus_os_project_name: 
+      type: string
+
   node_templates: 
 
     security-rules-sodalite:  
       type: sodalite.nodes.OpenStack.SecurityRules 
       properties:  
         ports:  
+          prometheus:  
+            port_range_max: 9090 
+            remote_ip_prefix: 0.0.0.0/0 
+            port_range_min: 9090 
+            protocol: tcp 
           component_ports:  
             port_range_max: 8085 
             remote_ip_prefix: 0.0.0.0/0 
@@ -130,6 +146,37 @@ topology_template:
         - host: sodalite-vm 
         - dependency: docker-host        
 
+    # monitoring-system
+    # https://github.com/SODALITE-EU/monitoring-system
+    prometheus-config:
+      type: sodalite.nodes.Configuration.Prometheus
+      properties:  
+        os_auth_url:         { get_input: prometheus_os_auth_url }
+        os_username:         { get_input: prometheus_os_username }
+        os_password:         { get_input: prometheus_os_password }
+        os_project_id:       { get_input: prometheus_os_project_id }
+        os_project_name:     { get_input: prometheus_os_project_name }
+        dir: /tmp/prometheus/
+        filename: prometheus.yml
+      requirements:
+        - host: sodalite-vm 
+     
+    prometheus-container:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: prometheus
+        image_name: prom/prometheus:latest
+        restart_policy: always
+        ports:  ['9090:9090']
+        exposed_ports:  ['9090']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        volumes:
+          - "/tmp/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry  
+        - network: docker-network         
+    
     # xopera-rest-api
     # https://github.com/SODALITE-EU/xopera-rest-api        
     xopera-openstack-keys:
@@ -362,9 +409,8 @@ topology_template:
         restart_policy: always
         ports:  ['8083:8080']
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        env:  
-          #prometheus container yet to be added
-          #prometheus: http://prometheus:9090
+        env:
+          prometheus: http://prometheus:9090
           xopera: http://xopera-nginx:5000
           refacopdiscoverer: http://refactoring-option-discoverer:8080
           perfpredictor: http://performance-predictor-refactoring:5000
@@ -384,9 +430,8 @@ topology_template:
         restart_policy: always
         ports:  ['5007:5000']
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        env:  
-          #prometheus container yet to be added
-          #prometheus: http://prometheus:9090
+        env:
+          prometheus: http://prometheus:9090
           xopera: http://xopera-nginx:5000
           refacopdiscoverer: http://refactoring-option-discoverer:8080
           perfpredictor: http://performance-predictor-refactoring:5000
