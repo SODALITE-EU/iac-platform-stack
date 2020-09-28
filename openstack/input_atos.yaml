@@ -24,3 +24,8 @@ xopera_env:
   XOPERA_DATABASE_PASSWORD: password
 image_builder_env:
   REGISTRY_IP: 154.48.185.207  
+prometheus_os_auth_url: "https://cloud.sodalite.eu:5000/v3/"
+prometheus_os_username: 
+prometheus_os_password: 
+prometheus_os_project_id: 8a1a7649c3a44f16a70361b485389340  
+prometheus_os_project_name: ochestrator

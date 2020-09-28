@@ -1,0 +1,19 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'node-exporter'
+    scheme: http
+    openstack_sd_configs:
+      # Only accessible from within openstack VMs
+      - {identity_endpoint: '{{ os_auth_url }}', username: {{ os_username }}, project_name: {{ os_project_name }}, password: '{{ os_password }}', role: instance, domain_name: default, region: RegionOne,  project_id: '{{ os_project_id }}'}
+    relabel_configs:
+      # keep only instances which are flagged for scraping
+      - {source_labels: [__meta_openstack_tag_prometheus_io_scrape], action: keep, regex: 'true'}
+      # Commented to use the private IP
+      - {source_labels: [__meta_openstack_public_ip, __meta_openstack_tag_prometheus_io_port], action: replace, regex: '([^:]+)(?::\d+)?;(\d+)', replacement: '$1:$2', target_label: __address__}
+      #- {source_labels: [__address__, __meta_openstack_tag_prometheus_io_port], action: replace, regex: '([^:]+)(?::\d+)', replacement: '$1:$2', target_label: __addre$
+      #- {source_labels: [__meta_openstack_instance_name], target_label: instance}
+      - {source_labels: [__meta_openstack_public_ip, __meta_openstack_tag_prometheus_io_port], action: replace, regex: '([^:]+)(?::\d+)?;(\d+)', replacement: '$1:$2', target_label: instance}
+      - {source_labels: [__meta_openstack_instance_name], target_label: os_id}
