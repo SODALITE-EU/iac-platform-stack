@@ -13,11 +13,11 @@ Here is the list of SODALITE stack components, with corresponding Docker images 
 | --- | --- | --- | --- | --- | --- |
 | Docker registry |  | https://hub.docker.com/_/registry | registry | 443 | 443 |
 | Postgres DB for xOpera |  | https://hub.docker.com/_/postgres | xopera-postgres | 5432 | 5432 |
-| xOpera Core | https://github.com/SODALITE-EU/xopera-rest-api | https://hub.docker.com/r/sodaliteh2020/xopera-flask | xopera-flask | 5000 |  |
-| xOpera REST API | https://github.com/SODALITE-EU/xopera-rest-api | https://hub.docker.com/r/sodaliteh2020/xopera-nginx | xopera-nginx | 80, 443 | 5000, 5001 |
+| xOpera REST API | https://github.com/SODALITE-EU/xopera-rest-api | https://hub.docker.com/r/sodaliteh2020/xopera-flask | xopera-flask | 5000 |  |
+| xOpera Reverse proxy | https://github.com/SODALITE-EU/xopera-rest-api | https://hub.docker.com/r/sodaliteh2020/xopera-nginx | xopera-nginx | 80, 443 | 5000, 5001 |
 | IaC Blueprint Builder | https://github.com/SODALITE-EU/iac-blueprint-builder | https://hub.docker.com/r/sodaliteh2020/iac-blueprint-builder | iac-builder | 80, 8080 | 80, 8081 |
-| Docker image builder Core |https://github.com/SODALITE-EU/image-builder | https://hub.docker.com/r/sodaliteh2020/image-builder-flask | image-builder-flask | 5000 |  |
-| Docker image builder API | https://github.com/SODALITE-EU/image-builder | https://hub.docker.com/r/sodaliteh2020/image-builder-nginx | image-builder-nginx | 443 | 5002 |
+| Docker image builder REST API |https://github.com/SODALITE-EU/image-builder | https://hub.docker.com/r/sodaliteh2020/image-builder-flask | image-builder-flask | 5000 |  |
+| Docker image builder Reverse proxy | https://github.com/SODALITE-EU/image-builder | https://hub.docker.com/r/sodaliteh2020/image-builder-nginx | image-builder-nginx | 443 | 5002 |
 | Knowledge Database | https://github.com/SODALITE-EU/semantic-reasoner | https://hub.docker.com/r/sodaliteh2020/graph_db | graph-db | 7200 | 7200 |
 | Semantic Reasoner API | https://github.com/SODALITE-EU/semantic-reasoner | https://hub.docker.com/r/sodaliteh2020/semantic_web | semantic-web | 8080| 8080 |
 | IaC Metrics Framework API | https://github.com/SODALITE-EU/iac-quality-framework | https://hub.docker.com/r/sodaliteh2020/iacmetrics | iac-metrics | 5000 | 5003 |
