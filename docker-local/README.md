@@ -6,5 +6,3 @@ This repository contains the TOSCA/Ansible SODALITE stack deployment blueprints 
 NOTE: SODALITE currently uses the version [xOpera version 0.5.7](https://pypi.org/project/opera/0.5.7/) since xOpera is beeing developed to support [OASIS TOSCA Simple Profile in YAML version 1.3](https://www.oasis-open.org/news/announcements/tosca-simple-profile-in-yaml-v1-3-oasis-standard-published).
 
 NOTE: `local_setup.yaml` blueprint creates an Ubuntu VM that installs all prerequisites for local deployment (pip, xOpera) and can be used to test SODALITE platform stack on local machine.
-
-NOTE: `sodalite-ide` image requires X11 system to be installed on Ubuntu VM
