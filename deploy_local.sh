@@ -41,7 +41,7 @@ echo
 echo "Installing required Ansible roles"
 ansible-galaxy install -r ./docker-local/requirements.yml
 
-CURRENT_USER=$(whoami)
+export CURRENT_USER=$(whoami)
 
 echo
 echo
