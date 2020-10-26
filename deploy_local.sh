@@ -41,6 +41,12 @@ echo
 echo "Installing required Ansible roles"
 ansible-galaxy install -r ./docker-local/requirements.yml
 
+CURRENT_USER=$(whoami)
+
+echo
+echo
+echo "Running installation script as" $CURRENT_USER
+
 echo
 echo
 echo "These are basic minimal inputs. If more advanced inputs are required please edit /docker-local/input.yaml file manually."
@@ -64,9 +70,9 @@ export SODALITE_GIT_TOKEN=$TOKEN_INPUT
 envsubst < ./docker-local/input.yaml.tmpl > ./docker-local/input.yaml
 
 echo
-echo "Copying modules"
+echo "Cloning modules"
 rm -r -f docker-local/modules/
-cp -r modules docker-local/
+git clone https://github.com/SODALITE-EU/iac-modules.git docker-local/modules
 
 echo
 echo "Checking TLS key and certificate..."

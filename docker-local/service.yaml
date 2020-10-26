@@ -7,11 +7,22 @@ imports:
   - modules/docker/docker_registry.yaml
   - modules/docker/docker_component.yaml
   - modules/docker/docker_certificate.yaml
-  - modules/sodalite/types.yaml
+  - modules/misc/ssh/types.yaml
+
+node_types:
+
+  sodalite.nodes.SodaliteVM:
+    derived_from: tosca.nodes.Compute
+    properties:
+      username:
+        type: string
+
 
 topology_template:
 
   inputs:  
+    username:  
+      type: string 
     docker-registry-ip:  
       type: string 
     docker-network: 
@@ -47,10 +58,12 @@ topology_template:
   node_templates: 
 
     sodalite-vm:
-      type: tosca.nodes.Compute
+      type: sodalite.nodes.SodaliteVM
+      properties:
+        username: { get_input: username }
       attributes:
         private_address: localhost
-        public_address: localhost    
+        public_address: localhost
 
     docker-host:
       type: sodalite.nodes.DockerHost
