@@ -417,7 +417,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: prometheus
-        image_name: sodaliteh2020/monitoring-system
+        image_name: sodaliteh2020/monitoring-system:dockerization
         restart_policy: always
         ports:  ['9090:9090']
         exposed_ports:  ['9090']
