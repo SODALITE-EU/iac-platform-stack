@@ -39,7 +39,7 @@ fi
 
 echo
 echo "Installing required Ansible roles"
-ansible-galaxy install -r ./docker-local/requirements.yml
+ansible-galaxy install -r ./docker-local/requirements.yml --force
 
 export CURRENT_USER=$(whoami)
 
