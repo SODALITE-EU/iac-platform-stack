@@ -9,25 +9,26 @@ This repository contains two TOSCA/Ansible SODALITE stack deployment blueprints 
 ## SODALITE stack contents
 Here is the list of SODALITE stack components, with corresponding Docker images that are in fact deployed by blueprints. **Network alias** is used for container cross referencing in internal Docker network. **Container port** indicates the port exposed by Docker container, while **Host port** shows the mapped port that is published on localhost or Openstack VM.
 
+
 | Name | GitHub repository | Docker Image | Network alias | Container ports | Host ports |
 | --- | --- | --- | --- | --- | --- |
-| Docker registry |  | https://hub.docker.com/_/registry | registry | 443 | 443 |
-| Postgres DB for xOpera |  | https://hub.docker.com/_/postgres | xopera-postgres | 5432 | 5432 |
-| xOpera REST API | https://github.com/SODALITE-EU/xopera-rest-api | https://hub.docker.com/r/sodaliteh2020/xopera-flask | xopera-flask | 5000 |  |
-| xOpera Reverse proxy | https://github.com/SODALITE-EU/xopera-rest-api | https://hub.docker.com/r/sodaliteh2020/xopera-nginx | xopera-nginx | 80, 443 | 5000, 5001 |
-| IaC Blueprint Builder | https://github.com/SODALITE-EU/iac-blueprint-builder | https://hub.docker.com/r/sodaliteh2020/iac-blueprint-builder | iac-builder | 80, 8080 | 80, 8081 |
-| Docker image builder REST API |https://github.com/SODALITE-EU/image-builder | https://hub.docker.com/r/sodaliteh2020/image-builder-flask | image-builder-flask | 5000 |  |
-| Docker image builder Reverse proxy | https://github.com/SODALITE-EU/image-builder | https://hub.docker.com/r/sodaliteh2020/image-builder-nginx | image-builder-nginx | 443 | 5002 |
-| Knowledge Database | https://github.com/SODALITE-EU/semantic-reasoner | https://hub.docker.com/r/sodaliteh2020/graph_db | graph-db | 7200 | 7200 |
-| Semantic Reasoner API | https://github.com/SODALITE-EU/semantic-reasoner | https://hub.docker.com/r/sodaliteh2020/semantic_web | semantic-web | 8080| 8080 |
-| IaC Metrics Framework API | https://github.com/SODALITE-EU/iac-quality-framework | https://hub.docker.com/r/sodaliteh2020/iacmetrics | iac-metrics | 5000 | 5003 |
-| TOSCA Defect Prediction API | https://github.com/SODALITE-EU/defect-prediction | https://hub.docker.com/r/sodaliteh2020/toscasmells | tosca-smells | 8080 | 8082 |
-| Ansible Defect Prediction API | https://github.com/SODALITE-EU/defect-prediction | https://hub.docker.com/r/sodaliteh2020/ansiblesmells | ansible-smells | 5000 | 5004 |
-| TOSCA Syntax Verifier API | https://github.com/SODALITE-EU/verification | https://hub.docker.com/r/sodaliteh2020/toscasynverifier | tosca-syntax | 5000 | 5005 |
-| Workflow Verifier API| https://github.com/SODALITE-EU/verification | https://hub.docker.com/r/sodaliteh2020workflowverifier | workflow-verifier | 5000 | 5006 |
-| Rule-based Refactoring API | https://github.com/SODALITE-EU/refactoring-ml | https://hub.docker.com/r/sodaliteh2020/rule_based_refactorer | rule-based-refactorer | 8080 | 8083 |
-| Performance Prediction API | https://github.com/SODALITE-EU/refactoring-ml | https://hub.docker.com/r/sodaliteh2020/fo_perf_predictor_api | performance-predictor-refactoring | 5000 | 5007 |
-| Refactoring Option Discovery API | https://github.com/SODALITE-EU/refactoring-option-discoverer | https://hub.docker.com/r/sodaliteh2020/refactoring_option_discoverer | refactoring-option-discoverer | 8080 | 8084 |
+|Docker registry |  |[registry](https://hub.docker.com/_/registry)| registry |443|443|
+|Postgres DB for xOpera |  |[postgres](https://hub.docker.com/_/postgres)| xopera-postgres |5432|5432|
+|xOpera REST API |[xopera-rest-api](https://github.com/SODALITE-EU/xopera-rest-api)|[xopera-flask](https://hub.docker.com/r/sodaliteh2020/xopera-flask)| xopera-flask |5000|  |
+|xOpera Reverse proxy |[xopera-rest-api](https://github.com/SODALITE-EU/xopera-rest-api)|[xopera-nginx](https://hub.docker.com/r/sodaliteh2020/xopera-nginx)| xopera-nginx | 80, 443 | 5000, 5001 |
+|IaC Blueprint Builder |[iac-blueprint-builder](https://github.com/SODALITE-EU/iac-blueprint-builder)|[iac-blueprint-builder](https://hub.docker.com/r/sodaliteh2020/iac-blueprint-builder)| iac-builder | 80, 8080 | 80, 8081 |
+|Docker image builder REST API |[image-builder](https://github.com/SODALITE-EU/image-builder)|[image-builder-flask](https://hub.docker.com/r/sodaliteh2020/image-builder-flask)| image-builder-flask |5000|  |
+|Docker image builder Reverse proxy |[image-builder](https://github.com/SODALITE-EU/image-builder)|[image-builder-nginx](https://hub.docker.com/r/sodaliteh2020/image-builder-nginx)| image-builder-nginx |443|5002|
+|Knowledge Database |[semantic-reasoner](https://github.com/SODALITE-EU/semantic-reasoner)|[graph_db](https://hub.docker.com/r/sodaliteh2020/graph_db)| graph-db |7200|7200|
+|Semantic Reasoner API |[semantic-reasoner](https://github.com/SODALITE-EU/semantic-reasoner)|[semantic_web](https://hub.docker.com/r/sodaliteh2020/semantic_web)| semantic-web |8080|8080|
+|IaC Metrics Framework API |[iac-quality-framework](https://github.com/SODALITE-EU/iac-quality-framework)|[iacmetrics](https://hub.docker.com/r/sodaliteh2020/iacmetrics)| iac-metrics |5000|5003|
+|TOSCA Defect Prediction API |[defect-prediction](https://github.com/SODALITE-EU/defect-prediction)|[toscasmells](https://hub.docker.com/r/sodaliteh2020/toscasmells)| tosca-smells |8080|8082|
+|Ansible Defect Prediction API |[defect-prediction](https://github.com/SODALITE-EU/defect-prediction)|[ansiblesmells](https://hub.docker.com/r/sodaliteh2020/ansiblesmells)| ansible-smells |5000|5004|
+|TOSCA Syntax Verifier API |[verification](https://github.com/SODALITE-EU/verification)|[toscasynverifier](https://hub.docker.com/r/sodaliteh2020/toscasynverifier)| tosca-syntax |5000|5005|
+|Workflow Verifier API|[verification](https://github.com/SODALITE-EU/verification)|[workflowverifier](https://hub.docker.com/r/sodaliteh2020/workflowverifier)| workflow-verifier |5000|5006|
+|Rule-based Refactoring API |[refactoring-ml](https://github.com/SODALITE-EU/refactoring-ml)|[rule_based_refactorer](https://hub.docker.com/r/sodaliteh2020/rule_based_refactorer)| rule-based-refactorer |8080|8083|
+|Performance Prediction API |[refactoring-ml](https://github.com/SODALITE-EU/refactoring-ml)|[fo_perf_predictor_api](https://hub.docker.com/r/sodaliteh2020/fo_perf_predictor_api)| performance-predictor-refactoring |5000|5007|
+|Refactoring Option Discovery API |[refactoring-option-discoverer](https://github.com/SODALITE-EU/refactoring-option-discoverer)|[refactoring_option_discoverer](https://hub.docker.com/r/sodaliteh2020/refactoring_option_discoverer)| refactoring-option-discoverer |8080|8084|
 
 
 ## SODALITE stack installation
