@@ -458,3 +458,36 @@ topology_template:
         - registry: docker-public-registry  
         - network: docker-network         
         - dependency: know-db-container        
+
+    # skydive-analyzer
+    # https://github.com/skydive-project/skydive
+    skydive-analyzer:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name:  skydive/skydive
+        command: analyzer
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        ports:  ['8088:8082', '8088:8082/udp']
+        alias: skydive-analyzer
+      requirements:
+        - host:  docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+
+    # prometheus-skydive-connector
+    # https://github.com/SODALITE-EU/skydive-flow-exporter/prom_sky_con
+    prometheus-skydive-connector:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name: sodaliteh2020/prometheus-skydive-connector
+        command: /etc/prom_sky_con.yml
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        volumes:
+          - "/tmp/skydive/prom_sky_con.yml:/etc/prom_sky_con.yml"
+        ports:  ['9101:9100']
+        alias: prometheus-skydive-connector
+      requirements:
+        - host:  docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+
