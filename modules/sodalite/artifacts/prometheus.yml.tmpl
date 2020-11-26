@@ -17,3 +17,9 @@ scrape_configs:
       #- {source_labels: [__meta_openstack_instance_name], target_label: instance}
       - {source_labels: [__meta_openstack_public_ip, __meta_openstack_tag_prometheus_io_port], action: replace, regex: '([^:]+)(?::\d+)?;(\d+)', replacement: '$1:$2', target_label: instance}
       - {source_labels: [__meta_openstack_instance_name], target_label: os_id}
+
+  - job_name: skydive-connector
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['{{ skydive_connector_address }}']
+
