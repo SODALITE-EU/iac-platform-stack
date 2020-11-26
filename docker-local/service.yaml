@@ -418,9 +418,10 @@ topology_template:
       type: sodalite.nodes.skydive-connector.config
       properties:
         dest: /tmp/prometheus/prometheus.yml
-        target_address: http://skydive-analyzer:9101
+        #target_address: http://prometheus-skydive-connector:9100
+        target_address: prometheus-skydive-connector:9100
       requirements:
-        - dependency: skydive-analyzer
+        - dependency: prometheus-skydive-connector
 
     prometheus-container:
       type: sodalite.nodes.DockerizedComponent
@@ -454,6 +455,23 @@ topology_template:
         - registry: docker-public-registry
         - network: docker-network
 
+    # skydive-capture
+    # https://github.com/skydive-project/skydive
+    skydive-capture:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name:  skydive/skydive
+        command: client capture create --extra-tcp-metric --gremlin "G.V()"
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        env:
+          SKYDIVE_ANALYZERS: skydive-analyzer:8082
+        alias: skydive-capture
+      requirements:
+        - host:  docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: skydive-analyzer
+
     # prometheus-skydive-connector
     # https://github.com/SODALITE-EU/skydive-flow-exporter/prom_sky_con
     prometheus-skydive-connector:
@@ -462,8 +480,8 @@ topology_template:
         image_name: sodaliteh2020/prometheus-skydive-connector
         command: /etc/prom_sky_con.yml
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        volumes:
-          - "/tmp/skydive/prom_sky_con.yml:/etc/prom_sky_con.yml"
+        env:
+          SKYDIVE_PIPELINE_SUBSCRIBER_URL: ws://skydive-analyzer:8082/ws/subscriber/flow
         ports:  ['9101:9100']
         alias: prometheus-skydive-connector
       requirements:

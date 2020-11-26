@@ -1,4 +1,8 @@
-- job_name: skydive-connector
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+scrape_configs:
+  - job_name: skydive-connector
     scrape_interval: 5s
     static_configs:
-            - targets: ['{{ target_address }}']
+      - targets: ['{{ target_address }}']
