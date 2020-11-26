@@ -1,0 +1,12 @@
+- hosts: all
+  gather_facts: yes
+  become: yes
+  tasks:
+    - name: Ensure dir exists
+      file:
+        path: "{{ dest | dirname }}"
+        state: directory
+    - name: Create config file
+      template:
+        src: "prometheus.yaml.tmpl"
+        dest: "{{ dest }}"

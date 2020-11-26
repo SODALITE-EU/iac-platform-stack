@@ -8,6 +8,7 @@ imports:
   - modules/docker/docker_component.yaml
   - modules/docker/docker_certificate.yaml
   - modules/misc/ssh/types.yaml
+  - library/prometheus/prometheus_config.yaml
 
 node_types:
 
@@ -414,6 +415,14 @@ topology_template:
 
     # monitoring-system
     # https://github.com/SODALITE-EU/monitoring-system
+    prometheus_config:
+      type: sodalite.nodes.skydive-connector.config
+      properties:
+        dest: /tmp/prometheus/prometheus.yml
+        target_address: http://skydive-analyzer:9101
+      requirements:
+        - dependency: skydive-analyzer
+
     prometheus-container:
       type: sodalite.nodes.DockerizedComponent
       properties:
@@ -429,6 +438,7 @@ topology_template:
         - host: docker-host
         - registry: docker-public-registry
         - network: docker-network
+        - dependency: prometheus_config
 
     # skydive-analyzer
     # https://github.com/skydive-project/skydive
