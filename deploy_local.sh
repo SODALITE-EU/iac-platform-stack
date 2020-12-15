@@ -72,7 +72,7 @@ envsubst < ./docker-local/input.yaml.tmpl > ./docker-local/input.yaml
 echo
 echo "Cloning modules"
 rm -r -f docker-local/modules/
-git clone https://github.com/SODALITE-EU/iac-modules.git docker-local/modules
+git clone -b 2.0.0 https://github.com/SODALITE-EU/iac-modules.git docker-local/modules
 
 echo
 echo "Checking TLS key and certificate..."
