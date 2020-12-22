@@ -1,3 +1,4 @@
+username: jorge
 docker-network: sodalite
 dockerhub-user: 
 dockerhub-pass: 
@@ -5,19 +6,19 @@ docker-public-registry-url: registry.hub.docker.com
 docker-private-registry-url: registry
 docker-registry-cert-country-name: SI
 docker-registry-cert-organization-name: XLAB
-docker-registry-cert-email-address: some_email@email.com
+docker-registry-cert-email-address: kk
 postgres_env:
-  POSTGRES_USER: username
-  POSTGRES_PASSWORD: password
+  POSTGRES_USER: kk
+  POSTGRES_PASSWORD: kk
   POSTGRES_DB: postgres
 xopera_env:
   XOPERA_GIT_TYPE: gitlab
   XOPERA_GIT_URL: https://gitlab.com
-  XOPERA_GIT_AUTH_TOKEN: some_token
+  XOPERA_GIT_AUTH_TOKEN: kk
   XOPERA_VERBOSE_MODE: debug
   XOPERA_DATABASE_IP: xopera-postgres
   XOPERA_DATABASE_NAME: postgres
-  XOPERA_DATABASE_USER: username
-  XOPERA_DATABASE_PASSWORD: password
+  XOPERA_DATABASE_USER: kk
+  XOPERA_DATABASE_PASSWORD: kk
 image_builder_env:
   REGISTRY_IP: registry

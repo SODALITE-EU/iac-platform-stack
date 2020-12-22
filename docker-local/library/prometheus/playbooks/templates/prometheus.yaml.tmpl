@@ -1,0 +1,38 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+ alertmanagers:
+   - static_configs:
+     - targets:
+       - {{ alertmanager_endpoint }}
+
+rule_files:
+  - /etc/prometheus/rules/rules_*
+
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'consul-registered-node-exporters'
+    consul_sd_configs:
+      - server: "{{ consul_endpoint }}"
+        services: [consul-registered-node-exporters]
+
+  - job_name: 'consul-registered-ipmi-exporters'
+    consul_sd_configs:
+      - server: "{{ consul_endpoint }}"
+        services: [consul-registered-ipmi-exporters]
+
+  - job_name: 'consul-registered-hpc-exporters'
+    consul_sd_configs:
+      - server: "{{ consul_endpoint }}"
+        services: [consul-registered-hpc-exporters]
+
+  - job_name: 'consul-registered-skydive-exporters'
+    consul_sd_configs:
+      - server: "{{ consul_endpoint }}"
+        services: [consul-registered-edge-exporters]
