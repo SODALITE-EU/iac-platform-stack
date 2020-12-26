@@ -123,8 +123,8 @@ if [[ "$IAC_MODULES_CURRENT_VERSION" != *"$IAC_MODULES_VERSION"* ]]; then
 
   rm -r -f docker-local/modules/
   git config --global advice.detachedHead "false" &&
-    git clone -b "$IAC_MODULES_VERSION" https://github.com/SODALITE-EU/iac-modules.git docker-local/modules &&
-    git config --global advice.detachedHead "true"
+  git clone -b "$IAC_MODULES_VERSION" https://github.com/SODALITE-EU/iac-modules.git docker-local/modules &&
+  git config --global advice.detachedHead "true"
 fi
 
 echo
@@ -182,7 +182,7 @@ else
 fi
 
 unset CURRENT_USER
-unset SODALITE_GIT_TOKEN unset SODALITE_EMAIL
+unset SODALITE_GIT_TOKEN
 unset SODALITE_DB_USERNAME
 unset SODALITE_DB_PASSWORD
 unset SODALITE_EMAIL
