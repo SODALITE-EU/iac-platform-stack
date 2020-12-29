@@ -104,19 +104,6 @@ topology_template:
         - host: sodalite-vm
         - dependency: docker-host
 
-#    docker-registry-certificate:
-#      type: sodalite.nodes.RegistryCertificate
-#      properties:
-#        registry_ip:         { get_input: docker-private-registry-url }
-#        country_name:        { get_input: docker-registry-cert-country-name }
-#        organization_name:   { get_input: docker-registry-cert-organization-name }
-#        email_address:       { get_input: docker-registry-cert-email-address }
-#        cert_path: "/home/xopera/certs/"
-#        cert_files_prefix: "image.docker.local"
-#      requirements:
-#        - host: sodalite-vm
-#        - dependency: docker-host
-
     tls-certs:
       type: sodalite.nodes.TLS.Certificate
       properties:
@@ -127,7 +114,7 @@ topology_template:
       requirements:
         - host: sodalite-vm
         - dependency: docker-host
-######################################################################################
+
     # xopera-rest-api
     # https://github.com/SODALITE-EU/xopera-rest-api        
     xopera-openstack-keys:
@@ -282,66 +269,8 @@ topology_template:
         - dependency: xopera-ui
         - dependency: xopera-postgres
         - dependency: xopera-proxy-tls-config
-#    xopera-openstack-keys:
-#      type: sodalite.nodes.ConfigureKeys
-#      requirements:
-#        - host: sodalite-vm
-#
-#    xopera-postgres-container:
-#      type: sodalite.nodes.DockerizedComponent
-#      properties:
-#        image_name: library/postgres:13
-#        volumes:
-#          - "/home/postgres:/var/lib/postgresql/data"
-#        ports: ['5432:5432']
-#        alias: xopera-postgres
-#        env: { get_input: postgres_env }
-#        docker_network_name:  { get_property: [ SELF, network, name ] }
-#      requirements:
-#        - host:  docker-host
-#        - network: docker-network
-#        - registry: docker-public-registry
-#
-#    xopera-flask-container:
-#      type: sodalite.nodes.DockerizedComponent
-#      properties:
-#        alias: xopera-flask
-#        docker_network_name:  { get_property: [ SELF, network, name ] }
-#        image_name: sodaliteh2020/xopera-flask:M18Release
-#        restart_policy: always
-#        volumes:
-#          - "/var/run/docker.sock:/var/run/docker.sock"
-#          - "/root/.ssh/:/root/.ssh/"
-#          - "/home/xopera/certs:/home/xopera/certs"
-#        exposed_ports:  ['5000']
-#        env: { get_input: xopera_env }
-#      requirements:
-#        - host: docker-host
-#        - registry: docker-public-registry
-#        - network: docker-network
-#        - dependency: xopera-openstack-keys
-#        - dependency: xopera-postgres-container
-#        - dependency: docker-registry-certificate
-#
-#    xopera-nginx-container:
-#      type: sodalite.nodes.DockerizedComponent
-#      properties:
-#        alias: xopera-nginx
-#        docker_network_name:  { get_property: [ SELF, network, name ] }
-#        image_name: sodaliteh2020/xopera-nginx:M18Release
-#        restart_policy: always
-#        ports:  ['5001:443', '5000:80']
-#        #exposed_ports:  ['443', '5000']
-#        volumes:
-#          - "/home/xopera/certs:/etc/nginx/certs"
-#      requirements:
-#        - host: docker-host
-#        - registry: docker-public-registry
-#        - network: docker-network
-#        - dependency: xopera-flask-container
-#        - dependency: docker-registry-certificate
-  #############################################################################
-    #image registry
+
+    # image registry
     docker-registry-container:
       type: sodalite.nodes.DockerizedComponent
       properties:
@@ -606,7 +535,7 @@ topology_template:
         - registry: docker-public-registry  
         - network: docker-network         
     
-        
+
     # IDE    
     # https://github.com/SODALITE-EU/ide   
     # requires X11 system     
