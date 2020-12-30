@@ -35,6 +35,10 @@ APT_PKG_MISSING=$(if python3 apt_pkg_test.py 2>/dev/null; then echo false; else 
 OPERA_NOT_INSTALLED=$(if [ -z "$(pip3 show opera 2>/dev/null)" ]; then echo true; else echo false; fi)
 OPERA_WRONG_VERSION=$(if [ "$OPERA_CURRENT_VERSION" != "$OPERA_VERSION" ]; then echo true; else echo false; fi)
 
+# ansible version
+ANSIBLE_VERSION=$(ansible --version 2>/dev/null | head -n 1| awk '{print $2}')
+ANSIBLE_WRONG_VERSION=$(if [[ $ANSIBLE_VERSION == 2.10*  ]] || [[ -z $ANSIBLE_VERSION ]]; then echo false; else echo true; fi)
+
 # check python3 and pip3
 PIP_INSTALLED=$(command -v pip3)
 if [ -z "$PIP_INSTALLED" ]; then
@@ -55,7 +59,7 @@ if [ -z "$PIP_INSTALLED" ]; then
 fi
 
 # check if new venv must be created
-if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION; then
+if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $ANSIBLE_WRONG_VERSION; then
   echo "Missing prerequisites: "
 
   if $APT_PKG_MISSING; then
@@ -67,10 +71,13 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION; then
   if $OPERA_WRONG_VERSION && ! $OPERA_NOT_INSTALLED; then
     echo "    - xOpera is on version $OPERA_CURRENT_VERSION, but version $OPERA_VERSION is needed."
   fi
+  if $ANSIBLE_WRONG_VERSION; then
+    echo "    - Ansible is on version $ANSIBLE_VERSION, but version 2.10 or greater is required."
+  fi
 
   echo
 
-  read -rp "Do you wish to install required system packages and create new venv in .venv dir with xOpera==$OPERA_VERSION? [Y/n] " yn
+  read -rp "Do you wish to install/upgrade required system packages and create new venv in .venv dir with xOpera==$OPERA_VERSION? [Y/n] " yn
   if [ "$yn" != "${yn#[Yy]}" ]; then
     echo
     echo
@@ -78,7 +85,22 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION; then
     echo "Installing system packages"
     sudo apt update
     sudo apt install -y python3-venv python3-wheel python-wheel-common python3-apt
-    sudo apt install -y ansible
+
+
+    if $ANSIBLE_WRONG_VERSION; then
+      echo
+      echo "Removing ansible from apt and installing it with pip3"
+      sudo apt remove -y ansible
+      deactivate 2>/dev/null
+      pip3 install --upgrade ansible
+
+      # shellcheck disable=SC1090
+      # reload path to ansible
+      if [ -f ~/.bash_profile ]; then . ~/.bash_profile; else . ~/.profile; fi
+      echo "Before using Ansible CLI for the first time, please reload path:"
+      echo "source ~/.profile"
+    fi
+
     echo
     echo "Creating new venv"
     sudo rm -rf .venv
