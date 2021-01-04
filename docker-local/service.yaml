@@ -10,7 +10,9 @@ imports:
   - modules/docker/docker_volume.yaml
   - modules/misc/ssh/types.yaml
   - modules/misc/tls/types.yaml
+  - modules/tests/test_definitions.yaml
   - library/config/types.yaml
+  - library/prometheus/prometheus_config.yaml
 
 node_types:
 
@@ -524,20 +526,127 @@ topology_template:
         - network: docker-network         
         - dependency: know-db-container
 
-    # https://github.com/SODALITE-EU/monitoring-system
-    monitoring-system-container:
+    # skydive-analyzer
+    # https://github.com/skydive-project/skydive
+    skydive-analyzer:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name:  skydive/skydive
+        command: analyzer
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        ports:  ['8088:8082', '8088:8082/udp']
+        alias: skydive-analyzer
+      requirements:
+        - host:  docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+
+    # skydive-capture
+    # https://github.com/skydive-project/skydive
+    skydive-capture:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name:  skydive/skydive
+        command: client capture create --extra-tcp-metric --gremlin "G.V()"
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        env:
+          SKYDIVE_ANALYZER: skydive-analyzer:8082
+        alias: skydive-capture
+        restart_policy: no
+      requirements:
+        - host:  docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: skydive-analyzer
+
+    # prometheus-skydive-connector
+    # https://github.com/SODALITE-EU/skydive-flow-exporter/prom_sky_con
+    prometheus-skydive-connector:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name: sodaliteh2020/prometheus-skydive-connector
+        command: /etc/prom_sky_con.yml
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        env:
+          SKYDIVE_PIPELINE_SUBSCRIBER_URL: ws://skydive-analyzer:8082/ws/subscriber/flow
+        ports:  ['9101:9100']
+        alias: prometheus-skydive-connector
+      requirements:
+        - host:  docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+
+
+    # MONITORING-SYSTEM
+
+    monitoring-system-consul:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: consul
+        image_name: library/consul:latest
+        restart_policy: always
+        ports:  ['8500:8500','8600:8600/udp']
+        exposed_ports:  ['8500','8600/udp']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+
+    monitoring-system-alertmanager:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: alertmanager
+        image_name: prom/alertmanager
+        restart_policy: always
+        ports:  ['9093:9093']
+        exposed_ports:  ['9093']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+
+    prometheus-config:
+      type: sodalite.nodes.monitoring-system-prometheus.config
+      properties:
+        dest: /tmp/prometheus/prometheus.yml
+        alertmanager_endpoint: alertmanager:9093
+        consul_endpoint: consul:8500
+      requirements:
+        - dependency: monitoring-system-alertmanager
+        - dependency: monitoring-system-consul
+
+    monitoring-system-prometheus:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: prometheus
-        image_name: sodaliteh2020/monitoring-system:dockerization
+        image_name: prom/prometheus
         restart_policy: always
         ports:  ['9090:9090']
         exposed_ports:  ['9090']
         docker_network_name:  { get_property: [ SELF, network, name ] }
+        volumes:
+          - "/tmp/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+          - rules-volume:/etc/prometheus/rules
       requirements:
         - host: docker-host
-        - registry: docker-public-registry  
-        - network: docker-network 
+        - registry: docker-public-registry
+        - network: docker-network
+        - configuration: prometheus-config
+
+    # Register prometheus-skydive-connector with prometheus consul
+    prometheus-skydive-connector-registration:
+      type: sodalite.nodes.Tests.Text.Command
+      properties:
+        # localhost should really be replaced with something like {{ monitoring-system-consul }}; should use concat
+        command: " curl -X PUT -d ' { \"Name\": \"consul-registered-skydive-exporters\", \"ID\": \"fakeuniqueid-skydive-exporter\", \"Address\": \"prometheus-skydive-connector\", \"Port\": 9100 } ' localhost:8500/v1/agent/service/register "
+        comparable_string: '.*'
+        regex: true
+      requirements:
+        - dependency: prometheus-skydive-connector
+        - dependency: monitoring-system-consul
+        - dependency: monitoring-system-prometheus
 
     # MODAK
     # https://github.com/SODALITE-EU/application-optimisation/tree/api_split
