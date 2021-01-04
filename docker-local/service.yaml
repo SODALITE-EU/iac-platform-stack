@@ -62,6 +62,10 @@ topology_template:
       type: map
     image_builder_env:
       type: map  
+    modak_api_env:
+      type: map  
+    modak_db_env:
+      type: map  
 
   node_templates: 
 
@@ -643,6 +647,42 @@ topology_template:
         - dependency: prometheus-skydive-connector
         - dependency: monitoring-system-consul
         - dependency: monitoring-system-prometheus
+
+    # MODAK
+    # https://github.com/SODALITE-EU/application-optimisation/tree/api_split
+    modak-api-container:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: modak-api
+        image_name: sodaliteh2020/modak-api:0.1.2-dev
+        restart_policy: always
+        ports:  ['55000:5000']
+        exposed_ports:  ['55000']
+        env: { get_input: modak_api_env }
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry  
+        - network: docker-network  
+        - dependency: modak-db-container
+
+    modak-db-container:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: modak-db
+        image_name: sodaliteh2020/modak-py3-mysql:0.1.2-dev
+        restart_policy: always
+        ports:  ['32000:3306']
+        exposed_ports:  ['32000']
+        volumes:
+          - /docker-entrypoint-initdb.d/
+        env: { get_input: modak_db_env }
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry  
+        - network: docker-network         
+    
 
     # IDE    
     # https://github.com/SODALITE-EU/ide   
