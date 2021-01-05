@@ -96,15 +96,7 @@ topology_template:
         docker_registry_url: { get_input: docker-public-registry-url } 
       requirements:
         - host: sodalite-vm
-        - dependency: docker-host 
-
-    docker-private-registry:
-      type: sodalite.nodes.DockerRegistry
-      properties:  
-        docker_registry_url: { get_input: docker-private-registry-url } 
-      requirements:
-        - host: sodalite-vm
-        - dependency: docker-host 
+        - dependency: docker-host
 
     docker-registry-certificate:
       type: sodalite.nodes.RegistryCertificate
@@ -127,14 +119,6 @@ topology_template:
       requirements:
         - host: sodalite-vm
         - dependency: docker-host
-
-    docker-sodalite-private-registry:
-      type: sodalite.nodes.DockerRegistry
-      properties:  
-        docker_registry_url: 77.231.202.207
-      requirements:
-        - host: sodalite-vm
-        - dependency: docker-host 
 
     # xopera-rest-api
     # https://github.com/SODALITE-EU/xopera-rest-api        
@@ -668,7 +652,7 @@ topology_template:
     monitoring-system-ruleserver:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name: monitoring-system-ruleserver
+        image_name: sodaliteh2020/monitoring-system-ruleserver:0.2.0
         restart_policy: always
         ports: [ '9092:9092' ]
         exposed_ports: [ '9092' ]
@@ -683,7 +667,7 @@ topology_template:
       requirements:
         - host: docker-host
         - network: docker-network
-        - registry: docker-sodalite-private-registry
+        - registry: docker-public-registry
         - dependency: monitoring-system-prometheus
 
     # MODAK
