@@ -26,6 +26,9 @@ RESUME=${2:-"--clean-state"}
 # remove prefix --
 RESUME=${RESUME#"--"}
 
+# use .venv, if exists
+if [ -f .venv/bin/activate ]; then . .venv/bin/activate && echo "Using python from $(command -v python3)"; fi
+
 # check current opera and modules version
 OPERA_CURRENT_VERSION=$(pip3 show opera 2>/dev/null | grep Version | awk '{print $2}')
 IAC_MODULES_CURRENT_VERSION=$(cd docker-local/modules 2>/dev/null && git tag --points-at HEAD)
