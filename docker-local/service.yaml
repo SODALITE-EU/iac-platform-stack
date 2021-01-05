@@ -25,7 +25,6 @@ node_types:
         type: string
         description: Name of machine. Used to write into registry certificate
 
-
 topology_template:
 
   inputs:  
@@ -97,8 +96,16 @@ topology_template:
         docker_registry_url: { get_input: docker-public-registry-url } 
       requirements:
         - host: sodalite-vm
-        - dependency: docker-host
-    # TODO do we even need this node?
+        - dependency: docker-host 
+
+    docker-private-registry:
+      type: sodalite.nodes.DockerRegistry
+      properties:  
+        docker_registry_url: { get_input: docker-private-registry-url } 
+      requirements:
+        - host: sodalite-vm
+        - dependency: docker-host 
+
     docker-registry-certificate:
       type: sodalite.nodes.RegistryCertificate
       properties:
@@ -120,6 +127,14 @@ topology_template:
       requirements:
         - host: sodalite-vm
         - dependency: docker-host
+
+    docker-sodalite-private-registry:
+      type: sodalite.nodes.DockerRegistry
+      properties:  
+        docker_registry_url: 77.231.202.207
+      requirements:
+        - host: sodalite-vm
+        - dependency: docker-host 
 
     # xopera-rest-api
     # https://github.com/SODALITE-EU/xopera-rest-api        
@@ -314,8 +329,8 @@ topology_template:
         image_name: sodaliteh2020/iac-blueprint-builder:24
         docker_network_name:  { get_property: [ SELF, network, name ] }
         restart_policy: always
-        ports: 
-        - "8081:80"
+        ports:
+          - "8081:80"
         env:
           XOPERA_ENDPOINT: http://xopera-proxy:5000
       requirements:
@@ -466,6 +481,7 @@ topology_template:
       requirements:
         - host: docker-host
         - registry: docker-public-registry
+
     # refactoring-ml
     # https://github.com/SODALITE-EU/refactoring-ml      
     rule-based-refactorer-container:
@@ -476,7 +492,7 @@ topology_template:
         restart_policy: always
         ports:  ['8083:8080']
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        env:
+        env:  
           prometheus: http://prometheus:9090
           xopera: http://xopera-proxy:5000
           refacopdiscoverer: http://refactoring-option-discoverer:8080
@@ -578,6 +594,7 @@ topology_template:
 
 
     # MONITORING-SYSTEM
+    # https://github.com/SODALITE-EU/monitoring-system
 
     monitoring-system-consul:
       type: sodalite.nodes.DockerizedComponent
@@ -646,6 +663,27 @@ topology_template:
       requirements:
         - dependency: prometheus-skydive-connector
         - dependency: monitoring-system-consul
+        - dependency: monitoring-system-prometheus
+
+    monitoring-system-ruleserver:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name: monitoring-system-ruleserver
+        restart_policy: always
+        ports: [ '9092:9092' ]
+        exposed_ports: [ '9092' ]
+        docker_network_name: { get_property: [ SELF, network, name ] }
+        env:
+          GUNICORN_WORKERS: "8"
+          RULESERVER_PORT: "9092"
+        volumes:
+          - "/var/run/docker.sock:/var/run/docker.sock"
+          - rules-volume:/etc/prometheus/rules
+        alias: ruleserver
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-sodalite-private-registry
         - dependency: monitoring-system-prometheus
 
     # MODAK
