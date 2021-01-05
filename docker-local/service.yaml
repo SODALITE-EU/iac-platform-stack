@@ -531,7 +531,7 @@ topology_template:
     skydive-analyzer:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name:  skydive/skydive
+        image_name:  skydive/skydive:0.27.0
         command: analyzer
         docker_network_name:  { get_property: [ SELF, network, name ] }
         ports:  ['8088:8082', '8088:8082/udp']
@@ -546,7 +546,7 @@ topology_template:
     skydive-capture:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name:  skydive/skydive
+        image_name:  skydive/skydive:0.27.0
         command: client capture create --extra-tcp-metric --gremlin "G.V()"
         docker_network_name:  { get_property: [ SELF, network, name ] }
         env:
@@ -564,7 +564,7 @@ topology_template:
     prometheus-skydive-connector:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name: sodaliteh2020/prometheus-skydive-connector
+        image_name: sodaliteh2020/prometheus-skydive-connector:1
         command: /etc/prom_sky_con.yml
         docker_network_name:  { get_property: [ SELF, network, name ] }
         env:
@@ -584,7 +584,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: consul
-        image_name: library/consul:latest
+        image_name: library/consul:1.9.1
         restart_policy: always
         ports:  ['8500:8500','8600:8600/udp']
         exposed_ports:  ['8500','8600/udp']
@@ -598,7 +598,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: alertmanager
-        image_name: prom/alertmanager
+        image_name: prom/alertmanager:v0.21.0
         restart_policy: always
         ports:  ['9093:9093']
         exposed_ports:  ['9093']
@@ -622,7 +622,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: prometheus
-        image_name: prom/prometheus
+        image_name: prom/prometheus:v2.23.0
         restart_policy: always
         ports:  ['9090:9090']
         exposed_ports:  ['9090']
