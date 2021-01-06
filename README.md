@@ -39,7 +39,11 @@ Here is the list of SODALITE stack components, with corresponding Docker images 
 |Monitoring System Ruleserver |[monitoring-system/ruleserver](https://github.com/SODALITE-EU/monitoring-system/tree/master/ruleserver)|[monitoring-system-ruleserver](https://hub.docker.com/r/sodaliteh2020/monitoring-system-ruleserver)| ruleserver |9092|9092|
 
 ## SODALITE stack installation
-In order to proceed with local docker installation use `deploy_local.sh` script (for Ubuntu Linux distribution) that checks and installs all components required for deployment (pip, xOpera, Ansible Roles, etc), provides means for setting up input variables necessary for deployment and starts the deployment itself (script does not include SODALITE IDE installation and configuration). Otherwise one can set up prerequisites for SODALITE stack deployment manually, following these steps:
+In order to proceed with local docker installation use `deploy_local.sh` script (for Ubuntu Linux distribution) that checks and installs all components required for deployment (pip, xOpera, Ansible Roles, etc), provides means for setting up input variables necessary for deployment and starts the deployment itself (script does not include SODALITE IDE installation and configuration). 
+    
+*NOTE: As part of installation, `deploy_local.sh`, upon permission by user, given on prompt, tries to use `.venv` (if exists). Virtual environment is tested for compliance with docker-local deployment prerequisites, however if after a couple unsuccessful deploys manual removal of `.venv` is suggested to rule out broken venv.*
+
+Prerequisites for SODALITE stack deployment could also be set manually, following these steps:
 1. ### Install xOpera 
     Install xOpera and required modules as described here: [xOpera](https://github.com/xlab-si/xopera-opera)    
         *NOTE: Use `--system-site-packages` flag when setting up Python virtual environment in order to avoid this [issue](https://github.com/ansible/ansible/issues/14468)*
