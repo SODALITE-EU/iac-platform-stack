@@ -26,6 +26,25 @@ RESUME=${2:-"--clean-state"}
 # remove prefix --
 RESUME=${RESUME#"--"}
 
+# use .venv, if exists
+if [ -f .venv/bin/activate ]; then
+  echo
+  echo
+  read -rp "Python virtual environment found in .venv dir. Do you want to activate it? [Y/n] " ynvenv
+  if [ "$ynvenv" != "${ynvenv#[Yy]}" ]; then
+
+    echo "Activating .venv"
+    . .venv/bin/activate
+  else
+    echo "Abort."
+  fi
+
+  echo "Using python interpreter from $(command -v python3)"
+
+fi
+
+exit
+
 # check current opera and modules version
 OPERA_CURRENT_VERSION=$(pip3 show opera 2>/dev/null | grep Version | awk '{print $2}')
 IAC_MODULES_CURRENT_VERSION=$(cd docker-local/modules 2>/dev/null && git tag --points-at HEAD)
