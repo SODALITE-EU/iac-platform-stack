@@ -32,7 +32,7 @@ Here is the list of SODALITE stack components, with corresponding Docker images 
 |Refactoring Option Discovery API |[refactoring-option-discoverer](https://github.com/SODALITE-EU/refactoring-option-discoverer)|[refactoring_option_discoverer](https://hub.docker.com/r/sodaliteh2020/refactoring_option_discoverer)| refactoring-option-discoverer |8080|8084|
 |Skydive Analyzer | |[skydive/skydive](https://hub.docker.com/r/skydive/skydive)| skydive-analyzer |8082|8088|
 |Skydive Capture | |[skydive/skydive](https://hub.docker.com/r/skydive/skydive)| skydive-capture | | |
-|Prometheus Skydive Connector |[skydive-flow-exporter/prom_sky_con](https://github.com/SODALITE-EU/skydive-flow-exporter/tree/master/prom_sky_con) |[prometheus-skydive-connector](https://hub.docker.com/r/sodaliteh2020/prometheus-skydive-connector)| prometheus-skydive-connector |9100|9109|
+|Prometheus Skydive Connector |[skydive-flow-exporter/prom_sky_con](https://github.com/SODALITE-EU/skydive-flow-exporter/tree/master/prom_sky_con) |[prometheus-skydive-connector](https://hub.docker.com/r/sodaliteh2020/prometheus-skydive-connector)| prometheus-skydive-connector |9100|9101|
 |Consul for Monitoring System  | |[consul](https://hub.docker.com/_/consul)| consul |8500, 8600 |8500, 8600 |
 |Alert Manager for Monitoring System  | |[prom/alertmanager](https://hub.docker.com/r/prom/alertmanager)| alertmanager |9093|9093|
 |Prometheus for Monitoring System  | |[prom/prometheus](https://hub.docker.com/r/prom/prometheus)| prometheus |9090|9090|
