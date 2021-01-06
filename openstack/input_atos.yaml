@@ -1,11 +1,13 @@
-ssh-key-name: 154-48-185-209-xOpera
+ssh-key-name: some_key
 image-name: centos7
 openstack-network-name: orchestrator-network
 security-groups: default,sodalite-remote-access,sodalite-uc
-flavor-name: m1.medium
+flavor-name: m1.large
 docker-network: sodalite
+dockerhub-user:
+dockerhub-pass:
 docker-public-registry-url: registry.hub.docker.com
-docker-private-registry-url: 154.48.185.207
+docker-private-registry-url: SODALITE_private_registry_url
 docker-registry-cert-country-name: SI
 docker-registry-cert-organization-name: XLAB
 docker-registry-cert-email-address: some_email@email.com
@@ -23,9 +25,11 @@ xopera_env:
   XOPERA_DATABASE_USER: username
   XOPERA_DATABASE_PASSWORD: password
 image_builder_env:
-  REGISTRY_IP: 154.48.185.207  
-prometheus_os_auth_url: "https://cloud.sodalite.eu:5000/v3/"
-prometheus_os_username: 
-prometheus_os_password: 
-prometheus_os_project_id: 8a1a7649c3a44f16a70361b485389340  
-prometheus_os_project_name: ochestrator
+  REGISTRY_IP: SODALITE_private_registry_url
+modak_api_env:
+  MODAK_DATABASE_PASSWORD: password
+  MODAK_DATABASE_HOST: modak-db
+  MODAK_DATABASE_PORT: "3306"
+modak_db_env:
+  MYSQL_ROOT_HOST: "%"
+  MYSQL_ROOT_PASSWORD: password
