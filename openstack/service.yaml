@@ -24,9 +24,7 @@ topology_template:
     image-name:  
       type: string 
     openstack-network-name:  
-      type: string 
-    security-groups:  
-      type: string    
+      type: string
     flavor-name:  
       type: string                   
     docker-network: 
@@ -63,7 +61,19 @@ topology_template:
     modak_db_env:
       type: map
 
-  node_templates: 
+  node_templates:
+    security-rules-remote-access:
+      type: sodalite.nodes.OpenStack.SecurityRules
+      properties:
+        ports:
+          SSH:
+            port_range_min: 20
+            port_range_max: 22
+            remote_ip_prefix: 0.0.0.0/0
+            protocol: tcp
+        group_name: sodalite-remote-access
+        group_description: Sodalite SSH group
+
 
     security-rules-sodalite:  
       type: sodalite.nodes.OpenStack.SecurityRules 
@@ -134,11 +144,12 @@ topology_template:
         key_name:         { get_input: ssh-key-name } 
         image:            { get_input: image-name }
         network:          { get_input: openstack-network-name } 
-        security_groups:  { get_input: security-groups } 
+        security_groups:  sodalite-remote-access,sodalite-uc
         flavor:           { get_input: flavor-name }
         username: centos
       requirements:  
         - protected_by: security-rules-sodalite 
+        - protected_by: security-rules-remote-access
 
     docker-host:
       type: sodalite.nodes.DockerHost

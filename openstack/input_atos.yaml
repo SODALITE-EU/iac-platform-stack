@@ -1,7 +1,6 @@
 ssh-key-name: some_key
 image-name: centos7
 openstack-network-name: orchestrator-network
-security-groups: default,sodalite-remote-access,sodalite-uc
 flavor-name: m1.large
 docker-network: sodalite
 dockerhub-user:

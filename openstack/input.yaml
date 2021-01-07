@@ -1,7 +1,6 @@
 ssh-key-name: some_key
 image-name: "centos-7 x86_64"
 openstack-network-name: xlab
-security-groups: default,remote_access,sodalite-uc
 flavor-name: m1.large
 docker-network: sodalite
 dockerhub-user: 
