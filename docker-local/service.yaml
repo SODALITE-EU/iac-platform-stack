@@ -242,15 +242,16 @@ topology_template:
           # entrypoints
           - "--entrypoints.web.address=:5000"
           - "--entrypoints.websecure.address=:5001"
+          - "--entrypoints.image-builder.address=:5002"
           - "--entrypoints.postgres.address=:5432"
           - "--entrypoints.traefik.address=:8888"
-          # http certs config
+          # https certs config
           - "--providers.file.directory=/configuration/"
           - "--providers.file.watch=true"
           # dashboard
           - "--api.dashboard=true"
         restart_policy: always
-        ports: [ '5001:5001', '5000:5000', '8888:8888', '5432:5432' ]
+        ports: [ '5000:5000', '5001:5001', '5002:5002', '8888:8888', '5432:5432' ]
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock:ro
           - /home/nginx/certificates.toml:/configuration/certificates.toml:ro
@@ -330,32 +331,40 @@ topology_template:
       properties:
         image_name:  sodaliteh2020/image-builder-flask:v0.2.1
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        exposed_ports:  ['5000']
+        # exposed_ports:  ['5000']
         env: { get_input: image_builder_env }
         volumes:
           - "/var/run/docker.sock:/var/run/docker.sock"
         alias: image-builder-flask
+        labels:
+          traefik.enable: "true"
+          traefik.http.services.api.loadbalancer.server.port: "5000"
+
+          # https config
+          traefik.http.routers.api-https.rule: "PathPrefix(`/`)"
+          traefik.http.routers.api-https.entrypoints: "image-builder"
+          traefik.http.routers.api-https.tls: "true"
       requirements:
         - host:  docker-host
         - registry: docker-public-registry 
         - network: docker-network
 
-    image-builder-nginx:
-      type: sodalite.nodes.DockerizedComponent
-      properties:
-        image_name: sodaliteh2020/image-builder-nginx:v0.2.1
-        docker_network_name:  { get_property: [ SELF, network, name ] }
-        ports:  ['5002:443']
-        #exposed_ports:  ['443']
-        volumes:
-          - "/home/xopera/certs:/etc/nginx/certs"
-        alias: image-builder-nginx
-      requirements:
-        - host:  docker-host
-        - dependency: image-builder-flask
-        - network: docker-network 
-        - registry: docker-public-registry 
-        - dependency: docker-registry-certificate
+#    image-builder-nginx:
+#      type: sodalite.nodes.DockerizedComponent
+#      properties:
+#        image_name: sodaliteh2020/image-builder-nginx:v0.2.1
+#        docker_network_name:  { get_property: [ SELF, network, name ] }
+#        ports:  ['5002:443']
+#        #exposed_ports:  ['443']
+#        volumes:
+#          - "/home/xopera/certs:/etc/nginx/certs"
+#        alias: image-builder-nginx
+#      requirements:
+#        - host:  docker-host
+#        - dependency: image-builder-flask
+#        - network: docker-network
+#        - registry: docker-public-registry
+#        - dependency: docker-registry-certificate
 
     # semantic-reasoner     
     # https://github.com/SODALITE-EU/semantic-reasoner 
