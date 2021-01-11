@@ -12,13 +12,13 @@ Here is the list of SODALITE stack components, with corresponding Docker images 
 
 | Name | GitHub repository | Docker Image | Network alias | Container ports | Host ports |
 | --- | --- | --- | --- | --- | --- |
-|Docker registry |  |[registry](https://hub.docker.com/_/registry)| registry |443|443|
-|SODALITE Reverse Proxy | |[traefik](https://hub.docker.com/_/traefik)| sodalite-proxy | 5000, 5001, 5002, 5432, 8888 | 5000, 5001, 5002, 5432, 8888 |
-|Postgres DB for xOpera |  |[postgres](https://hub.docker.com/_/postgres)| xopera-postgres |5432| |
+|Docker Registry |  |[registry](https://hub.docker.com/_/registry)| registry |443|443|
+|SODALITE Reverse Proxy | |[traefik](https://hub.docker.com/_/traefik)| proxy | 5000, 5001, 5002, 5432, 8888 | 5000, 5001, 5002, 5432, 8888 |
 |xOpera REST API |[xopera-rest-api](https://github.com/SODALITE-EU/xopera-rest-api)|[xopera-rest-api](https://hub.docker.com/r/sodaliteh2020/xopera-rest-api)| xopera-rest-api |8080|  |
+|Postgres DB for xOpera |  |[postgres](https://hub.docker.com/_/postgres)| xopera-postgres |5432| |
 |Swagger UI for xOpera| |[swaggerapi/swagger-ui](https://hub.docker.com/r/swaggerapi/swagger-ui)| xopera-ui |8080|  |
 |IaC Blueprint Builder |[iac-blueprint-builder](https://github.com/SODALITE-EU/iac-blueprint-builder)|[iac-blueprint-builder](https://hub.docker.com/r/sodaliteh2020/iac-blueprint-builder)| iac-builder | 80 | 8081 |
-|Docker image builder REST API |[image-builder](https://github.com/SODALITE-EU/image-builder)|[image-builder-api](https://hub.docker.com/r/sodaliteh2020/image-builder-api)| image-builder-api |5000|  |
+|Docker Image Builder REST API |[image-builder](https://github.com/SODALITE-EU/image-builder)|[image-builder-api](https://hub.docker.com/r/sodaliteh2020/image-builder-api)| image-builder-api |5000|  |
 |Knowledge Database |[semantic-reasoner](https://github.com/SODALITE-EU/semantic-reasoner)|[graph_db](https://hub.docker.com/r/sodaliteh2020/graph_db)| graph-db |7200|7200|
 |Semantic Reasoner API |[semantic-reasoner](https://github.com/SODALITE-EU/semantic-reasoner)|[semantic_web](https://hub.docker.com/r/sodaliteh2020/semantic_web)| semantic-web |8080|8080|
 |IaC Metrics Framework API |[iac-quality-framework](https://github.com/SODALITE-EU/iac-quality-framework)|[iacmetrics](https://hub.docker.com/r/sodaliteh2020/iacmetrics)| iac-metrics |5000|5003|

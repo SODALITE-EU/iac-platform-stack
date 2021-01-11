@@ -120,7 +120,7 @@ topology_template:
         - host: sodalite-vm
         - dependency: docker-host
 
-    sodalite-proxy-tls-config:
+    proxy-tls-config:
       type: sodalite.nodes.Configuration.NginxConfig
       properties:
         cert_files_prefix: { get_attribute: [ SELF, dependency, cert_files_prefix ] }
@@ -131,7 +131,7 @@ topology_template:
         - host: sodalite-vm
         - dependency: traefik-tls-certs
 
-    sodalite-proxy:
+    proxy:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: proxy
@@ -175,7 +175,7 @@ topology_template:
         - registry: docker-public-registry
         - network: docker-network
         - dependency: traefik-tls-certs
-        - dependency: sodalite-proxy-tls-config
+        - dependency: proxy-tls-config
 
     # xopera-rest-api
     # https://github.com/SODALITE-EU/xopera-rest-api        
@@ -314,12 +314,12 @@ topology_template:
         ports:
           - "8081:80"
         env:
-          XOPERA_ENDPOINT: http://sodalite-proxy:5000
+          XOPERA_ENDPOINT: http://proxy:5000
       requirements:
         - host: docker-host
         - registry: docker-public-registry 
         - network: docker-network    
-        - dependency: sodalite-proxy
+        - dependency: proxy
 
     # image-builder     
     # https://github.com/SODALITE-EU/image-builder  
@@ -467,14 +467,14 @@ topology_template:
         docker_network_name:  { get_property: [ SELF, network, name ] }
         env:  
           prometheus: http://prometheus:9090
-          xopera: http://sodalite-proxy:5000
+          xopera: http://proxy:5000
           refacopdiscoverer: http://refactoring-option-discoverer:8080
           perfpredictor: http://performance-predictor-refactoring:5000
       requirements:
         - host: docker-host
         - registry: docker-public-registry 
         - network: docker-network   
-        - dependency: sodalite-proxy
+        - dependency: proxy
         - dependency: performance-predictor-refactoring-container
         - dependency: refactoring-option-discoverer-container
         
@@ -488,14 +488,14 @@ topology_template:
         docker_network_name:  { get_property: [ SELF, network, name ] }
         env:
           prometheus: http://prometheus:9090
-          xopera: http://sodalite-proxy:5000
+          xopera: http://proxy:5000
           refacopdiscoverer: http://refactoring-option-discoverer:8080
           perfpredictor: http://performance-predictor-refactoring:5000
       requirements:
         - host: docker-host
         - registry: docker-public-registry 
         - network: docker-network  
-        - dependency: sodalite-proxy
+        - dependency: proxy
         - dependency: refactoring-option-discoverer-container
 
     # https://github.com/SODALITE-EU/refactoring-option-discoverer
