@@ -8,21 +8,22 @@ IAC_MODULES_VERSION="3.0.2"
 
 ########################
 
-# Usage: ./deploy_local.sh deploy [--resume]
-# Usage: ./deploy_local.sh undeploy
+# Usage: ./deploy_openstack.sh deploy OPENRC_PATH [--resume]
+# Usage: ./deploy_openstack.sh undeploy OPENRC_PATH
 
 # argument parser
-if [ $# -gt 2 ] || [ $# -lt 1 ] ||
+if [ $# -gt 3 ] || [ $# -lt 2 ] ||
   [[ "$1" != "deploy" && "$1" != "undeploy" ]] ||
-  [[ "$1" == "deploy" && "$2" != "--resume" && "$2" != "--clean-state" && $# -eq 2 ]] ||
-  [[ "$1" == "undeploy" && $# -gt 1 ]]; then
-  echo "Usage: $0 deploy [--resume]"
-  echo "Usage: $0 undeploy"
+  [[ "$1" == "deploy" && "$3" != "--resume" && "$3" != "--clean-state" && $# -eq 3 ]] ||
+  [[ "$1" == "undeploy" && $# -gt 2 ]]; then
+  echo "Usage: $0 deploy OPENRC_PATH [--resume]"
+  echo "Usage: $0 undeploy OPENRC_PATH"
   exit 1
 fi
 
 MODE=$1
-RESUME=${2:-"--clean-state"}
+OPENRC_PATH=$2
+RESUME=${3:-"--clean-state"}
 # remove prefix --
 RESUME=${RESUME#"--"}
 
@@ -45,11 +46,12 @@ fi
 
 # check current opera and modules version
 OPERA_CURRENT_VERSION=$(pip3 show opera 2>/dev/null | grep Version | awk '{print $2}')
-IAC_MODULES_CURRENT_VERSION=$(cd docker-local/modules 2>/dev/null && git tag --points-at HEAD)
+IAC_MODULES_CURRENT_VERSION=$(cd openstack/modules 2>/dev/null && git tag --points-at HEAD)
 
 # check prerequisites
 APT_PKG_MISSING=$(if python3 apt_pkg_test.py 2>/dev/null; then echo false; else echo true; fi)
 OPERA_NOT_INSTALLED=$(if [ -z "$(pip3 show opera 2>/dev/null)" ]; then echo true; else echo false; fi)
+OPENSTACKSDK_NOT_INSTALLED=$(if [ -z "$(pip3 show openstacksdk 2>/dev/null)" ]; then echo true; else echo false; fi)
 OPERA_WRONG_VERSION=$(if [ "$OPERA_CURRENT_VERSION" != "$OPERA_VERSION" ]; then echo true; else echo false; fi)
 
 # ansible version
@@ -76,7 +78,7 @@ if [ -z "$PIP_INSTALLED" ]; then
 fi
 
 # check if new venv must be created
-if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $ANSIBLE_WRONG_VERSION; then
+if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $OPENSTACKSDK_NOT_INSTALLED || $ANSIBLE_WRONG_VERSION; then
   echo "Missing prerequisites: "
 
   if $APT_PKG_MISSING; then
@@ -87,6 +89,9 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $ANSIBLE_
   fi
   if $OPERA_WRONG_VERSION && ! $OPERA_NOT_INSTALLED; then
     echo "    - xOpera is on version $OPERA_CURRENT_VERSION, but version $OPERA_VERSION is needed."
+  fi
+  if $OPERA_NOT_INSTALLED; then
+    echo "    - OpenstackSDK is not installed."
   fi
   if $ANSIBLE_WRONG_VERSION; then
     echo "    - Ansible is on version $ANSIBLE_VERSION, but version 2.10 or greater is required."
@@ -124,7 +129,7 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $ANSIBLE_
     python3 -m venv --system-site-packages .venv && . .venv/bin/activate
     echo
     echo "Installing xOpera"
-    pip3 install --ignore-installed "opera==$OPERA_VERSION"
+    pip3 install --ignore-installed "opera[openstack]==$OPERA_VERSION"
 
 
   else
@@ -160,17 +165,17 @@ if [[ "$IAC_MODULES_CURRENT_VERSION" != *"$IAC_MODULES_VERSION"* ]]; then
   echo
   echo "Installing SODALITE iac modules (Version $IAC_MODULES_VERSION)"
 
-  rm -r -f docker-local/modules/
+  rm -r -f openstack/modules/
   git config --global advice.detachedHead "false" &&
-  git clone -b "$IAC_MODULES_VERSION" https://github.com/SODALITE-EU/iac-modules.git docker-local/modules &&
+  git clone -b "$IAC_MODULES_VERSION" https://github.com/SODALITE-EU/iac-modules.git openstack/modules &&
   git config --global advice.detachedHead "true"
 fi
 
 # copy library
 echo
 echo "Copying iac-platform-stack library"
-rm -rf docker-local/library/
-cp -r library/ docker-local/library/
+rm -rf openstack/library/
+cp -r library/ openstack/library/
 
 echo
 echo "Installing required Ansible roles"
@@ -185,10 +190,14 @@ echo "Running installation script as" "$CURRENT_USER"
 
 echo
 echo
-echo "These are basic minimal inputs. If more advanced inputs are required please edit /docker-local/input.yaml file manually."
+echo "These are basic minimal inputs. If more advanced inputs are required please edit /openstack/input.yaml file manually."
 echo
 read -rp "Please enter email for SODALITE certificate: " EMAIL_INPUT
 export SODALITE_EMAIL=$EMAIL_INPUT
+
+echo
+read -rp "Please enter Key pair name, to be assigned to sodalite-demo VM: " KEY_NAME_INPUT
+export ssh_key_name=$KEY_NAME_INPUT
 
 echo
 read -rp "Please enter username for SODALITE blueprint database: " USERNAME_INPUT
@@ -201,14 +210,17 @@ export SODALITE_DB_PASSWORD=$PASSWORD_INPUT
 echo
 read -rp "Please enter token for SODALITE Gitlab repository: " TOKEN_INPUT
 export SODALITE_GIT_TOKEN=$TOKEN_INPUT
+echo
+read -rp "Please enter ip of target registry: " REGISTRY_INPUT
+export REGISTRY_IP=$REGISTRY_INPUT
 
 # prepare inputs
-envsubst <./docker-local/input.yaml.tmpl >./docker-local/input.yaml
+envsubst <./openstack/input.yaml.tmpl >./openstack/input.yaml
 
 echo
 echo "Checking TLS key and certificate..."
-FILE_KEY=docker-local/modules/docker/artifacts/ca.key
-FILE_KEY2=docker-local/modules/misc/tls/artifacts/ca.key
+FILE_KEY=openstack/modules/docker/artifacts/ca.key
+FILE_KEY2=openstack/modules/misc/tls/artifacts/ca.key
 if [ -f "$FILE_KEY" ] && [ -f "$FILE_KEY2" ]; then
   echo "TLS key file already exists."
 else
@@ -216,8 +228,8 @@ else
   openssl genrsa -out $FILE_KEY 4096
   cp $FILE_KEY $FILE_KEY2
 fi
-FILE_CRT=docker-local/modules/docker/artifacts/ca.crt
-FILE_CRT2=docker-local/modules/misc/tls/artifacts/ca.crt
+FILE_CRT=openstack/modules/docker/artifacts/ca.crt
+FILE_CRT2=openstack/modules/misc/tls/artifacts/ca.crt
 if [ -f "$FILE_CRT" ] && [ -f "$FILE_CRT2" ]; then
   echo "TLS certificate file already exists."
 else
@@ -227,11 +239,33 @@ else
 fi
 
 unset CURRENT_USER
+unset REGISTRY_IP
 unset SODALITE_GIT_TOKEN
 unset SODALITE_DB_USERNAME
 unset SODALITE_DB_PASSWORD
 unset SODALITE_EMAIL
+unset ssh_key_name
 
+echo
+echo
+
+# shellcheck disable=SC1090
+# source openrcfile
+if [ -f "$OPENRC_PATH" ]; then
+  echo "Exporting openstack environment variables..."
+  . "$OPENRC_PATH"
+  echo
+  echo "Testing Openstack connection..."
+  if [ -z "$(openstack server list)" ]; then
+    exit 1
+  else
+    echo "Successfully connected to Openstack"
+  fi
+
+else
+  echo "Missing openrc file on $OPENRC_PATH"
+  exit 1
+fi
 
 # sudo is needed to ensure ansible will get user's password
 echo
@@ -243,12 +277,12 @@ if [[ $MODE == "deploy" ]]; then
 
   if [[ $RESUME == "resume" ]]; then
 
-    cd docker-local || exit 1
+    cd openstack || exit 1
     opera deploy -i input.yaml service.yaml --resume
 
   else
 
-    cd docker-local || exit 1
+    cd openstack || exit 1
     rm -rf .opera
     opera deploy -i input.yaml service.yaml
 
@@ -257,7 +291,7 @@ if [[ $MODE == "deploy" ]]; then
 elif [[ $MODE == "undeploy" ]]; then
   echo "Undeploying with opera..."
 
-  cd docker-local || exit 1
+  cd openstack || exit 1
   opera undeploy
 
 else
