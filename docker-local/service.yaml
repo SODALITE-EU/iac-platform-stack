@@ -606,6 +606,7 @@ topology_template:
       requirements:
         - dependency: monitoring-system-alertmanager
         - dependency: monitoring-system-consul
+        - host: sodalite-vm
 
     monitoring-system-prometheus:
       type: sodalite.nodes.DockerizedComponent
