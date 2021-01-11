@@ -7,7 +7,12 @@ imports:
   - modules/docker/docker_registry.yaml
   - modules/docker/docker_component.yaml
   - modules/docker/docker_certificate.yaml
-  - modules/sodalite/types.yaml
+  - modules/docker/docker_volume.yaml
+  - modules/misc/ssh/types.yaml
+  - modules/misc/tls/types.yaml
+  - modules/tests/test_definitions.yaml
+  - library/config/types.yaml
+  - library/prometheus/prometheus_config.yaml
 
 topology_template:
 
@@ -19,9 +24,7 @@ topology_template:
     image-name:  
       type: string 
     openstack-network-name:  
-      type: string 
-    security-groups:  
-      type: string    
+      type: string
     flavor-name:  
       type: string                   
     docker-network: 
@@ -53,31 +56,56 @@ topology_template:
       type: map
     image_builder_env:
       type: map  
+    modak_api_env:
+      type: map
+    modak_db_env:
+      type: map
 
-    prometheus_os_auth_url: 
-      type: string
-    prometheus_os_username: 
-      type: string
-    prometheus_os_password: 
-      type: string
-    prometheus_os_project_id:  
-      type: string
-    prometheus_os_project_name: 
-      type: string
+  node_templates:
+    security-rules-remote-access:
+      type: sodalite.nodes.OpenStack.SecurityRules
+      properties:
+        ports:
+          SSH:
+            port_range_min: 20
+            port_range_max: 22
+            remote_ip_prefix: 0.0.0.0/0
+            protocol: tcp
+        group_name: sodalite-remote-access
+        group_description: Sodalite SSH group
 
-  node_templates: 
 
     security-rules-sodalite:  
       type: sodalite.nodes.OpenStack.SecurityRules 
       properties:  
-        ports:  
-          prometheus:  
-            port_range_max: 9090 
-            remote_ip_prefix: 0.0.0.0/0 
-            port_range_min: 9090 
-            protocol: tcp 
+        ports:
+          traefik:
+            port_range_min: 8888
+            port_range_max: 8888
+            remote_ip_prefix: 0.0.0.0/0
+            protocol: tcp
+          prometheus:
+            port_range_min: 9090
+            port_range_max: 9093
+            remote_ip_prefix: 0.0.0.0/0
+            protocol: tcp
+          prometheus_skydive_connector:
+            port_range_min: 9101
+            port_range_max: 9101
+            remote_ip_prefix: 0.0.0.0/0
+            protocol: tcp
+          consul_1:
+            port_range_min: 8500
+            port_range_max: 8500
+            remote_ip_prefix: 0.0.0.0/0
+            protocol: tcp
+          consul_2:
+            port_range_min: 8600
+            port_range_max: 8600
+            remote_ip_prefix: 0.0.0.0/0
+            protocol: tcp
           component_ports:  
-            port_range_max: 8085 
+            port_range_max: 8088
             remote_ip_prefix: 0.0.0.0/0 
             port_range_min: 8080 
             protocol: tcp 
@@ -95,7 +123,17 @@ topology_template:
             port_range_min: 443
             port_range_max: 444
             protocol: tcp
-            remote_ip_prefix: 0.0.0.0/0            
+            remote_ip_prefix: 0.0.0.0/0
+          postgres_port:
+            port_range_min: 5432
+            port_range_max: 5432
+            protocol: tcp
+            remote_ip_prefix: 0.0.0.0/0
+          graph_db_port:
+            port_range_min: 7200
+            port_range_max: 7200
+            protocol: tcp
+            remote_ip_prefix: 0.0.0.0/0
         group_name:  sodalite-uc 
         group_description:  Sodalite UC security group     
 
@@ -106,11 +144,12 @@ topology_template:
         key_name:         { get_input: ssh-key-name } 
         image:            { get_input: image-name }
         network:          { get_input: openstack-network-name } 
-        security_groups:  { get_input: security-groups } 
+        security_groups:  sodalite-remote-access,sodalite-uc
         flavor:           { get_input: flavor-name }
         username: centos
       requirements:  
         - protected_by: security-rules-sodalite 
+        - protected_by: security-rules-remote-access
 
     docker-host:
       type: sodalite.nodes.DockerHost
@@ -131,52 +170,87 @@ topology_template:
         docker_registry_url: { get_input: docker-public-registry-url } 
       requirements:
         - host: sodalite-vm
-        - dependency: docker-host 
+        - dependency: docker-host
 
     docker-registry-certificate:
       type: sodalite.nodes.RegistryCertificate
-      properties:  
-        registry_ip:         { get_input: docker-private-registry-url }
+      properties:
+        registry_ip:        { get_input: docker-private-registry-url }
+        country_name:       { get_input: docker-registry-cert-country-name }
+        organization_name:  { get_input: docker-registry-cert-organization-name }
+        email_address:      { get_input: docker-registry-cert-email-address }
+      requirements:
+        - host: sodalite-vm
+        - dependency: docker-host
+
+    traefik-tls-certs:
+      type: sodalite.nodes.TLS.Certificate
+      properties:
         country_name:        { get_input: docker-registry-cert-country-name }
         organization_name:   { get_input: docker-registry-cert-organization-name }
         email_address:       { get_input: docker-registry-cert-email-address }
-        cert_path: "/home/xopera/certs/"
-        cert_files_prefix: "image.docker.local"
+        cert_path: "/home/nginx/certs"
       requirements:
-        - host: sodalite-vm 
-        - dependency: docker-host        
+        - host: sodalite-vm
+        - dependency: docker-host
 
-    # monitoring-system
-    # https://github.com/SODALITE-EU/monitoring-system
-    prometheus-config:
-      type: sodalite.nodes.Configuration.Prometheus
-      properties:  
-        os_auth_url:         { get_input: prometheus_os_auth_url }
-        os_username:         { get_input: prometheus_os_username }
-        os_password:         { get_input: prometheus_os_password }
-        os_project_id:       { get_input: prometheus_os_project_id }
-        os_project_name:     { get_input: prometheus_os_project_name }
-        dir: /tmp/prometheus/
-        filename: prometheus.yml
+    proxy-tls-config:
+      type: sodalite.nodes.Configuration.NginxConfig
+      properties:
+        cert_files_prefix: { get_attribute: [ SELF, dependency, cert_files_prefix ] }
+        dir: /home/nginx
+        filename: certificates.toml
+        template_name: certificates.toml.tmpl
       requirements:
-        - host: sodalite-vm 
-     
-    prometheus-container:
+        - host: sodalite-vm
+        - dependency: traefik-tls-certs
+
+    proxy:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        alias: prometheus
-        image_name: prom/prometheus:latest
+        alias: proxy
+        docker_network_name: { get_property: [ SELF, network, name ] }
+        image_name: library/traefik:v2.3.4
+        command:
+          - "--accesslog=true"
+          - "--log.level=info"
+          - "--providers.docker=true"
+          - "--providers.docker.exposedbydefault=false"
+          # entrypoints
+          - "--entrypoints.xopera-insecure.address=:5000"
+          - "--entrypoints.xopera.address=:5001"
+          - "--entrypoints.image-builder.address=:5002"
+          - "--entrypoints.postgres.address=:5432"
+          - "--entrypoints.traefik.address=:8888"
+          # https certs config
+          - "--providers.file.directory=/configuration/"
+          - "--providers.file.watch=true"
+          # dashboard
+          - "--api.dashboard=true"
         restart_policy: always
-        ports:  ['9090:9090']
-        exposed_ports:  ['9090']
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        ports: [ '5000:5000', '5001:5001', '5002:5002', '8888:8888', '5432:5432' ]
         volumes:
-          - "/tmp/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+          - /var/run/docker.sock:/var/run/docker.sock:ro
+          - /home/nginx/certificates.toml:/configuration/certificates.toml:ro
+          - /home/nginx/certs:/etc/nginx/certs
+        labels:
+          traefik.enable: "true"
+          traefik.http.routers.traefik.rule: "(PathPrefix(`/traefik`) || PathPrefix(`/api`))"
+          traefik.http.routers.traefik.service: "api@internal"
+          traefik.http.routers.traefik.entrypoints: "traefik"
+          traefik.http.routers.traefik.tls: "true"
+          traefik.http.middlewares.strip.stripprefix.prefixes: "/traefik"
+          traefik.http.routers.traefik.middlewares: "auth, strip"
+          traefik.http.middlewares.auth.digestauth.removeheader: "true"
+          traefik.http.middlewares.auth.digestauth.users: "test:traefik:5200b80022bb7d8e8c8bf2eb34b985cb"
+
       requirements:
         - host: docker-host
-        - registry: docker-public-registry  
-        - network: docker-network         
-    
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: traefik-tls-certs
+        - dependency: proxy-tls-config
+
     # xopera-rest-api
     # https://github.com/SODALITE-EU/xopera-rest-api        
     xopera-openstack-keys:
@@ -184,58 +258,122 @@ topology_template:
       requirements:
         - host: sodalite-vm
 
-    xopera-postgres-container:
+    xopera-openapi-volume:
+      type: sodalite.nodes.DockerVolume
+      properties:
+        name: xopera-openapi
+      requirements:
+        - host: sodalite-vm
+
+    xopera-postgres:
       type: sodalite.nodes.DockerizedComponent
       properties:
         image_name: library/postgres:13
         volumes:
           - "/home/postgres:/var/lib/postgresql/data"
-        ports: ['5432:5432']
         alias: xopera-postgres
         env: { get_input: postgres_env }
-        docker_network_name:  { get_property: [ SELF, network, name ] }
-      requirements:
-        - host:  docker-host
-        - network: docker-network
-        - registry: docker-public-registry 
+        docker_network_name: { get_property: [ SELF, network, name ] }
+        labels:
+          traefik.enable: "true"
+          traefik.tcp.services.xopera-postgres.loadbalancer.server.port: "5432"
+          traefik.tcp.routers.xopera-postgres.rule: "HostSNI(`*`)"
+          traefik.tcp.routers.xopera-postgres.entrypoints: "postgres"
 
-    xopera-flask-container:
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+
+    xopera-rest-api:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        alias: xopera-flask
-        docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/xopera-flask:M18Release
+        alias: xopera-rest-api
+        docker_network_name: { get_property: [ SELF, network, name ] }
+        image_name: sodaliteh2020/xopera-rest-api:1.0.1
         restart_policy: always
         volumes:
-          - "/var/run/docker.sock:/var/run/docker.sock"
-          - "/root/.ssh/:/root/.ssh/"
-          - "/home/xopera/certs:/home/xopera/certs"
-        exposed_ports:  ['5000']
+          - /var/run/docker.sock:/var/run/docker.sock
+          - /root/.ssh/:/root/.ssh/
+          - xopera-openapi:/app/opera/api/openapi/openapi/
+        labels:
+          traefik.enable: "true"
+          traefik.http.services.xopera-rest-api.loadbalancer.server.port: "8080"
+          # http config
+          traefik.http.routers.xopera-rest-api-insecure.rule: "PathPrefix(`/`)"
+          traefik.http.routers.xopera-rest-api-insecure.entrypoints: "xopera-insecure"
+          # https config
+          traefik.http.routers.xopera-rest-api.rule: "PathPrefix(`/`)"
+          traefik.http.routers.xopera-rest-api.entrypoints: "xopera"
+          traefik.http.routers.xopera-rest-api.tls: "true"
         env: { get_input: xopera_env }
       requirements:
         - host: docker-host
-        - registry: docker-public-registry  
-        - network: docker-network 
-        - dependency: xopera-openstack-keys
-        - dependency: xopera-postgres-container
+        - registry: docker-public-registry
+        - network: docker-network
         - dependency: docker-registry-certificate
+        - dependency: xopera-openstack-keys
+        - dependency: xopera-postgres
+        - dependency: xopera-openapi-volume
 
-    xopera-nginx-container:
+    xopera-ui:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        alias: xopera-nginx
-        docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/xopera-nginx:M18Release
+        alias: xopera-ui
+        docker_network_name: { get_property: [ SELF, network, name ] }
+        image_name: swaggerapi/swagger-ui:v3.37.0
         restart_policy: always
-        ports:  ['5001:443', '5000:80']
-        #exposed_ports:  ['443', '5000']
         volumes:
-          - "/home/xopera/certs:/etc/nginx/certs"
+          - xopera-openapi:/openapi:ro
+        env:
+          SWAGGER_JSON: /openapi/openapi.yaml
+        labels:
+          traefik.enable: "true"
+          traefik.http.services.xopera-ui.loadbalancer.server.port: "8080"
+          traefik.http.middlewares.stripprefix-ui.stripprefix.prefixes: "/ui"
+          # http config
+          traefik.http.routers.xopera-ui-insecure.entrypoints: "xopera-insecure"
+          traefik.http.routers.xopera-ui-insecure.rule: "PathPrefix(`/ui`)"
+          traefik.http.routers.xopera-ui-insecure.middlewares: "stripprefix-ui"
+          # https config
+          traefik.http.routers.xopera-ui.entrypoints: "xopera"
+          traefik.http.routers.xopera-ui.tls: "true"
+          traefik.http.routers.xopera-ui.rule: "PathPrefix(`/ui`)"
+          traefik.http.routers.xopera-ui.middlewares: "stripprefix-ui"
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: xopera-rest-api
+        - dependency: xopera-openapi-volume
+
+    # image registry
+    docker-registry-container:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: registry
+        image_name: library/registry:2
+        ports:
+          - "443:443"
+        #TODO get filenames from docker-registry-certificate, when opera enables intrinsic functions on all depths
+        ca_cert: "/certs/ca.crt"
+        client_cert: "/certs/localhost.crt"
+        client_key: "/certs/localhost.key"
+        etc_hosts:
+          registry.docker.local: 127.0.0.1
+        volumes:
+          - "/home/localregistry/registry:/var/lib/registry"
+          - "/home/nginx/certs:/certs"
+        env:
+          REGISTRY_HTTP_ADDR: 0.0.0.0:443
+          REGISTRY_HTTP_TLS_CLIENTCAS: "[/certs/ca.crt]"
+          REGISTRY_HTTP_TLS_CERTIFICATE: "/certs/localhost.crt"
+          REGISTRY_HTTP_TLS_KEY: "/certs/localhost.key"
+        docker_network_name:  { get_property: [ SELF, network, name ] }
       requirements:
         - host: docker-host
         - registry: docker-public-registry   
-        - network: docker-network           
-        - dependency: xopera-flask-container
+        - network: docker-network
         - dependency: docker-registry-certificate
 
     # iac-blueprint-builder 
@@ -247,49 +385,40 @@ topology_template:
         image_name: sodaliteh2020/iac-blueprint-builder:24
         docker_network_name:  { get_property: [ SELF, network, name ] }
         restart_policy: always
-        ports: 
-        - "8081:80"
+        ports:
+          - "8081:80"
         env:
-          XOPERA_ENDPOINT: http://xopera-nginx:80
+          XOPERA_ENDPOINT: http://proxy:5000
       requirements:
         - host: docker-host
         - registry: docker-public-registry 
         - network: docker-network    
-        - dependency: xopera-nginx-container
+        - dependency: proxy
 
     # image-builder     
     # https://github.com/SODALITE-EU/image-builder  
-    image-builder-flask:
+    image-builder-api:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name:  sodaliteh2020/image-builder-flask:v0.2.1
+        image_name:  sodaliteh2020/image-builder-api:0.3.0
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        exposed_ports:  ['5000']
+        # exposed_ports:  ['5000']
         env: { get_input: image_builder_env }
         volumes:
           - "/var/run/docker.sock:/var/run/docker.sock"
-        alias: image-builder-flask
+        alias: image-builder-api
+        labels:
+          traefik.enable: "true"
+          traefik.http.services.image-builder.loadbalancer.server.port: "5000"
+
+          # https config
+          traefik.http.routers.image-builder.rule: "PathPrefix(`/`)"
+          traefik.http.routers.image-builder.entrypoints: "image-builder"
+          traefik.http.routers.image-builder.tls: "true"
       requirements:
         - host:  docker-host
         - registry: docker-public-registry 
         - network: docker-network
-
-    image-builder-nginx:
-      type: sodalite.nodes.DockerizedComponent
-      properties:
-        image_name: sodaliteh2020/image-builder-nginx:v0.2.1
-        docker_network_name:  { get_property: [ SELF, network, name ] }
-        ports:  ['5002:443']
-        #exposed_ports:  ['443']
-        volumes:
-          - "/home/xopera/certs:/etc/nginx/certs"
-        alias: image-builder-nginx
-      requirements:
-        - host:  docker-host
-        - dependency: image-builder-flask
-        - network: docker-network 
-        - registry: docker-public-registry 
-        - dependency: docker-registry-certificate
 
     # semantic-reasoner     
     # https://github.com/SODALITE-EU/semantic-reasoner 
@@ -398,7 +527,8 @@ topology_template:
         ports:  ['5006:5000']
       requirements:
         - host: docker-host
-        - registry: docker-public-registry         
+        - registry: docker-public-registry
+
     # refactoring-ml
     # https://github.com/SODALITE-EU/refactoring-ml      
     rule-based-refactorer-container:
@@ -411,14 +541,14 @@ topology_template:
         docker_network_name:  { get_property: [ SELF, network, name ] }
         env:
           prometheus: http://prometheus:9090
-          xopera: http://xopera-nginx:5000
+          xopera: http://proxy:5000
           refacopdiscoverer: http://refactoring-option-discoverer:8080
           perfpredictor: http://performance-predictor-refactoring:5000
       requirements:
         - host: docker-host
         - registry: docker-public-registry 
         - network: docker-network   
-        - dependency: xopera-nginx-container
+        - dependency: proxy
         - dependency: performance-predictor-refactoring-container
         - dependency: refactoring-option-discoverer-container
         
@@ -432,14 +562,14 @@ topology_template:
         docker_network_name:  { get_property: [ SELF, network, name ] }
         env:
           prometheus: http://prometheus:9090
-          xopera: http://xopera-nginx:5000
+          xopera: http://proxy:5000
           refacopdiscoverer: http://refactoring-option-discoverer:8080
           perfpredictor: http://performance-predictor-refactoring:5000
       requirements:
         - host: docker-host
         - registry: docker-public-registry 
         - network: docker-network  
-        - dependency: xopera-nginx-container
+        - dependency: proxy
         - dependency: refactoring-option-discoverer-container
 
     # https://github.com/SODALITE-EU/refactoring-option-discoverer
@@ -457,4 +587,186 @@ topology_template:
         - host: docker-host
         - registry: docker-public-registry  
         - network: docker-network         
-        - dependency: know-db-container        
+        - dependency: know-db-container
+
+    # skydive-analyzer
+    # https://github.com/skydive-project/skydive
+    skydive-analyzer:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name:  skydive/skydive:0.27.0
+        command: analyzer
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        ports:  ['8088:8082', '8088:8082/udp']
+        alias: skydive-analyzer
+      requirements:
+        - host:  docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+
+    # skydive-capture
+    # https://github.com/skydive-project/skydive
+    skydive-capture:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name:  skydive/skydive:0.27.0
+        command: client capture create --extra-tcp-metric --gremlin "G.V()"
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        env:
+          SKYDIVE_ANALYZER: skydive-analyzer:8082
+        alias: skydive-capture
+        restart_policy: no
+      requirements:
+        - host:  docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: skydive-analyzer
+
+    # prometheus-skydive-connector
+    # https://github.com/SODALITE-EU/skydive-flow-exporter/prom_sky_con
+    prometheus-skydive-connector:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name: sodaliteh2020/prometheus-skydive-connector:1
+        command: /etc/prom_sky_con.yml
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        env:
+          SKYDIVE_PIPELINE_SUBSCRIBER_URL: ws://skydive-analyzer:8082/ws/subscriber/flow
+        ports:  ['9101:9100']
+        alias: prometheus-skydive-connector
+      requirements:
+        - host:  docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+
+
+    # MONITORING-SYSTEM
+    # https://github.com/SODALITE-EU/monitoring-system
+
+    monitoring-system-consul:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: consul
+        image_name: library/consul:1.9.1
+        restart_policy: always
+        ports:  ['8500:8500','8600:8600/udp']
+        exposed_ports:  ['8500','8600/udp']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+
+    monitoring-system-alertmanager:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: alertmanager
+        image_name: prom/alertmanager:v0.21.0
+        restart_policy: always
+        ports:  ['9093:9093']
+        exposed_ports:  ['9093']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+
+    prometheus-config:
+      type: sodalite.nodes.monitoring-system-prometheus.config
+      properties:
+        dest: /tmp/prometheus/prometheus.yml
+        alertmanager_endpoint: alertmanager:9093
+        consul_endpoint: consul:8500
+      requirements:
+        - dependency: monitoring-system-alertmanager
+        - dependency: monitoring-system-consul
+        - host: sodalite-vm
+
+    monitoring-system-prometheus:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: prometheus
+        image_name: prom/prometheus:v2.23.0
+        restart_policy: always
+        ports:  ['9090:9090']
+        exposed_ports:  ['9090']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        volumes:
+          - "/tmp/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+          - rules-volume:/etc/prometheus/rules
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - configuration: prometheus-config
+
+    # Register prometheus-skydive-connector with prometheus consul
+    prometheus-skydive-connector-registration:
+      type: sodalite.nodes.Tests.Text.Command
+      properties:
+        # localhost should really be replaced with something like {{ monitoring-system-consul }}; should use concat
+        command: " curl -X PUT -d ' { \"Name\": \"consul-registered-skydive-exporters\", \"ID\": \"fakeuniqueid-skydive-exporter\", \"Address\": \"prometheus-skydive-connector\", \"Port\": 9100 } ' localhost:8500/v1/agent/service/register "
+        comparable_string: '.*'
+        regex: true
+      requirements:
+        - dependency: prometheus-skydive-connector
+        - dependency: monitoring-system-consul
+        - dependency: monitoring-system-prometheus
+
+    monitoring-system-ruleserver:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name: sodaliteh2020/monitoring-system-ruleserver:0.2.0
+        restart_policy: always
+        ports: [ '9092:9092' ]
+        exposed_ports: [ '9092' ]
+        docker_network_name: { get_property: [ SELF, network, name ] }
+        env:
+          GUNICORN_WORKERS: "8"
+          RULESERVER_PORT: "9092"
+        volumes:
+          - "/var/run/docker.sock:/var/run/docker.sock"
+          - rules-volume:/etc/prometheus/rules
+        alias: ruleserver
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+        - dependency: monitoring-system-prometheus
+
+    # MODAK
+    # https://github.com/SODALITE-EU/application-optimisation/tree/api_split
+    modak-api-container:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: modak-api
+        image_name: sodaliteh2020/modak-api:0.1.2-dev
+        restart_policy: always
+        ports:  ['55000:5000']
+        exposed_ports:  ['55000']
+        env: { get_input: modak_api_env }
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: modak-db-container
+
+    modak-db-container:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: modak-db
+        image_name: sodaliteh2020/modak-py3-mysql:0.1.2-dev
+        restart_policy: always
+        ports:  ['32000:3306']
+        exposed_ports:  ['32000']
+        volumes:
+          - /docker-entrypoint-initdb.d/
+        env: { get_input: modak_db_env }
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+
+

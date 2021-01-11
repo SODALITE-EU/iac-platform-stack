@@ -1,4 +1,4 @@
-ssh-key-name: some_key
+ssh-key-name: ${ssh_key_name}
 image-name: "centos-7 x86_64"
 openstack-network-name: xlab
 flavor-name: m1.large
@@ -6,29 +6,29 @@ docker-network: sodalite
 dockerhub-user: 
 dockerhub-pass: 
 docker-public-registry-url: registry.hub.docker.com
-docker-private-registry-url: SODALITE_private_registry_url
+docker-private-registry-url: registry
 docker-registry-cert-country-name: SI
 docker-registry-cert-organization-name: XLAB
-docker-registry-cert-email-address: some_email@email.com
+docker-registry-cert-email-address: $SODALITE_EMAIL
 postgres_env:
-  POSTGRES_USER: username
-  POSTGRES_PASSWORD: password
+  POSTGRES_USER: $SODALITE_DB_USERNAME
+  POSTGRES_PASSWORD: $SODALITE_DB_PASSWORD
   POSTGRES_DB: postgres
 xopera_env:
   XOPERA_GIT_TYPE: gitlab
   XOPERA_GIT_URL: https://gitlab.com
-  XOPERA_GIT_AUTH_TOKEN: some_token
+  XOPERA_GIT_AUTH_TOKEN: $SODALITE_GIT_TOKEN
   XOPERA_VERBOSE_MODE: debug
   XOPERA_DATABASE_IP: xopera-postgres
   XOPERA_DATABASE_NAME: postgres
-  XOPERA_DATABASE_USER: username
-  XOPERA_DATABASE_PASSWORD: password
+  XOPERA_DATABASE_USER: $SODALITE_DB_USERNAME
+  XOPERA_DATABASE_PASSWORD: $SODALITE_DB_PASSWORD
 image_builder_env:
-  REGISTRY_IP: SODALITE_private_registry_url
+  REGISTRY_IP: registry
 modak_api_env:
-  MODAK_DATABASE_PASSWORD: password
+  MODAK_DATABASE_PASSWORD: $SODALITE_DB_PASSWORD
   MODAK_DATABASE_HOST: modak-db
   MODAK_DATABASE_PORT: "3306"
 modak_db_env:
   MYSQL_ROOT_HOST: "%"
-  MYSQL_ROOT_PASSWORD: password
+  MYSQL_ROOT_PASSWORD: $SODALITE_DB_PASSWORD

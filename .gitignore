@@ -1,4 +1,7 @@
 .venv
 docker-local/.opera
 docker-local/modules
+docker-local/library
 openstack/.opera
+openstack/modules
+openstack/library
