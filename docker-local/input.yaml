@@ -1,4 +1,5 @@
 username: local-username
+local_ipv4_address: local-ip
 docker-network: sodalite
 dockerhub-user: 
 dockerhub-pass: 

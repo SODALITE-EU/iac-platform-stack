@@ -29,9 +29,9 @@ topology_template:
 
   inputs:  
     username:  
-      type: string 
-    docker-registry-ip:  
-      type: string 
+      type: string
+    local_ipv4_address:
+      type: string
     docker-network: 
       type: string
     dockerhub-user:
@@ -98,16 +98,59 @@ topology_template:
         - host: sodalite-vm
         - dependency: docker-host
 
-    docker-registry-certificate:
+    # docker image registry
+    internal-registry-server-certs:
+      type: sodalite.nodes.RegistryServerCertificate
+      properties:
+        country_name:               { get_input: docker-registry-cert-country-name }
+        organization_name:          { get_input: docker-registry-cert-organization-name }
+        email_address:              { get_input: docker-registry-cert-email-address }
+        cert_ipv4_address:          { get_input: local_ipv4_address }
+        cert_path: "/home/registry/certs"
+        cert_files_prefix: registry
+        domain_name: "SODALITE platform stack Registry"
+      requirements:
+        - host: sodalite-vm
+        - dependency: docker-host
+
+    internal-registry-client-certificate:
       type: sodalite.nodes.RegistryCertificate
       properties:
-        registry_ip:        localhost
+        registry_ip:        { get_input: local_ipv4_address }
         country_name:       { get_input: docker-registry-cert-country-name }
         organization_name:  { get_input: docker-registry-cert-organization-name }
         email_address:      { get_input: docker-registry-cert-email-address }
       requirements:
         - host: sodalite-vm
         - dependency: docker-host
+
+    docker-registry-container:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: registry
+        image_name: library/registry:2
+        ports:
+          - "443:443"
+        #TODO get filenames from docker-registry-certificate, when opera enables intrinsic functions on all depths
+        ca_cert: "/certs/ca.crt"
+        client_cert: "/certs/registry.crt"
+        client_key: "/certs/registry.key"
+        etc_hosts:
+          registry.docker.local: 127.0.0.1
+        volumes:
+          - "/home/localregistry/registry:/var/lib/registry"
+          - "/home/registry/certs:/certs"
+        env:
+          REGISTRY_HTTP_ADDR: 0.0.0.0:443
+          REGISTRY_HTTP_TLS_CLIENTCAS: "[/certs/ca.crt]"
+          REGISTRY_HTTP_TLS_CERTIFICATE: "/certs/registry.crt"
+          REGISTRY_HTTP_TLS_KEY: "/certs/registry.key"
+        docker_network_name: { get_property: [ SELF, network, name ] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: internal-registry-server-certs
 
     traefik-tls-certs:
       type: sodalite.nodes.TLS.Certificate
@@ -237,7 +280,6 @@ topology_template:
         - host: docker-host
         - registry: docker-public-registry
         - network: docker-network
-        - dependency: docker-registry-certificate
         - dependency: xopera-openstack-keys
         - dependency: xopera-postgres
         - dependency: xopera-openapi-volume
@@ -272,35 +314,6 @@ topology_template:
         - network: docker-network
         - dependency: xopera-rest-api
         - dependency: xopera-openapi-volume
-
-    # image registry
-    docker-registry-container:
-      type: sodalite.nodes.DockerizedComponent
-      properties:
-        alias: registry
-        image_name: library/registry:2
-        ports:
-          - "443:443"
-        #TODO get filenames from docker-registry-certificate, when opera enables intrinsic functions on all depths
-        ca_cert: "/certs/ca.crt"
-        client_cert: "/certs/localhost.crt"
-        client_key: "/certs/localhost.key"
-        etc_hosts:
-          registry.docker.local: 127.0.0.1
-        volumes:
-          - "/home/localregistry/registry:/var/lib/registry"
-          - "/home/nginx/certs:/certs"
-        env:
-          REGISTRY_HTTP_ADDR: 0.0.0.0:443
-          REGISTRY_HTTP_TLS_CLIENTCAS: "[/certs/ca.crt]"
-          REGISTRY_HTTP_TLS_CERTIFICATE: "/certs/localhost.crt"
-          REGISTRY_HTTP_TLS_KEY: "/certs/localhost.key"
-        docker_network_name:  { get_property: [ SELF, network, name ] }  
-      requirements:
-        - host: docker-host
-        - registry: docker-public-registry   
-        - network: docker-network   
-        - dependency: docker-registry-certificate 
 
     # iac-blueprint-builder 
     # https://github.com/SODALITE-EU/iac-blueprint-builder 
