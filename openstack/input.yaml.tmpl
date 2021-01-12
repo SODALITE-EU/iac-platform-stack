@@ -6,7 +6,6 @@ docker-network: sodalite
 dockerhub-user: 
 dockerhub-pass: 
 docker-public-registry-url: registry.hub.docker.com
-docker-private-registry-url: registry
 docker-registry-cert-country-name: SI
 docker-registry-cert-organization-name: XLAB
 docker-registry-cert-email-address: $SODALITE_EMAIL
@@ -23,8 +22,6 @@ xopera_env:
   XOPERA_DATABASE_NAME: postgres
   XOPERA_DATABASE_USER: $SODALITE_DB_USERNAME
   XOPERA_DATABASE_PASSWORD: $SODALITE_DB_PASSWORD
-image_builder_env:
-  REGISTRY_IP: registry
 modak_api_env:
   MODAK_DATABASE_PASSWORD: $SODALITE_DB_PASSWORD
   MODAK_DATABASE_HOST: modak-db

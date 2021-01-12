@@ -12,13 +12,21 @@ imports:
   - modules/misc/tls/types.yaml
   - modules/tests/test_definitions.yaml
   - library/config/types.yaml
+  - library/env/types.yaml
   - library/prometheus/prometheus_config.yaml
+
+node_types:
+
+  sodalite.nodes.localhost-computer:
+    derived_from: tosca.nodes.Compute
+    properties:
+      name:
+        type: string
+        description: Name of machine. Used to write into registry certificate
 
 topology_template:
 
-  inputs:  
-    docker-registry-ip:  
-      type: string 
+  inputs:
     ssh-key-name:  
       type: string 
     image-name:  
@@ -38,9 +46,6 @@ topology_template:
     docker-public-registry-url: 
       type: string
       default: ""
-    docker-private-registry-url: 
-      type: string
-      default: ""
     docker-registry-cert-country-name:
       type: string
       default: ""
@@ -54,8 +59,6 @@ topology_template:
       type: map
     xopera_env:
       type: map
-    image_builder_env:
-      type: map  
     modak_api_env:
       type: map
     modak_db_env:
@@ -151,6 +154,14 @@ topology_template:
         - protected_by: security-rules-sodalite 
         - protected_by: security-rules-remote-access
 
+    local-computer:
+      type: sodalite.nodes.localhost-computer
+      properties:
+        name: localhost
+      attributes:
+        private_address: localhost
+        public_address: localhost
+
     docker-host:
       type: sodalite.nodes.DockerHost
       requirements:
@@ -161,7 +172,7 @@ topology_template:
       properties:  
         name: { get_input: docker-network }
       requirements:
-        - host: sodalite-vm 
+        - host: sodalite-vm
         - dependency: docker-host    
         
     docker-public-registry:
@@ -172,16 +183,71 @@ topology_template:
         - host: sodalite-vm
         - dependency: docker-host
 
-    docker-registry-certificate:
+    # docker image registry
+    docker-private-registry-server-certs:
+      type: sodalite.nodes.RegistryServerCertificate
+      properties:
+        country_name:               { get_input: docker-registry-cert-country-name }
+        organization_name:          { get_input: docker-registry-cert-organization-name }
+        email_address:              { get_input: docker-registry-cert-email-address }
+        cert_path: "/home/registry/certs"
+        cert_files_prefix: registry
+        domain_name: "SODALITE platform stack Registry"
+      requirements:
+        - host: sodalite-vm
+        - dependency: docker-host
+
+    # for registry access from within 'sodalite-vm'
+    docker-private-registry-internal-client-certificate:
       type: sodalite.nodes.RegistryCertificate
       properties:
-        registry_ip:        { get_input: docker-private-registry-url }
+        registry_ip:        { get_attribute: [ SELF, host, public_address ] }
         country_name:       { get_input: docker-registry-cert-country-name }
         organization_name:  { get_input: docker-registry-cert-organization-name }
         email_address:      { get_input: docker-registry-cert-email-address }
       requirements:
         - host: sodalite-vm
         - dependency: docker-host
+
+    # for registry access from deploying computer
+    docker-private-registry-localhost-client-certificate:
+      type: sodalite.nodes.RegistryCertificate
+      properties:
+        registry_ip: { get_attribute: [ SELF, dependency, public_address ] }
+        country_name: { get_input: docker-registry-cert-country-name }
+        organization_name: { get_input: docker-registry-cert-organization-name }
+        email_address: { get_input: docker-registry-cert-email-address }
+      requirements:
+        - host: local-computer
+        - dependency: sodalite-vm
+
+    docker-registry-container:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: registry
+        image_name: library/registry:2
+        ports:
+          - "443:443"
+        #TODO get filenames from docker-registry-certificate, when opera enables functions on all depths
+        ca_cert: "/certs/ca.crt"
+        client_cert: "/certs/registry.crt"
+        client_key: "/certs/registry.key"
+        etc_hosts:
+          registry.docker.local: 127.0.0.1
+        volumes:
+          - "/home/localregistry/registry:/var/lib/registry"
+          - "/home/registry/certs:/certs"
+        env:
+          REGISTRY_HTTP_ADDR: 0.0.0.0:443
+          REGISTRY_HTTP_TLS_CLIENTCAS: "[/certs/ca.crt]"
+          REGISTRY_HTTP_TLS_CERTIFICATE: "/certs/registry.crt"
+          REGISTRY_HTTP_TLS_KEY: "/certs/registry.key"
+        docker_network_name: { get_property: [ SELF, network, name ] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: docker-private-registry-server-certs
 
     traefik-tls-certs:
       type: sodalite.nodes.TLS.Certificate
@@ -311,7 +377,6 @@ topology_template:
         - host: docker-host
         - registry: docker-public-registry
         - network: docker-network
-        - dependency: docker-registry-certificate
         - dependency: xopera-openstack-keys
         - dependency: xopera-postgres
         - dependency: xopera-openapi-volume
@@ -347,35 +412,6 @@ topology_template:
         - dependency: xopera-rest-api
         - dependency: xopera-openapi-volume
 
-    # image registry
-    docker-registry-container:
-      type: sodalite.nodes.DockerizedComponent
-      properties:
-        alias: registry
-        image_name: library/registry:2
-        ports:
-          - "443:443"
-        #TODO get filenames from docker-registry-certificate, when opera enables intrinsic functions on all depths
-        ca_cert: "/certs/ca.crt"
-        client_cert: "/certs/localhost.crt"
-        client_key: "/certs/localhost.key"
-        etc_hosts:
-          registry.docker.local: 127.0.0.1
-        volumes:
-          - "/home/localregistry/registry:/var/lib/registry"
-          - "/home/nginx/certs:/certs"
-        env:
-          REGISTRY_HTTP_ADDR: 0.0.0.0:443
-          REGISTRY_HTTP_TLS_CLIENTCAS: "[/certs/ca.crt]"
-          REGISTRY_HTTP_TLS_CERTIFICATE: "/certs/localhost.crt"
-          REGISTRY_HTTP_TLS_KEY: "/certs/localhost.key"
-        docker_network_name:  { get_property: [ SELF, network, name ] }
-      requirements:
-        - host: docker-host
-        - registry: docker-public-registry   
-        - network: docker-network
-        - dependency: docker-registry-certificate
-
     # iac-blueprint-builder 
     # https://github.com/SODALITE-EU/iac-blueprint-builder 
     iac-builder-container:
@@ -396,14 +432,26 @@ topology_template:
         - dependency: proxy
 
     # image-builder     
-    # https://github.com/SODALITE-EU/image-builder  
+    # https://github.com/SODALITE-EU/image-builder
+    image-builder-env:
+      type: sodalite.nodes.ImageBuilderEnv
+      properties:
+        public_ipv4_address: { get_attribute: [ SELF, host, public_address ] }
+        dir: /tmp/image-builder/
+        filename: image-builder.env
+        template_name: image-builder.env.tmpl
+      requirements:
+        - host: sodalite-vm
+
     image-builder-api:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name:  sodaliteh2020/image-builder-api:0.3.0
+        image_name:  sodaliteh2020/image-builder-api:0.3.1
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        # exposed_ports:  ['5000']
-        env: { get_input: image_builder_env }
+        env_file: /tmp/image-builder/image-builder.env
+        #TODO get REGISTRY_IP directly from host's public_address, when opera supports function evaluation on all depths
+#        env:
+#          REGISTRY_IP: { get_attribute: [ SELF, host_vm, public_address ] }
         volumes:
           - "/var/run/docker.sock:/var/run/docker.sock"
         alias: image-builder-api
@@ -416,9 +464,11 @@ topology_template:
           traefik.http.routers.image-builder.entrypoints: "image-builder"
           traefik.http.routers.image-builder.tls: "true"
       requirements:
+        - host_vm: sodalite-vm
         - host:  docker-host
         - registry: docker-public-registry 
         - network: docker-network
+        - dependency: image-builder-env
 
     # semantic-reasoner     
     # https://github.com/SODALITE-EU/semantic-reasoner 

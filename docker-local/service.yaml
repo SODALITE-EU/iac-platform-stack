@@ -339,7 +339,7 @@ topology_template:
     image-builder-api:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name:  sodaliteh2020/image-builder-api:0.3.0
+        image_name:  sodaliteh2020/image-builder-api:0.3.1
         docker_network_name:  { get_property: [ SELF, network, name ] }
         # exposed_ports:  ['5000']
         env: { get_input: image_builder_env }

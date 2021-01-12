@@ -4,7 +4,7 @@
 # Pinned versions
 
 OPERA_VERSION="0.6.2"
-IAC_MODULES_VERSION="3.0.2"
+IAC_MODULES_VERSION="3.1.0"
 
 ########################
 
@@ -40,7 +40,7 @@ if [ -f .venv/bin/activate ]; then
     echo "Abort."
   fi
 
-  echo "Using python interpreter from $(command -v python3)"
+  echo "Switched to python interpreter from $(command -v python3)"
 
 fi
 
@@ -90,7 +90,7 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $OPENSTAC
   if $OPERA_WRONG_VERSION && ! $OPERA_NOT_INSTALLED; then
     echo "    - xOpera is on version $OPERA_CURRENT_VERSION, but version $OPERA_VERSION is needed."
   fi
-  if $OPERA_NOT_INSTALLED; then
+  if $OPENSTACKSDK_NOT_INSTALLED; then
     echo "    - OpenstackSDK is not installed."
   fi
   if $ANSIBLE_WRONG_VERSION; then
@@ -131,6 +131,8 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $OPENSTAC
     echo "Installing xOpera"
     pip3 install --ignore-installed "opera[openstack]==$OPERA_VERSION"
 
+    echo
+    echo "Switched to python interpreter from $(command -v python3)"
 
   else
     echo
@@ -210,9 +212,6 @@ export SODALITE_DB_PASSWORD=$PASSWORD_INPUT
 echo
 read -rp "Please enter token for SODALITE Gitlab repository: " TOKEN_INPUT
 export SODALITE_GIT_TOKEN=$TOKEN_INPUT
-echo
-read -rp "Please enter ip of target registry: " REGISTRY_INPUT
-export REGISTRY_IP=$REGISTRY_INPUT
 
 # prepare inputs
 envsubst <./openstack/input.yaml.tmpl >./openstack/input.yaml
@@ -239,7 +238,6 @@ else
 fi
 
 unset CURRENT_USER
-unset REGISTRY_IP
 unset SODALITE_GIT_TOKEN
 unset SODALITE_DB_USERNAME
 unset SODALITE_DB_PASSWORD
