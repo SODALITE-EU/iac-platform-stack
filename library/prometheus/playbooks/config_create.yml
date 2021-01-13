@@ -6,6 +6,10 @@
       file:
         path: "{{ dest | dirname }}"
         state: directory
+    - name: Remove previous config
+      file:
+        path: "{{ dest }}"
+        state: absent
     - name: Create config file
       template:
         src: "prometheus.yaml.tmpl"

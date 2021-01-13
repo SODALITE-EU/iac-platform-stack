@@ -99,7 +99,7 @@ topology_template:
         - dependency: docker-host
 
     # docker image registry
-    internal-registry-server-certs:
+    docker-private-registry-server-certs:
       type: sodalite.nodes.RegistryServerCertificate
       properties:
         country_name:               { get_input: docker-registry-cert-country-name }
@@ -113,7 +113,7 @@ topology_template:
         - host: sodalite-vm
         - dependency: docker-host
 
-    internal-registry-client-certificate:
+    docker-private-registry-client-certificate:
       type: sodalite.nodes.RegistryCertificate
       properties:
         registry_ip:        { get_input: local_ipv4_address }
@@ -124,14 +124,14 @@ topology_template:
         - host: sodalite-vm
         - dependency: docker-host
 
-    docker-registry-container:
+    docker-private-registry:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: registry
         image_name: library/registry:2
         ports:
           - "443:443"
-        #TODO get filenames from docker-registry-certificate, when opera enables intrinsic functions on all depths
+        #TODO get filenames from docker-registry-certificate, when opera enables functions on all depths
         ca_cert: "/certs/ca.crt"
         client_cert: "/certs/registry.crt"
         client_key: "/certs/registry.key"
@@ -150,7 +150,7 @@ topology_template:
         - host: docker-host
         - registry: docker-public-registry
         - network: docker-network
-        - dependency: internal-registry-server-certs
+        - dependency: docker-private-registry-server-certs
 
     traefik-tls-certs:
       type: sodalite.nodes.TLS.Certificate

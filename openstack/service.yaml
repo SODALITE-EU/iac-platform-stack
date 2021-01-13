@@ -221,7 +221,7 @@ topology_template:
         - host: local-computer
         - dependency: sodalite-vm
 
-    docker-registry-container:
+    docker-private-registry:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: registry
