@@ -1,4 +1,5 @@
 username: $CURRENT_USER
+local_ipv4_address: $IP_ADDRESS
 docker-network: sodalite
 dockerhub-user: 
 dockerhub-pass: 
@@ -21,7 +22,7 @@ xopera_env:
   XOPERA_DATABASE_USER: $SODALITE_DB_USERNAME
   XOPERA_DATABASE_PASSWORD: $SODALITE_DB_PASSWORD
 image_builder_env:
-  REGISTRY_IP: registry
+  REGISTRY_IP: $IP_ADDRESS
 modak_api_env:
   MODAK_DATABASE_PASSWORD: $SODALITE_DB_PASSWORD
   MODAK_DATABASE_HOST: modak-db

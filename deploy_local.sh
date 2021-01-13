@@ -4,7 +4,7 @@
 # Pinned versions
 
 OPERA_VERSION="0.6.2"
-IAC_MODULES_VERSION="3.0.2"
+IAC_MODULES_VERSION="3.1.0"
 
 ########################
 
@@ -39,7 +39,7 @@ if [ -f .venv/bin/activate ]; then
     echo "Abort."
   fi
 
-  echo "Using python interpreter from $(command -v python3)"
+  echo "Switched to python interpreter from $(command -v python3)"
 
 fi
 
@@ -126,6 +126,8 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $ANSIBLE_
     echo "Installing xOpera"
     pip3 install --ignore-installed "opera==$OPERA_VERSION"
 
+    echo
+    echo "Switched to python interpreter from $(command -v python3)"
 
   else
     echo
@@ -183,6 +185,13 @@ echo
 echo
 echo "Running installation script as" "$CURRENT_USER"
 
+IP_ADDRESS=$(ip route get 1 | awk '{print $(NF-2);exit}')
+export IP_ADDRESS
+
+echo
+echo
+echo "Running installation script on ip address:" "$IP_ADDRESS"
+
 echo
 echo
 echo "These are basic minimal inputs. If more advanced inputs are required please edit /docker-local/input.yaml file manually."
@@ -231,6 +240,7 @@ unset SODALITE_GIT_TOKEN
 unset SODALITE_DB_USERNAME
 unset SODALITE_DB_PASSWORD
 unset SODALITE_EMAIL
+unset IP_ADDRESS
 
 
 # sudo is needed to ensure ansible will get user's password

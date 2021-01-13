@@ -1,0 +1,38 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+imports:
+  - ../../modules/misc/conf/types.yaml
+
+node_types:
+  sodalite.nodes.ImageBuilderEnv:
+    derived_from: sodalite.nodes.Configuration
+    properties:
+      template_name:
+        description: Filename of configuration template
+        required: True
+        type: string
+        default: "image-builder.env.tmpl"
+      public_ipv4_address:
+        description: Vm's ipv4 address
+        required: True
+        type: string
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              dir: { type: string, default: { get_property: [ SELF, dir ] } }
+              filename: { type: string, default: { get_property: [ SELF, filename ] } }
+              template_name: { type: string, default: { get_property: [ SELF, template_name ] } }
+              public_ipv4_address: { type: string, default: { get_property: [ SELF, public_ipv4_address ] } }
+              permissions: { type: string, default: { get_property: [ SELF, permissions ] } }
+            implementation:
+              primary: ../../modules/misc/conf/playbooks/create_conf.yml
+              dependencies:
+                - artifacts/image-builder.env.tmpl
+          delete:
+            inputs:
+              dir: { type: string, default: { get_property: [ SELF, dir ] } }
+              filename: { type: string, default: { get_property: [ SELF, filename ] } }
+            implementation:
+              primary: ../../modules/misc/conf/playbooks/remove_conf.yml
