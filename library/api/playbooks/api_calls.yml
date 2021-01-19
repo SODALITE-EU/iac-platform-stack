@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  vars:
+    api_calls: "{{ lookup('template', '{{ template_name }}') }}"
+  tasks:
+    - name: Call API
+      with_items: "{{ api_calls }}"
+      uri:
+        url: "{{ item.url }}"
+        method: POST
+        headers: "{{ item.headers }}"
+        body: "{{ item.body }}"
+        status_code: [200, 202, 204]
+        body_format: json

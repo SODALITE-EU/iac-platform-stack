@@ -1,0 +1,69 @@
+[
+    {
+        "url": "http://{{ address }}:{{ port }}/v1/sys/auth/jwt",
+        "headers": {
+            "x-vault-token": "{{ token }}"
+        },
+        "body": {
+            "type": "jwt",
+            "description": "JWKS auth",
+            "config": {
+                "default_lease_ttl": 30,
+                "max_lease_ttl": 30
+            }
+        }
+    },
+{% for project_domain in project_domains %}    
+    {
+        "url": "http://{{ address }}:{{ port }}/v1/sys/mounts/{{ project_domain }}",
+        "headers": {
+            "x-vault-token": "{{ token }}"
+        },
+        "body": {
+            "path": "{{ project_domain }}",
+            "type": "kv",
+            "config": {},
+            "options": {
+                "version": 1
+            },
+            "generate_signing_key": true
+        }
+    },
+    {
+        "url": "http://{{ address }}:{{ port }}/v1/sys/policy/{{ project_domain }}",
+        "headers": {
+            "x-vault-token": "{{ token }}"
+        },
+        "body": {
+            "policy": "path \"secret/{{ project_domain }}\" {\n  capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\"]\n}"
+        }
+    },
+    {
+        "url": "http://{{ address }}:{{ port }}/v1/auth/jwt/role/{{ project_domain }}",
+        "headers": {
+            "x-vault-token": "{{ token }}"
+        },
+        "body": {
+            "policies": [
+                "{{ project_domain }}"
+            ],
+            "role_type": "jwt",
+            "bound_audiences": "account",
+            "user_claim": "email",
+            "groups_claim": "",
+            "bound_claims": {
+                "/resource_access/sodalite-ide/roles": "{{ project_domain }}"
+            }
+        }
+    },
+{% endfor %}    
+    {
+        "url": "http://{{ address }}:{{ port }}/v1/auth/jwt/config",
+        "headers": {
+            "x-vault-token": "{{ token }}"
+        },
+        "body": {
+            "jwks_url": "http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/certs"
+        }
+    }
+]

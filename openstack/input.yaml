@@ -1,5 +1,4 @@
-ssh-key-name: some_key
-image-name: "centos-7 x86_64"
+username: centos
 openstack-network-name: xlab
 flavor-name: m1.large
 docker-network: sodalite
@@ -28,4 +27,13 @@ modak_api_env:
   MODAK_DATABASE_PORT: "3306"
 modak_db_env:
   MYSQL_ROOT_HOST: "%"
-  MYSQL_ROOT_PASSWORD: password
+vault_env:  
+  VAULT_LOCAL_CONFIG: '{"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "16h", "max_lease_ttl": "72h"}'
+  VAULT_DEV_ROOT_TOKEN_ID: test_token
+  VAULT_TOKEN: test_token
+keycloak_env:
+  KEYCLOAK_USER: admin
+  KEYCLOAK_PASSWORD: admin
+  KEYCLOAK_IMPORT: /tmp/sodalite-realm.json
+vault_token: test_token
+project_domains: [ snow, clinical, vehicle ]

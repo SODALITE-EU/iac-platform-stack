@@ -1,0 +1,53 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+node_types:
+  sodalite.nodes.VaultApiConfiguration:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      address:
+        description: Address of the web API
+        required: True
+        type: string
+        default: "localhost"
+      port:
+        description: Port of the web API
+        required: True
+        type: integer
+        default: 8200          
+      template_name:
+        description: Filename of configuration template
+        required: True
+        type: string
+        default: "api_calls.json.tmpl"
+      api_token:
+        description: Filename of configuration template
+        required: True
+        type: string
+      project_domains:
+        description: Filename of configuration template
+        required: True
+        type: list
+        default: []
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              address:                 { type: string, default: { get_property: [ SELF, address ] } }
+              port:                    { type: string, default: { get_property: [ SELF, port ] } }
+              template_name:           { type: string, default: { get_property: [ SELF, template_name ] } }
+              token:                   { type: string, default: { get_property: [ SELF, api_token ] } }
+              project_domains:         { type: list, default: { get_property: [ SELF, project_domains ] } }
+            implementation:
+              primary: playbooks/api_calls.yml
+              dependencies:
+                - artifacts/api_calls.json.tmpl
+    requirements:
+      - server:
+          capability: tosca.capabilities.Node
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.DependsOn
+          occurrences: [ 1, 1 ]
+            
+
