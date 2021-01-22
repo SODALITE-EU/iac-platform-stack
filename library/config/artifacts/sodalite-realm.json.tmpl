@@ -412,6 +412,14 @@
           "attributes": {}
         },
         {
+          "id": "52139631-25c9-405c-a67c-96b9d69edbb4",
+          "name": "pds",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "9667a547-f6a9-4812-bbdd-803770dd9706",
+          "attributes": {}
+        },
+        {
           "id": "2d63fc92-b3fe-46b9-b8c2-011610907ea5",
           "name": "openstack_rm_w",
           "composite": false,
@@ -673,7 +681,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "{{ client_secret }}",
       "defaultRoles": [
         "manage-account",
         "view-profile"
@@ -720,7 +728,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "{{ client_secret }}",
       "redirectUris": [
         "/realms/SODALITE/account/*"
       ],
@@ -773,7 +781,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "{{ client_secret }}",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -812,7 +820,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "{{ client_secret }}",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -851,7 +859,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "{{ client_secret }}",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -892,7 +900,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "{{ client_secret }}",
       "redirectUris": [
         "/admin/SODALITE/console/*"
       ],
@@ -953,7 +961,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "{{ client_secret }}",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -967,6 +975,7 @@
       "frontchannelLogout": false,
       "protocol": "openid-connect",
       "attributes": {
+        "access.token.lifespan": "43200",
         "saml.assertion.signature": "false",
         "saml.force.post.binding": "false",
         "saml.multivalued.roles": "false",

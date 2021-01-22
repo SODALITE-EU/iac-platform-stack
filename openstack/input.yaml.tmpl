@@ -38,5 +38,11 @@ keycloak_env:
   KEYCLOAK_USER: admin
   KEYCLOAK_PASSWORD: $KEYCLOAK_ADMIN_PASSWORD
   KEYCLOAK_IMPORT: /tmp/sodalite-realm.json
+keycloak_client_secret: $KEYCLOAK_CLIENT_SECRET
 vault_token: $VAULT_TOKEN
-project_domains: [ snow, clinical, vehicle ]
+project_domains: [ snow, clinical, vehicle, pds ]
+pds_env:
+  SECRET_VAULT_LOGIN_URI: http://vault:8200/v1/auth/jwt/login 
+  SECRET_VAULT_URI: http://vault:8200/v1/ 
+  OIDC_INTROSPECTION_ENDPOINT: http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect 
+  OIDC_CLIENT_SECRET: $KEYCLOAK_CLIENT_SECRET

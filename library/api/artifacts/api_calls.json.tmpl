@@ -35,7 +35,7 @@
             "x-vault-token": "{{ token }}"
         },
         "body": {
-            "policy": "path \"secret/{{ project_domain }}\" {\n  capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\"]\n}"
+            "policy": "path \"{{ project_domain }}/*\" {\n  capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\"]\n}"
         }
     },
     {

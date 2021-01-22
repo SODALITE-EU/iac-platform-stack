@@ -46,7 +46,11 @@ node_types:
         description: Filename of configuration template
         required: True
         type: string
-        default: "sodalite-realm.json"
+        default: "sodalite-realm.json.tmpl"
+      client_secret:
+        description: Filename of configuration template
+        required: True
+        type: string            
     interfaces:
       Standard:
         type: tosca.interfaces.node.lifecycle.Standard
@@ -57,11 +61,12 @@ node_types:
               filename:           { type: string, default: { get_property: [ SELF, filename ] } }
               template_name:      { type: string, default: { get_property: [ SELF, template_name ] } }              
               permissions:        { type: string, default: { get_property: [ SELF, permissions ] } }
+              client_secret:      { type: string, default: { get_property: [ SELF, client_secret ] } }
               ansible_user:       { type: string, default: { get_property: [ SELF, host, username ] } } 
             implementation:
               primary: ../../modules/misc/conf/playbooks/create_conf.yml
               dependencies:
-                - artifacts/sodalite-realm.json
+                - artifacts/sodalite-realm.json.tmpl
           delete:
             inputs:
               dir:                { type: string, default: { get_property: [ SELF, dir ] } }

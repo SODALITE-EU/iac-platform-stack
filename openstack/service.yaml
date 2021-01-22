@@ -71,7 +71,11 @@ topology_template:
     vault_env:
       type: map
     keycloak_env:
-      type: map    
+      type: map  
+    pds_env:
+      type: map          
+    keycloak_client_secret:
+      type: string          
     vault_token:
       type: string
     project_domains:
@@ -136,7 +140,7 @@ topology_template:
             remote_ip_prefix: 0.0.0.0/0
             protocol: tcp                                      
           component_ports:  
-            port_range_max: 8088
+            port_range_max: 8089
             remote_ip_prefix: 0.0.0.0/0 
             port_range_min: 8080 
             protocol: tcp 
@@ -353,7 +357,8 @@ topology_template:
       properties:
         dir: /home/keycloak
         filename: sodalite-realm.json
-        template_name: sodalite-realm.json
+        template_name: sodalite-realm.json.tmpl
+        client_secret: { get_input: keycloak_client_secret }
       requirements:
         - host: sodalite-vm
 
@@ -398,6 +403,22 @@ topology_template:
         project_domains: { get_input: project_domains }
       requirements:
         - server: sodalite-vm        
+
+    # platform-discovery-service
+    # https://github.com/SODALITE-EU/platform-discovery-service  
+    platform-discovery-service:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: pds
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        image_name: sodaliteh2020/platform-discovery-service
+        restart_policy: always
+        ports:  ['8089:8081']
+        env: { get_input: pds_env }
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry              
 
     # xopera-rest-api
     # https://github.com/SODALITE-EU/xopera-rest-api        
