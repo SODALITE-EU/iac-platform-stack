@@ -1,3 +1,5 @@
+ssh-key-name: some_key
+image-name: "centos-7 x86_64"
 username: centos
 openstack-network-name: xlab
 flavor-name: m1.large
