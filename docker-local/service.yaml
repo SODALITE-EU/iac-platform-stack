@@ -12,6 +12,7 @@ imports:
   - modules/misc/tls/types.yaml
   - modules/tests/test_definitions.yaml
   - library/config/types.yaml
+  - library/api/types.yaml
   - library/prometheus/prometheus_config.yaml
 
 node_types:
@@ -62,9 +63,21 @@ topology_template:
     image_builder_env:
       type: map  
     modak_api_env:
-      type: map  
+      type: map
     modak_db_env:
+      type: map
+    vault_env:
+      type: map
+    keycloak_env:
       type: map  
+    pds_env:
+      type: map          
+    keycloak_client_secret:
+      type: string          
+    vault_token:
+      type: string
+    project_domains:
+      type: list    
 
   node_templates: 
 
@@ -219,6 +232,76 @@ topology_template:
         - network: docker-network
         - dependency: traefik-tls-certs
         - dependency: proxy-tls-config
+
+    # authentication
+
+    keycloak-config:
+      type: sodalite.nodes.Configuration.KeycloakConfig
+      properties:
+        dir: /home/keycloak
+        filename: sodalite-realm.json
+        template_name: sodalite-realm.json.tmpl
+        client_secret: { get_input: keycloak_client_secret }
+      requirements:
+        - host: sodalite-vm
+
+    keycloak-container:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: keycloak
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        image_name: jboss/keycloak
+        restart_policy: always
+        ports:  ['8100:8080', '8443:8443']
+        env: { get_input: keycloak_env }
+        volumes:
+          - "/home/keycloak/sodalite-realm.json:/tmp/sodalite-realm.json"
+      requirements:
+        - host: docker-host
+        - network: docker-network    
+        - registry: docker-public-registry         
+
+    vault-container:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: vault
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        image_name: library/vault
+        restart_policy: always
+        ports:  ['8200:8200', '8201:8201']
+        capabilities: ['IPC_LOCK']
+        env: { get_input: vault_env }
+        command: server -dev
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry      
+
+    vault-config:
+      type: sodalite.nodes.VaultApiConfiguration
+      properties:
+        address: { get_attribute: [ SELF, server, public_address ] }
+        port: 8200
+        api_token: { get_input: vault_token }
+        project_domains: { get_input: project_domains }
+      requirements:
+        - server: sodalite-vm        
+
+    # platform-discovery-service
+    # https://github.com/SODALITE-EU/platform-discovery-service  
+    platform-discovery-service:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: pds
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        image_name: sodaliteh2020/platform-discovery-service
+        restart_policy: always
+        ports:  ['8089:8081']
+        env: { get_input: pds_env }
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry  
 
     # xopera-rest-api
     # https://github.com/SODALITE-EU/xopera-rest-api        

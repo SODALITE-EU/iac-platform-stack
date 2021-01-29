@@ -213,6 +213,18 @@ echo
 read -rp "Please enter token for SODALITE Gitlab repository: " TOKEN_INPUT
 export SODALITE_GIT_TOKEN=$TOKEN_INPUT
 
+echo
+read -rp "Please enter token for Vault: " VAULT_TOKEN_INPUT
+export VAULT_TOKEN=$VAULT_TOKEN_INPUT
+
+echo
+read -rp "Please enter admin password for Keycloak: " KEYCLOAK_ADMIN_PASSWORD_INPUT
+export KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD_INPUT
+
+echo
+read -rp "Please enter client secret for Keycloak: " KEYCLOAK_CLIENT_SECRET_INPUT
+export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_INPUT
+
 # prepare inputs
 envsubst <./openstack/input.yaml.tmpl >./openstack/input.yaml
 
@@ -242,6 +254,9 @@ unset SODALITE_GIT_TOKEN
 unset SODALITE_DB_USERNAME
 unset SODALITE_DB_PASSWORD
 unset SODALITE_EMAIL
+unset KEYCLOAK_ADMIN_PASSWORD
+unset VAULT_TOKEN
+unset KEYCLOAK_CLIENT_SECRET
 unset ssh_key_name
 
 echo
