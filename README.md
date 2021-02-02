@@ -36,6 +36,8 @@ Here is the list of SODALITE stack components, with corresponding Docker images 
 |Alert Manager for Monitoring System  | |[prom/alertmanager](https://hub.docker.com/r/prom/alertmanager)| alertmanager |9093|9093|
 |Prometheus for Monitoring System  | |[prom/prometheus](https://hub.docker.com/r/prom/prometheus)| prometheus |9090|9090|
 |Monitoring System Ruleserver |[monitoring-system/ruleserver](https://github.com/SODALITE-EU/monitoring-system/tree/master/ruleserver)|[monitoring-system-ruleserver](https://hub.docker.com/r/sodaliteh2020/monitoring-system-ruleserver)| ruleserver |9092|9092|
+|MODAK Optimiser API |[application-optimisation](https://github.com/SODALITE-EU/application-optimisation)|[modak-api](https://hub.docker.com/r/sodaliteh2020/modak-api)| modak-api |5000|55000|
+|MySQL DB for MODAK |[application-optimisation](https://github.com/SODALITE-EU/application-optimisation)|[modak-py3-mysql](https://hub.docker.com/r/sodaliteh2020/modak-py3-mysql)| modak-db |3306|32000|
 
 ## SODALITE stack installation
 In order to proceed with local docker installation use `deploy_local.sh` script (for Ubuntu Linux distribution) that checks and installs all components required for deployment (pip, xOpera, Ansible Roles, etc), provides means for setting up input variables necessary for deployment and starts the deployment itself (script does not include SODALITE IDE installation and configuration). 
