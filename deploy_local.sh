@@ -4,7 +4,7 @@
 # Pinned versions
 
 OPERA_VERSION="0.6.2"
-IAC_MODULES_VERSION="3.1.0"
+IAC_MODULES_VERSION="3.1.1"
 
 ########################
 
@@ -224,7 +224,7 @@ echo
 read -rp "Please enter client secret for Keycloak: " KEYCLOAK_CLIENT_SECRET_INPUT
 export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_INPUT
 # prepare inputs
-envsubst <./docker-local/input.yaml.tmpl >./docker-local/input.yaml  || exit 1
+envsubst <./docker-local/input.yaml.tmpl >./docker-local/input.yaml || exit 1
 
 echo
 echo "Checking TLS key and certificate..."

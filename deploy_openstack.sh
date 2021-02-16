@@ -4,7 +4,7 @@
 # Pinned versions
 
 OPERA_VERSION="0.6.2"
-IAC_MODULES_VERSION="3.1.0"
+IAC_MODULES_VERSION="3.1.1"
 
 ########################
 
@@ -35,7 +35,7 @@ if [ -f .venv/bin/activate ]; then
   if [ "$ynvenv" != "${ynvenv#[Yy]}" ]; then
 
     echo "Activating .venv"
-    . .venv/bin/activate
+    . .venv/bin/activate  || exit 1
   else
     echo "Abort."
   fi
@@ -69,7 +69,7 @@ if [ -z "$PIP_INSTALLED" ]; then
     echo "Installing pip3"
 
     sudo apt update
-    sudo apt install -y python3 python3-pip
+    sudo apt install -y python3 python3-pip  || exit 1
 
   else
     echo
@@ -106,7 +106,7 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $OPENSTAC
 
     echo "Installing system packages"
     sudo apt update
-    sudo apt install -y python3-venv python3-wheel python-wheel-common python3-apt
+    sudo apt install -y python3-venv python3-wheel python-wheel-common python3-apt  || exit 1
 
 
     if $ANSIBLE_WRONG_VERSION; then
@@ -114,7 +114,7 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $OPENSTAC
       echo "Removing ansible from apt and installing it with pip3"
       sudo apt remove -y ansible
       deactivate 2>/dev/null
-      pip3 install --upgrade ansible
+      pip3 install --upgrade ansible || exit 1
 
       # shellcheck disable=SC1090
       # reload path to ansible
@@ -126,10 +126,11 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $OPENSTAC
     echo
     echo "Creating new venv"
     sudo rm -rf .venv
-    python3 -m venv --system-site-packages .venv && . .venv/bin/activate
+    python3 -m venv --system-site-packages .venv && . .venv/bin/activate  || exit 1
+    pip3 install --upgrade pip  || exit 1
     echo
     echo "Installing xOpera"
-    pip3 install --ignore-installed "opera[openstack]==$OPERA_VERSION"
+    pip3 install --ignore-installed "opera==$OPERA_VERSION" || exit 1
 
     echo
     echo "Switched to python interpreter from $(command -v python3)"
@@ -154,7 +155,7 @@ if [ -z "$GIT_INSTALLED" ]; then
     echo "Installing git"
 
     sudo apt update
-    sudo apt install -y git
+    sudo apt install -y git  || exit 1
 
   else
     echo
@@ -226,7 +227,7 @@ read -rp "Please enter client secret for Keycloak: " KEYCLOAK_CLIENT_SECRET_INPU
 export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_INPUT
 
 # prepare inputs
-envsubst <./openstack/input.yaml.tmpl >./openstack/input.yaml
+envsubst <./openstack/input.yaml.tmpl >./openstack/input.yaml || exit 1
 
 echo
 echo "Checking TLS key and certificate..."
@@ -236,8 +237,8 @@ if [ -f "$FILE_KEY" ] && [ -f "$FILE_KEY2" ]; then
   echo "TLS key file already exists."
 else
   echo "TLS key does not exist. Generating..."
-  openssl genrsa -out $FILE_KEY 4096
-  cp $FILE_KEY $FILE_KEY2
+  openssl genrsa -out $FILE_KEY 4096  || exit 1
+  cp $FILE_KEY $FILE_KEY2  || exit 1
 fi
 FILE_CRT=openstack/modules/docker/artifacts/ca.crt
 FILE_CRT2=openstack/modules/misc/tls/artifacts/ca.crt
@@ -246,7 +247,7 @@ if [ -f "$FILE_CRT" ] && [ -f "$FILE_CRT2" ]; then
 else
   echo "TLS certificate does not exist. Generating..."
   openssl req -new -x509 -key $FILE_KEY -out $FILE_CRT -subj "/C=SI/O=XLAB/CN=$SODALITE_EMAIL" 2>/dev/null
-  cp $FILE_CRT $FILE_CRT2
+  cp $FILE_CRT $FILE_CRT2  || exit 1
 fi
 
 unset CURRENT_USER
