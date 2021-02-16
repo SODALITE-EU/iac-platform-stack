@@ -3,7 +3,7 @@
 ######################
 # Pinned versions
 
-OPERA_VERSION="0.6.2"
+OPERA_VERSION="0.6.4"
 IAC_MODULES_VERSION="3.1.1"
 
 ########################
@@ -130,7 +130,7 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $OPENSTAC
     pip3 install --upgrade pip  || exit 1
     echo
     echo "Installing xOpera"
-    pip3 install --ignore-installed "opera==$OPERA_VERSION" || exit 1
+    pip3 install --ignore-installed "opera[openstack]==$OPERA_VERSION" || exit 1
 
     echo
     echo "Switched to python interpreter from $(command -v python3)"

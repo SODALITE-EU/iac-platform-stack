@@ -3,7 +3,7 @@
 ######################
 # Pinned versions
 
-OPERA_VERSION="0.6.2"
+OPERA_VERSION="0.6.4"
 IAC_MODULES_VERSION="3.1.1"
 
 ########################
