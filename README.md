@@ -14,6 +14,9 @@ Here is the list of SODALITE stack components, with corresponding Docker images 
 | --- | --- | --- | --- | --- | --- |
 |Docker Registry |  |[registry](https://hub.docker.com/_/registry)| registry |443|443|
 |SODALITE Reverse Proxy | |[traefik](https://hub.docker.com/_/traefik)| proxy | 5000, 5001, 5002, 5432, 8888 | 5000, 5001, 5002, 5432, 8888 |
+|SODALITE Keycloak | |[jboss/keycloak](https://hub.docker.com/r/jboss/keycloak)| keycloak | 8080, 8443 | 8100, 8443 |
+|SODALITE Vault | |[vault](https://hub.docker.com/_/vault)| vault | 8200, 8201 | 8200, 8201 |
+|Platform Discovery Service |[platform-discovery-service](https://github.com/SODALITE-EU/platform-discovery-service)|[platform-discovery-service](https://hub.docker.com/r/sodaliteh2020/platform-discovery-service)| pds | 8089 | 8081 |
 |xOpera REST API |[xopera-rest-api](https://github.com/SODALITE-EU/xopera-rest-api)|[xopera-rest-api](https://hub.docker.com/r/sodaliteh2020/xopera-rest-api)| xopera-rest-api |8080|  |
 |Postgres DB for xOpera |  |[postgres](https://hub.docker.com/_/postgres)| xopera-postgres |5432| |
 |Swagger UI for xOpera| |[swaggerapi/swagger-ui](https://hub.docker.com/r/swaggerapi/swagger-ui)| xopera-ui |8080|  |
@@ -40,60 +43,30 @@ Here is the list of SODALITE stack components, with corresponding Docker images 
 |MySQL DB for MODAK |[application-optimisation](https://github.com/SODALITE-EU/application-optimisation)|[modak-py3-mysql](https://hub.docker.com/r/sodaliteh2020/modak-py3-mysql)| modak-db |3306|32000|
 
 ## SODALITE stack installation
-In order to proceed with local docker installation use `deploy_local.sh` script (for Ubuntu Linux distribution) that checks and installs all components required for deployment (pip, xOpera, Ansible Roles, etc), provides means for setting up input variables necessary for deployment and starts the deployment itself (script does not include SODALITE IDE installation and configuration). 
+### Input guidelines
+- no input should be empty
+- password should not have special characters
+- [xOpera GIT config](https://github.com/SODALITE-EU/xopera-rest-api#git-backend-server-optional-recommended) 
+(url, token) should be real, otherwise xOpera REST API will not start. 
+### Ubuntu - local
+Clone the repo and run script.
+```shell script
+git clone https://github.com/SODALITE-EU/iac-platform-stack.git
+cd iac-platform-stack
+./deploy_local.sh deploy
+```
+### Ubuntu - openstack
+Clone repo and run script. OPENRC_PATH is path to file with env vars for OpenStack connection.
+```shell script
+git clone https://github.com/SODALITE-EU/iac-platform-stack.git
+cd iac-platform-stack
+./deploy_openstack.sh undeploy [OPENRC_PATH]
+```
+### Alternative installation
+Preferred method for installation is use of [deploy_local.sh](deploy_local.sh) and [deploy_openstack.sh](deploy_openstack.sh). Alternatively, see [manuall install steps](manual_install.md).
 
-### Script notes  
-As part of installation, `deploy_local.sh`, upon permission by user, given on prompt, tries to use `.venv` (if exists). Virtual environment is tested for compliance with docker-local deployment prerequisites, however if after a couple unsuccessful deploys manual removal of `.venv` is suggested to rule out broken venv.*
-
-### Manual installation
-Prerequisites for SODALITE stack deployment could also be set manually, following these steps:
-1.  ### Install xOpera 
-    Install xOpera and required modules as described here: [xOpera](https://github.com/xlab-si/xopera-opera)    
-        *NOTE: Use `--system-site-packages` flag when setting up Python virtual environment in order to avoid this [issue](https://github.com/ansible/ansible/issues/14468)*
-        
-2.  ### Install required Ansible roles
-    Ansible roles are listed in the [requirements.yml](docker-local/requirements.yml) Roles installation can be performed using this command:
-    ```shell script
-    ansible-galaxy install -r docker-local/requirements.yml -f
-    ```
-   
-3.  ### Clone modules 
-    Clone TOSCA node types and Ansible playbooks required for deployment from [iac-modules](https://github.com/SODALITE-EU/iac-modules) into blueprint folders (`./docker-local` or `./openstack`)
-    ```shell script
-    # $DEPLOY_DIR could be set to either docker-local or openstack
-    export DEPLOY_DIR=docker-local
-    export IAC_MODULES_VERSION=3.0.2
-    git clone -b "$IAC_MODULES_VERSION" https://github.com/SODALITE-EU/iac-modules.git $DEPLOY_DIR/modules
-    ```  
- 
-4.  ### Generate TLS certificate and key files
-    TLS certificates are required for Reverse Proxies an Docker Registry.  
-    SODALITE stack requires a private Docker registry to store Docker images. For demonstration purposes a Docker registry container is deployed as a part of SODALITE stack blueprint. In order to make registry accessible to external hosts, is must be secured using TLS certificate. [Docker private registry configuration](https://docs.docker.com/registry/deploying/) TLS certificate and key required for that are not provided in the repository for security reasons and can be generated using following commands:
-    ```shell script
-    # $DEPLOY_DIR could be set to either docker-local or openstack
-    export DEPLOY_DIR=docker-local
-    openssl genrsa -out $DEPLOY_DIR/modules/docker/artifacts/ca.key 4096
-    openssl req -new -x509 -key $DEPLOY_DIR/modules/docker/artifacts/ca.key -out $DEPLOY_DIR/modules/docker/artifacts/ca.crt
-    cp $DEPLOY_DIR/modules/docker/artifacts/ca.key $DEPLOY_DIR/modules/misc/tls/artifacts/ca.key
-    cp $DEPLOY_DIR/modules/docker/artifacts/ca.crt $DEPLOY_DIR/modules/misc/tls/artifacts/ca.crt
-    ```
-
-5.  ### Set up inputs for deployment
-    Input YAML files provided  in the repository are not supposed to be used as is, but rather serve as a template to be populated with actual values. In order for SODALITE stack deployment to proceed some of inputs must be defined. Namely 
-    `docker-registry-cert-email-address` used for Docker self signed certificate and Gitlab auth token `XOPERA_GIT_AUTH_TOKEN` that grants access to git repository for TOSCA blueprints. To provide inputs manually edit `input.yaml.tmpl` file and save it as `input.yaml`.
-
-    Openstack deployment of SODALITE stack requires a VM to be instantiated therefore these parameters have to be defined: SSH key, image, flavor and network names plus a comma separated list of security groups.
-    ```yaml
-    ssh-key-name: 
-    image-name: 
-    flavor-name:
-    openstack-network-name: 
-    security-groups:     
-    ```
-    *NOTE: `security-groups` input must include `sodalite-uc`security group, e.g. `default,remote_access,sodalite-uc`*
-6.  ### Run blueprint deployment
-    Go to the folder containing `service.yaml` TOSCA blueprint file (`./docker-local` or `./openstack`) and run the following command `opera deploy -i input.yaml service.yaml`
-7.  ### Install SODALITE IDE
+## SODALITE stack configuration
+1.  ### Install SODALITE IDE
     SODALITE IDE can be installed either as a Docker container or from source code on GitHub.
     In order to run IDE as a Docker container use the following commands:
     * for Ubuntu
@@ -105,12 +78,12 @@ Prerequisites for SODALITE stack deployment could also be set manually, followin
 
     To install SODALITE IDE from source code proceed with instructions described here: [SODALITE IDE GitHub](https://github.com/SODALITE-EU/ide). Use **Installation from the Sodalite IDE source code** scenario.
 
-8.  ### Test Semantic Reasoner API
+2.  ### Test Semantic Reasoner API
     Send a GET HTTP request to http://localhost:8080/reasoner-api/v0.6/testReasoner. This request will provide information whether Semantic Reasoner and Graph DB are configured correctly and populate Graph DB with basic TOSCA 1.3 normative type definitions.
 
-    For Openstack deployment configuration substitute `localhost` with VM public IP address.
+    For Openstack deployment configuration substitute `localhost` with VM's public IP address.
    
-9.  ### Configure SODALITE IDE backend connection
+3.  ### Configure SODALITE IDE backend connection
     Proceed with SODALITE IDE configuration as described in the [IDE Tutorial](https://docs.google.com/document/d/1w6wYJbTZvBbt5LD6sXReXbx1uPDjefYFAU5KEv8X_8w/edit)
     *   Open IDE preference page: menu Window/Preferences. 
     *   Search for Sodalite in search text. Click on Sodalite Backend
@@ -123,9 +96,9 @@ Prerequisites for SODALITE stack deployment could also be set manually, followin
       *   http://localhost:8081/ for IaC Builder
       *   https://localhost:5001/ for xOPERA
 
-        For Openstack deployment configuration substitute `localhost` with VM public IP address. 
+        For Openstack deployment configuration substitute `localhost` with VM's public IP address. 
 
-10. ### Work with Abstract Application Deployment Models (AADM) and Resource Models (RM)
+4. ### Work with Abstract Application Deployment Models (AADM) and Resource Models (RM)
     IDE Docker image already contains some AADM and RM examples that can be found in Model Explorer (Window -> Show View -> Model Explorer)
     ![Examples](images/models.png)
 
@@ -133,4 +106,4 @@ Prerequisites for SODALITE stack deployment could also be set manually, followin
     
     Check [IDE Tutorial](https://docs.google.com/document/d/1w6wYJbTZvBbt5LD6sXReXbx1uPDjefYFAU5KEv8X_8w/edit) for details.
 
-NOTE: SODALITE currently uses the version [xOpera version 0.6.2](https://pypi.org/project/opera/0.6.2/) since xOpera is being developed to support [OASIS TOSCA Simple Profile in YAML version 1.3](https://www.oasis-open.org/news/announcements/tosca-simple-profile-in-yaml-v1-3-oasis-standard-published).
+NOTE: SODALITE currently uses the version [xOpera version 0.6.4](https://pypi.org/project/opera/0.6.4/) since xOpera is being developed to support [OASIS TOSCA Simple Profile in YAML version 1.3](https://www.oasis-open.org/news/announcements/tosca-simple-profile-in-yaml-v1-3-oasis-standard-published).
