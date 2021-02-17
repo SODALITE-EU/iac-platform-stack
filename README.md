@@ -43,11 +43,6 @@ Here is the list of SODALITE stack components, with corresponding Docker images 
 |MySQL DB for MODAK |[application-optimisation](https://github.com/SODALITE-EU/application-optimisation)|[modak-py3-mysql](https://hub.docker.com/r/sodaliteh2020/modak-py3-mysql)| modak-db |3306|32000|
 
 ## SODALITE stack installation
-### Input guidelines
-- no input should be empty
-- password should not have special characters
-- [xOpera GIT config](https://github.com/SODALITE-EU/xopera-rest-api#git-backend-server-optional-recommended) 
-(url, token) should be real, otherwise xOpera REST API will not start. 
 ### Ubuntu - local
 Clone the repo and run script.
 ```shell script
@@ -62,10 +57,34 @@ git clone https://github.com/SODALITE-EU/iac-platform-stack.git
 cd iac-platform-stack
 ./deploy_openstack.sh undeploy [OPENRC_PATH]
 ```
+### Script content and workflow
+Deploy scripts ([deploy_local.sh](deploy_local.sh) and [deploy_openstack.sh](deploy_openstack.sh)) test environment,
+set up and deploy blueprint. Steps:
+- ensure correct version of python3, pip3, ansible, xOpera, git, ansible playbooks
+- clone SODALITE iac modules and copy library
+- create inputs
+- create TLS certificates
+- export openstack environment variables (Openstack only)
+- deploy stack with xOpera
+
+Alternatively, scripts can also undeploy stack or deploy with resume, check script usage:
+```shell script
+# Invoking scripts without params will print scripts help
+./deploy_openstack.sh
+./deploy_openstack.sh
+```
+
+### Input guidelines
+Part of deploy scripts is also creating file with inputs for stack deployment. User will be prompted to enter them 
+following guidelines:
+- no input should be empty
+- password should not have special characters
+- [xOpera GIT config](https://github.com/SODALITE-EU/xopera-rest-api#git-backend-server-optional-recommended) 
+(url, token) should be real, otherwise xOpera REST API will not start. 
 ### Alternative installation
 Preferred method for installation is use of [deploy_local.sh](deploy_local.sh) and [deploy_openstack.sh](deploy_openstack.sh). Alternatively, see [manuall install steps](manual_install.md).
 
-## SODALITE stack configuration
+## SODALITE IDE installation and configuration
 1.  ### Install SODALITE IDE
     SODALITE IDE can be installed either as a Docker container or from source code on GitHub.
     In order to run IDE as a Docker container use the following commands:
