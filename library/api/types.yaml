@@ -42,12 +42,67 @@ node_types:
             implementation:
               primary: playbooks/api_calls.yml
               dependencies:
-                - artifacts/api_calls.json.tmpl
+                - artifacts/vault_api_calls.json.tmpl
     requirements:
       - server:
           capability: tosca.capabilities.Node
           node: tosca.nodes.Compute
           relationship: tosca.relationships.DependsOn
           occurrences: [ 1, 1 ]
+
+  sodalite.nodes.KBApiConfiguration:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      address:
+        description: Address of the web API
+        required: True
+        type: string
+        default: "localhost"
+      port:
+        description: Port of the web API
+        required: True
+        type: integer
+        default: 7200     
+      reasoner_address:
+        description: Address of the reasoner web API
+        required: True
+        type: string
+        default: "localhost"
+      reasoner_port:
+        description: Port of the reasoner web API
+        required: True
+        type: integer
+        default: 8080                 
+      template_name:
+        description: Filename of configuration template
+        required: True
+        type: string
+        default: "kb_api_calls.json.tmpl"
+      kb_password:
+        description: Filename of configuration template
+        required: True
+        type: string
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              address:                 { type: string, default: { get_property: [ SELF, address ] } }
+              port:                    { type: string, default: { get_property: [ SELF, port ] } }
+              reasoner_address:        { type: string, default: { get_property: [ SELF, reasoner_address ] } }
+              reasoner_port:           { type: string, default: { get_property: [ SELF, reasoner_port ] } }              
+              template_name:           { type: string, default: { get_property: [ SELF, template_name ] } }
+              kb_password:             { type: string, default: { get_property: [ SELF, kb_password ] } }
+            implementation:
+              primary: playbooks/api_calls.yml
+              dependencies:
+                - artifacts/kb_api_calls.json.tmpl
+    requirements:
+      - server:
+          capability: tosca.capabilities.Node
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.DependsOn
+          occurrences: [ 1, 1 ]          
             
 

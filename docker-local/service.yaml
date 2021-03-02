@@ -77,7 +77,13 @@ topology_template:
     vault_token:
       type: string
     project_domains:
-      type: list    
+      type: list  
+    reasoner_env:
+      type: map   
+    toscasmells_env:
+      type: map               
+    kb_password:
+      type: string        
 
   node_templates: 
 
@@ -465,13 +471,7 @@ topology_template:
         docker_network_name:  { get_property: [ SELF, network, name ] }
         image_name: sodaliteh2020/semantic_web:172
         restart_policy: always
-        env:
-          WAIT_HOSTS: graph-db:7200
-          environment: docker
-          graphdb:  http://graph-db:7200
-          bugPredictorServer:  http://tosca-smells:8080/  
-          ansiblePath: /usr/local/tomcat/webapps/Ansibles/
-          reasonerServer: http://semantic-web:8080/
+        env: { get_input: reasoner_env }
         ports:  ['8080:8080']
         volumes:
           - "/tmp/tomcat/webapps/Ansibles:/usr/local/tomcat/webapps/Ansibles"   
@@ -481,6 +481,17 @@ topology_template:
         - network: docker-network     
         - dependency: know-db-container
         - dependency: tosca-smells-container
+
+    know-db-config:
+      type: sodalite.nodes.KBApiConfiguration
+      properties:
+        address: { get_attribute: [ SELF, server, public_address ] }
+        port: 7200
+        reasoner_address: { get_attribute: [ SELF, server, public_address ] }
+        reasoner_port: 8080        
+        kb_password: { get_input: kb_password }
+      requirements:
+        - server: sodalite-vm   
 
     # iac-quality-framework   
     # https://github.com/SODALITE-EU/iac-quality-framework
@@ -504,10 +515,7 @@ topology_template:
         docker_network_name:  { get_property: [ SELF, network, name ] }
         image_name: sodaliteh2020/toscasmells:124
         restart_policy: always
-        env:
-          environment: docker
-          WAIT_HOSTS: graph-db:7200
-          graphdb: http://graph-db:7200
+        env: { get_input: toscasmells_env }
         ports:  ['8082:8080']
         exposed_ports:  ['8080']
       requirements:
