@@ -1,0 +1,32 @@
+[
+    {
+        "url": "http://{{ reasoner_address }}:{{ reasoner_port }}/reasoner-api/v0.6/testReasoner",
+        "method": "GET"
+    },
+    {
+        "url": "http://{{ address }}:{{ port }}/rest/security/user/admin",
+        "method": "PUT",
+        "headers": {
+            "x-graphdb-password": "{{ kb_password }}",
+            "x-graphdb-repository": "admin"
+        },
+        "body": {
+            "grantedAuthorities": [
+                "ROLE_ADMIN"
+            ],
+            "appSettings": {
+                "DEFAULT_INFERENCE": true,
+                "DEFAULT_SAMEAS": true,
+                "IGNORE_SHARED_QUERIES": false,
+                "EXECUTE_COUNT": true
+            }
+        }
+    },
+    {
+        "url": "http://{{ address }}:{{ port }}/rest/security",
+        "method": "POST",
+        "headers":"",
+        "body": "true"
+    }
+]
+

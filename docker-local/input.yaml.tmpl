@@ -21,6 +21,10 @@ xopera_env:
   XOPERA_DATABASE_NAME: postgres
   XOPERA_DATABASE_USER: $SODALITE_DB_USERNAME
   XOPERA_DATABASE_PASSWORD: $SODALITE_DB_PASSWORD
+  OIDC_INTROSPECTION_ENDPOINT: http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect 
+  OIDC_CLIENT_SECRET: $KEYCLOAK_CLIENT_SECRET 
+  SECRET_VAULT_LOGIN_URI: http://vault:8200/v1/auth/jwt/login 
+  SECRET_VAULT_URI: http://vault:8200/v1/  
 image_builder_env:
   REGISTRY_IP: $IP_ADDRESS
 modak_api_env:
@@ -46,3 +50,22 @@ pds_env:
   SECRET_VAULT_URI: http://vault:8200/v1/ 
   OIDC_INTROSPECTION_ENDPOINT: http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect 
   OIDC_CLIENT_SECRET: $KEYCLOAK_CLIENT_SECRET
+reasoner_env:
+  WAIT_HOSTS: graph-db:7200
+  environment: docker
+  graphdb:  http://graph-db:7200
+  bugPredictorServer:  http://tosca-smells:8080/  
+  ansiblePath: /usr/local/tomcat/webapps/Ansibles/
+  reasonerServer: http://semantic-web:8080/
+  kbUsername: admin
+  kbPassword: $KB_PASSWORD
+  keycloak: http://keycloak:8080/
+  keycloakClientId: sodalite-ide
+  keycloakClientSecret: $KEYCLOAK_CLIENT_SECRET
+toscasmells_env:
+  environment: docker
+  WAIT_HOSTS: graph-db:7200
+  graphdb: http://graph-db:7200
+  kbUsername: admin
+  kbPassword: $KB_PASSWORD  
+kb_password: $KB_PASSWORD  

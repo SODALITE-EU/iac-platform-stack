@@ -223,6 +223,10 @@ export KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD_INPUT
 echo
 read -rp "Please enter client secret for Keycloak: " KEYCLOAK_CLIENT_SECRET_INPUT
 export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_INPUT
+
+echo
+read -rp "Please enter admin password for Knowledge Base: " KB_PASSWORD_INPUT
+export KB_PASSWORD=$KB_PASSWORD_INPUT
 # prepare inputs
 envsubst <./docker-local/input.yaml.tmpl >./docker-local/input.yaml || exit 1
 
@@ -256,6 +260,7 @@ unset KEYCLOAK_ADMIN_PASSWORD
 unset VAULT_TOKEN
 unset KEYCLOAK_CLIENT_SECRET
 unset IP_ADDRESS
+unset KB_PASSWORD
 
 
 # sudo is needed to ensure ansible will get user's password

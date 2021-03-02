@@ -7,7 +7,7 @@
       with_items: "{{ api_calls }}"
       uri:
         url: "{{ item.url }}"
-        method: POST
+        method: "{{ item.method }}"
         headers: "{{ item.headers }}"
         body: "{{ item.body }}"
         status_code: [200, 202, 204]

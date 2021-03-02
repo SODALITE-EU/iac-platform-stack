@@ -1,9 +1,10 @@
 [
     {
         "url": "http://{{ address }}:{{ port }}/v1/sys/auth/jwt",
+        "method": "POST",
         "headers": {
             "x-vault-token": "{{ token }}"
-        },
+        },        
         "body": {
             "type": "jwt",
             "description": "JWKS auth",
@@ -16,6 +17,7 @@
 {% for project_domain in project_domains %}    
     {
         "url": "http://{{ address }}:{{ port }}/v1/sys/mounts/{{ project_domain }}",
+        "method": "POST",
         "headers": {
             "x-vault-token": "{{ token }}"
         },
@@ -31,6 +33,7 @@
     },
     {
         "url": "http://{{ address }}:{{ port }}/v1/sys/policy/{{ project_domain }}",
+        "method": "POST",
         "headers": {
             "x-vault-token": "{{ token }}"
         },
@@ -40,6 +43,7 @@
     },
     {
         "url": "http://{{ address }}:{{ port }}/v1/auth/jwt/role/{{ project_domain }}",
+        "method": "POST",
         "headers": {
             "x-vault-token": "{{ token }}"
         },
@@ -59,6 +63,7 @@
 {% endfor %}    
     {
         "url": "http://{{ address }}:{{ port }}/v1/auth/jwt/config",
+        "method": "POST",
         "headers": {
             "x-vault-token": "{{ token }}"
         },
