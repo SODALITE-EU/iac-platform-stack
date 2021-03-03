@@ -455,7 +455,7 @@ topology_template:
       properties:
         alias: graph-db
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/graph_db:172
+        image_name: sodaliteh2020/graph_db:latest
         restart_policy: always
         ports:  ['7200:7200']
         exposed_ports:  ['7200']
@@ -469,7 +469,7 @@ topology_template:
       properties:
         alias: semantic-web
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/semantic_web:172
+        image_name: sodaliteh2020/semantic_web:latest
         restart_policy: always
         env: { get_input: reasoner_env }
         ports:  ['8080:8080']
@@ -515,7 +515,7 @@ topology_template:
       properties:
         alias: tosca-smells
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/toscasmells:124
+        image_name: sodaliteh2020/toscasmells:latest
         restart_policy: always
         env: { get_input: toscasmells_env }
         ports:  ['8082:8080']
@@ -530,7 +530,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: ansible-smells
-        image_name: sodaliteh2020/ansiblesmells:124
+        image_name: sodaliteh2020/ansiblesmells:latest
         restart_policy: always
         ports:  ['5004:5000']
       requirements:
