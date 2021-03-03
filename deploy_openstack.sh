@@ -4,7 +4,7 @@
 # Pinned versions
 
 OPERA_VERSION="0.6.4"
-IAC_MODULES_VERSION="3.1.1"
+IAC_MODULES_VERSION="3.2.1"
 
 ########################
 
