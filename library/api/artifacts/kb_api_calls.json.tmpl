@@ -1,7 +1,9 @@
 [
     {
         "url": "http://{{ reasoner_address }}:{{ reasoner_port }}/reasoner-api/v0.6/testReasoner",
-        "method": "GET"
+        "method": "GET",
+        "headers": {},
+        "body": {}
     },
     {
         "url": "http://{{ address }}:{{ port }}/rest/security/user/admin",
@@ -25,8 +27,7 @@
     {
         "url": "http://{{ address }}:{{ port }}/rest/security",
         "method": "POST",
-        "headers":"",
+        "headers": {},
         "body": "true"
     }
 ]
-

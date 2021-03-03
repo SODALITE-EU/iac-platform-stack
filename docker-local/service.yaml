@@ -492,6 +492,8 @@ topology_template:
         kb_password: { get_input: kb_password }
       requirements:
         - server: sodalite-vm   
+        - dependency: know-db-container
+        - dependency: semantic-web-container
 
     # iac-quality-framework   
     # https://github.com/SODALITE-EU/iac-quality-framework
