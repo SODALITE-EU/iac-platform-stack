@@ -79,7 +79,13 @@ topology_template:
     vault_token:
       type: string
     project_domains:
-      type: list                 
+      type: list  
+    reasoner_env:
+      type: map   
+    toscasmells_env:
+      type: map               
+    kb_password:
+      type: string
 
   node_templates:
     security-rules-remote-access:
@@ -521,7 +527,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: iac-builder
-        image_name: sodaliteh2020/iac-blueprint-builder:24
+        image_name: sodaliteh2020/iac-blueprint-builder:M24Release
         docker_network_name:  { get_property: [ SELF, network, name ] }
         restart_policy: always
         ports:
@@ -580,7 +586,7 @@ topology_template:
       properties:
         alias: graph-db
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/graph_db:172
+        image_name: sodaliteh2020/graph_db:192
         restart_policy: always
         ports:  ['7200:7200']
         exposed_ports:  ['7200']
@@ -594,15 +600,9 @@ topology_template:
       properties:
         alias: semantic-web
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/semantic_web:172
+        image_name: sodaliteh2020/semantic_web:M24Release
         restart_policy: always
-        env:
-          WAIT_HOSTS: graph-db:7200
-          environment: docker
-          graphdb:  http://graph-db:7200
-          bugPredictorServer:  http://tosca-smells:8080/  
-          ansiblePath: /usr/local/tomcat/webapps/Ansibles/
-          reasonerServer: http://semantic-web:8080/
+        env: { get_input: reasoner_env }
         ports:  ['8080:8080']
         volumes:
           - "/tmp/tomcat/webapps/Ansibles:/usr/local/tomcat/webapps/Ansibles"   
@@ -612,6 +612,19 @@ topology_template:
         - network: docker-network     
         - dependency: know-db-container
         - dependency: tosca-smells-container
+
+    know-db-config:
+      type: sodalite.nodes.KBApiConfiguration
+      properties:
+        address: { get_attribute: [ SELF, server, public_address ] }
+        port: 7200
+        reasoner_address: { get_attribute: [ SELF, server, public_address ] }
+        reasoner_port: 8080        
+        kb_password: { get_input: kb_password }
+      requirements:
+        - server: sodalite-vm   
+        - dependency: know-db-container
+        - dependency: semantic-web-container
 
     # iac-quality-framework   
     # https://github.com/SODALITE-EU/iac-quality-framework
@@ -633,12 +646,9 @@ topology_template:
       properties:
         alias: tosca-smells
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/toscasmells:124
+        image_name: sodaliteh2020/toscasmells:349
         restart_policy: always
-        env:
-          environment: docker
-          WAIT_HOSTS: graph-db:7200
-          graphdb: http://graph-db:7200
+        env: { get_input: toscasmells_env }
         ports:  ['8082:8080']
         exposed_ports:  ['8080']
       requirements:
@@ -651,7 +661,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: ansible-smells
-        image_name: sodaliteh2020/ansiblesmells:124
+        image_name: sodaliteh2020/ansiblesmells:349
         restart_policy: always
         ports:  ['5004:5000']
       requirements:
