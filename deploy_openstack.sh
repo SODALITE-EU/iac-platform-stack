@@ -226,6 +226,9 @@ echo
 read -rp "Please enter client secret for Keycloak: " KEYCLOAK_CLIENT_SECRET_INPUT
 export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_INPUT
 
+echo
+read -rp "Please enter admin password for Knowledge Base: " KB_PASSWORD_INPUT
+export KB_PASSWORD=$KB_PASSWORD_INPUT
 # prepare inputs
 envsubst <./openstack/input.yaml.tmpl >./openstack/input.yaml || exit 1
 
@@ -258,6 +261,7 @@ unset SODALITE_EMAIL
 unset KEYCLOAK_ADMIN_PASSWORD
 unset VAULT_TOKEN
 unset KEYCLOAK_CLIENT_SECRET
+unset KB_PASSWORD
 unset ssh_key_name
 
 echo
