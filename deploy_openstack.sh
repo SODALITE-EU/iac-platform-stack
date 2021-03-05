@@ -193,14 +193,66 @@ echo "Running installation script as" "$CURRENT_USER"
 
 echo
 echo
-echo "These are basic minimal inputs. If more advanced inputs are required please edit /openstack/input.yaml file manually."
+# shellcheck disable=SC1090
+# source openrcfile
+if [ -f "$OPENRC_PATH" ]; then
+  echo "Exporting openstack environment variables..."
+  . "$OPENRC_PATH"
+  echo
+  echo "Testing Openstack connection..."
+  if [ -z "$(openstack server list)" ]; then
+    echo "Openstack connection failed, check openrc_file on $OPENRC_PATH"
+    exit 1
+  else
+    echo "Successfully connected to Openstack"
+  fi
+
+else
+  echo "Missing openrc file on $OPENRC_PATH"
+  exit 1
+fi
+
 echo
-read -rp "Please enter email for SODALITE certificate: " EMAIL_INPUT
-export SODALITE_EMAIL=$EMAIL_INPUT
+echo
+echo "These are basic minimal inputs. If more advanced inputs are required please edit /openstack/input.yaml file manually."
+
+echo
+mapfile -t images < <(openstack image list -f csv | grep active | cut -d ',' -f2 | tr -d \")
+echo "Pick Openstack image for iac-platform-stack deployment:"
+
+select image in "${images[@]}"; do
+  if [ -z "$image" ]; then
+    echo "Invalid entry. Try again"
+  else
+    break
+  fi
+done
+
+image_lower="${image,,}"
+if [[ "$image_lower" == *"ubuntu"* ]]; then
+  username="ubuntu"
+elif [[ "$image_lower" == *"centos"* ]]; then
+  username="centos"
+else
+  read -rp "Please enter username for VM with $image: " username
+fi
+
+echo Image name: \""$image"\"
+echo Username: "$username"
+
+export VM_IMAGE_NAME=$image
+export VM_USERNAME=$username
+
+# for xOpera
+export OPERA_SSH_USER=$username
 
 echo
 read -rp "Please enter Key pair name, to be assigned to sodalite-demo VM: " KEY_NAME_INPUT
-export ssh_key_name=$KEY_NAME_INPUT
+export VM_SSH_KEY_NAME=$KEY_NAME_INPUT
+
+echo
+read -rp "Please enter email for SODALITE certificate: " EMAIL_INPUT
+export SODALITE_EMAIL=$EMAIL_INPUT
 
 echo
 read -rp "Please enter username for SODALITE blueprint database: " USERNAME_INPUT
@@ -262,28 +314,13 @@ unset KEYCLOAK_ADMIN_PASSWORD
 unset VAULT_TOKEN
 unset KEYCLOAK_CLIENT_SECRET
 unset KB_PASSWORD
-unset ssh_key_name
+unset VM_SSH_KEY_NAME
+unset VM_IMAGE_NAME
+unset VM_USERNAME
 
 echo
 echo
 
-# shellcheck disable=SC1090
-# source openrcfile
-if [ -f "$OPENRC_PATH" ]; then
-  echo "Exporting openstack environment variables..."
-  . "$OPENRC_PATH"
-  echo
-  echo "Testing Openstack connection..."
-  if [ -z "$(openstack server list)" ]; then
-    exit 1
-  else
-    echo "Successfully connected to Openstack"
-  fi
-
-else
-  echo "Missing openrc file on $OPENRC_PATH"
-  exit 1
-fi
 
 # sudo is needed to ensure ansible will get user's password
 echo

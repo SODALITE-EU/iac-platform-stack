@@ -50,27 +50,31 @@ git clone https://github.com/SODALITE-EU/iac-platform-stack.git
 cd iac-platform-stack
 ./deploy_local.sh deploy
 ```
-### Ubuntu - openstack
+### OpenStack
+Openstack deployment was tested on Ubuntu 20.04 and Centos 7 VMs (with orchestration from Ubuntu 20.04 machine), but it probably works on other distributions as well.
+Image selection is part of deploy script.
+
 Clone repo and run script. OPENRC_PATH is path to file with env vars for OpenStack connection.
 ```shell script
 git clone https://github.com/SODALITE-EU/iac-platform-stack.git
 cd iac-platform-stack
-./deploy_openstack.sh undeploy [OPENRC_PATH]
+./deploy_openstack.sh deploy [OPENRC_PATH]
 ```
 ### Script content and workflow
 Deploy scripts ([deploy_local.sh](deploy_local.sh) and [deploy_openstack.sh](deploy_openstack.sh)) test environment,
 set up and deploy blueprint. Steps:
 - ensure correct version of python3, pip3, ansible, xOpera, git, ansible playbooks
 - clone SODALITE iac modules and copy library
+- export openstack environment variables (Openstack only)
+- target image selection (Openstack only)
 - create inputs
 - create TLS certificates
-- export openstack environment variables (Openstack only)
 - deploy stack with xOpera
 
 Alternatively, scripts can also undeploy stack or deploy with resume, check script usage:
 ```shell script
 # Invoking scripts without params will print scripts help
-./deploy_openstack.sh
+./deploy_local.sh
 ./deploy_openstack.sh
 ```
 

@@ -39,12 +39,23 @@ Prerequisites for SODALITE stack deployment could also be set manually, followin
     Openstack deployment of SODALITE stack requires a VM to be instantiated therefore these parameters have to be defined: SSH key, image, flavor and network names plus a comma separated list of security groups.
     ```yaml
     ssh-key-name: 
-    image-name: 
+    image-name:
+    username: 
     flavor-name:
     openstack-network-name: 
     security-groups:     
     ```
     *NOTE: `security-groups` input must include `sodalite-uc`security group, e.g. `default,remote_access,sodalite-uc`*
+5.  ## Export OPERA_SSH_USER (OpenStack only)
+    By default, xOpera tries to connect to VM with default user centos:
+    ```shell script
+    ssh centos@[vm_ip]
+    ```
+    If deploying to image with default user other then centos (e.g. ubuntu), OPERA_SSH_USER must be exported:
+    ```shell script
+    # example for Ubuntu 20.04 cloud image
+    export OPERA_SSH_USER=ubuntu
+    ```
 6.  ## Run blueprint deployment
     Go to the folder containing `service.yaml` TOSCA blueprint file (`./docker-local` or `./openstack`) and run the following command:
     ```shell script

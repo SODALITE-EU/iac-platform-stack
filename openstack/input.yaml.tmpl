@@ -1,6 +1,6 @@
-ssh-key-name: ${ssh_key_name}
-image-name: "centos-7 x86_64"
-username: centos
+ssh-key-name: ${VM_SSH_KEY_NAME}
+image-name: "${VM_IMAGE_NAME}"
+username: ${VM_USERNAME}
 openstack-network-name: xlab
 flavor-name: m1.large
 docker-network: sodalite
