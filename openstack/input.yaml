@@ -21,6 +21,8 @@ xopera_env:
   XOPERA_VERBOSE_MODE: debug
   XOPERA_DATABASE_IP: xopera-postgres
   XOPERA_DATABASE_NAME: postgres
+  XOPERA_DATABASE_USER: username
+  XOPERA_DATABASE_PASSWORD: password
   OIDC_INTROSPECTION_ENDPOINT: http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect 
   OIDC_CLIENT_SECRET: a8337e6d-ffbf-45ac-9fef-a8d3bd5c45cb 
   SECRET_VAULT_LOGIN_URI: http://vault:8200/v1/auth/jwt/login 
