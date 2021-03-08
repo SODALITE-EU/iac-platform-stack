@@ -85,7 +85,7 @@ following guidelines:
 -   password should not have special characters
 -   [xOpera GIT config](https://github.com/SODALITE-EU/xopera-rest-api#git-backend-server-optional-recommended) 
 (url, token) should be real, otherwise xOpera REST API will not start. 
--   all tokens (SODALITE_GIT_TOKEN, VAULT_TOKEN, KEYCLOAK_CLIENT_SECRET) must comply with [UUID standard](https://tools.ietf.org/html/rfc4122)
+-   some inputs (VAULT_TOKEN, KEYCLOAK_CLIENT_SECRET) must comply with [UUID standard](https://tools.ietf.org/html/rfc4122)
 ### Alternative installation
 Preferred method for installation is use of [deploy_local.sh](deploy_local.sh) and [deploy_openstack.sh](deploy_openstack.sh). Alternatively, see [manuall install steps](manual_install.md).
 
