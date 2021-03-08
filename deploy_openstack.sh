@@ -38,7 +38,7 @@ if [ -f .venv/bin/activate ]; then
   if [ "$ynvenv" != "${ynvenv#[Yy]}" ]; then
 
     echo "Activating .venv"
-    . .venv/bin/activate  || exit 1
+    . .venv/bin/activate || exit 1
   else
     echo "Abort."
   fi
@@ -58,8 +58,8 @@ OPENSTACKSDK_NOT_INSTALLED=$(if [ -z "$(pip3 show openstacksdk 2>/dev/null)" ]; 
 OPERA_WRONG_VERSION=$(if [ "$OPERA_CURRENT_VERSION" != "$OPERA_VERSION" ]; then echo true; else echo false; fi)
 
 # ansible version
-ANSIBLE_VERSION=$(ansible --version 2>/dev/null | head -n 1| awk '{print $2}')
-ANSIBLE_WRONG_VERSION=$(if [[ $ANSIBLE_VERSION == 2.10*  ]] || [[ -z $ANSIBLE_VERSION ]]; then echo false; else echo true; fi)
+ANSIBLE_VERSION=$(ansible --version 2>/dev/null | head -n 1 | awk '{print $2}')
+ANSIBLE_WRONG_VERSION=$(if [[ $ANSIBLE_VERSION == 2.10* ]] || [[ -z $ANSIBLE_VERSION ]]; then echo false; else echo true; fi)
 
 # check python3 and pip3
 PIP_INSTALLED=$(command -v pip3)
@@ -72,7 +72,7 @@ if [ -z "$PIP_INSTALLED" ]; then
     echo "Installing pip3"
 
     sudo apt update
-    sudo apt install -y python3 python3-pip  || exit 1
+    sudo apt install -y python3 python3-pip || exit 1
 
   else
     echo
@@ -109,8 +109,7 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $OPENSTAC
 
     echo "Installing system packages"
     sudo apt update
-    sudo apt install -y python3-venv python3-wheel python-wheel-common python3-apt  || exit 1
-
+    sudo apt install -y python3-venv python3-wheel python-wheel-common python3-apt || exit 1
 
     if $ANSIBLE_WRONG_VERSION; then
       echo
@@ -129,8 +128,8 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $OPENSTAC
     echo
     echo "Creating new venv"
     sudo rm -rf .venv
-    python3 -m venv --system-site-packages .venv && . .venv/bin/activate  || exit 1
-    pip3 install --upgrade pip  || exit 1
+    python3 -m venv --system-site-packages .venv && . .venv/bin/activate || exit 1
+    pip3 install --upgrade pip || exit 1
     echo
     echo "Installing xOpera"
     pip3 install --ignore-installed "opera[openstack]==$OPERA_VERSION" || exit 1
@@ -158,7 +157,7 @@ if [ -z "$GIT_INSTALLED" ]; then
     echo "Installing git"
 
     sudo apt update
-    sudo apt install -y git  || exit 1
+    sudo apt install -y git || exit 1
 
   else
     echo
@@ -173,8 +172,8 @@ if [[ "$IAC_MODULES_CURRENT_VERSION" != *"$IAC_MODULES_VERSION"* ]]; then
 
   rm -r -f openstack/modules/
   git config --global advice.detachedHead "false" &&
-  git clone -b "$IAC_MODULES_VERSION" https://github.com/SODALITE-EU/iac-modules.git openstack/modules &&
-  git config --global advice.detachedHead "true"
+    git clone -b "$IAC_MODULES_VERSION" https://github.com/SODALITE-EU/iac-modules.git openstack/modules &&
+    git config --global advice.detachedHead "true"
 fi
 
 # copy library
@@ -215,146 +214,187 @@ else
   exit 1
 fi
 
-echo
-echo
-echo "These are basic minimal inputs. If more advanced inputs are required please edit /openstack/input.yaml file manually."
+# use openstack/input.yaml, if exists
+INPUT_FILE=openstack/input.yaml
+if [ -f "$INPUT_FILE" ]; then
+  echo
+  echo
+  read -rp "Found existing file $INPUT_FILE, do you want to use it [Y/n] " yninput
+  if [ "$yninput" != "${yninput#[Yy]}" ]; then
 
-# Openstack image selection
-echo
-mapfile -t images < <(openstack image list -f csv | grep active | cut -d ',' -f2 | tr -d \")
-echo "Select Openstack image for sodalite-demo VM:"
+    echo "Using existing file with inputs"
 
-select image in "${images[@]}"; do
-  if [ -z "$image" ]; then
-    echo "Invalid entry. Try again"
-  else
-    break
-  fi
-done
+    username=$(grep username "$INPUT_FILE" | cut -d ' ' -f2)
+    email=$(grep email-address "$INPUT_FILE" | cut -d ' ' -f2)
 
-image_lower="${image,,}"
-if [[ "$image_lower" == *"ubuntu"* ]]; then
-  username="ubuntu"
-elif [[ "$image_lower" == *"centos"* ]]; then
-  username="centos"
-else
-  read -rp "Please enter username for sodalite-demo VM ($image): " username
-fi
-
-# Openstack flavor selection
-echo
-mapfile -t flavors < <(openstack flavor list -f csv | tail -n +2 | cut -d ',' -f2 | tr -d \")
-echo "Select Openstack Flavor for sodalite-demo VM (m1.large recommended):"
-
-select flavor in "${flavors[@]}"; do
-  if [ -z "$flavor" ]; then
-    echo "Invalid entry. Try again"
-  else
-    break
-  fi
-done
-
-# Openstack network selection
-echo
-mapfile -t networks < <(openstack network list -f csv | tail -n +2 | cut -d ',' -f2 | tr -d \")
-
-# if more then one network available
-if [ "${#networks[@]}" -gt 1 ]; then
-  echo "Select Openstack Network to attach sodalite-demo VM to:"
-
-  select network in "${networks[@]}"; do
-    if [ -z "$network" ]; then
-      echo "Invalid entry. Try again"
-    else
-      break
+    if [[ -z "$username" ]] || [[ -z "$email" ]]; then
+      echo Input file $INPUT_FILE invalid.
+      exit 1
     fi
-  done
-else
-  network="${networks[0]}"
-  echo "Openstack Network to attach sodalite-demo VM to: $network"
-fi
+    export OPERA_SSH_USER=$username
+    export SODALITE_EMAIL=$email
 
-# Openstack keypair selection
-echo
-mapfile -t keypairs < <(openstack keypair list -f csv | tail -n +2 | cut -d ',' -f1 | tr -d \")
+  else
 
-# if more then one keypair available
-if [ "${#keypairs[@]}" -gt 1 ]; then
-  echo "Select Keypair to be used when creating sodalite-demo VM:"
+    echo "Creating file with inputs..."
 
-  select keypair in "${keypairs[@]}"; do
-    if [ -z "$keypair" ]; then
-      echo "Invalid entry. Try again"
+    echo
+    echo
+    echo "These are basic minimal inputs. If more advanced inputs are required please edit openstack/input.yaml file manually."
+
+    # Openstack image selection
+    echo
+    mapfile -t images < <(openstack image list -f csv | grep active | cut -d ',' -f2 | tr -d \")
+    echo "Select Openstack image for sodalite-demo VM:"
+
+    select image in "${images[@]}"; do
+      if [ -z "$image" ]; then
+        echo "Invalid entry. Try again"
+      else
+        break
+      fi
+    done
+
+    image_lower="${image,,}"
+    if [[ "$image_lower" == *"ubuntu"* ]]; then
+      username="ubuntu"
+    elif [[ "$image_lower" == *"centos"* ]]; then
+      username="centos"
     else
-      break
+      read -rp "Please enter username for sodalite-demo VM ($image): " username
     fi
-  done
-else
-  keypair="${keypairs[0]}"
-  echo "Keypair to be used when creating sodalite-demo VM: $keypair"
+
+    # Openstack flavor selection
+    echo
+    mapfile -t flavors < <(openstack flavor list -f csv | tail -n +2 | cut -d ',' -f2 | tr -d \")
+    echo "Select Openstack Flavor for sodalite-demo VM (m1.large recommended):"
+
+    select flavor in "${flavors[@]}"; do
+      if [ -z "$flavor" ]; then
+        echo "Invalid entry. Try again"
+      else
+        break
+      fi
+    done
+
+    # Openstack network selection
+    echo
+    mapfile -t networks < <(openstack network list -f csv | tail -n +2 | cut -d ',' -f2 | tr -d \")
+
+    # if more then one network available
+    if [ "${#networks[@]}" -gt 1 ]; then
+      echo "Select Openstack Network to attach sodalite-demo VM to:"
+
+      select network in "${networks[@]}"; do
+        if [ -z "$network" ]; then
+          echo "Invalid entry. Try again"
+        else
+          break
+        fi
+      done
+    else
+      network="${networks[0]}"
+      echo "Openstack Network to attach sodalite-demo VM to: $network"
+    fi
+
+    # Openstack keypair selection
+    echo
+    mapfile -t keypairs < <(openstack keypair list -f csv | tail -n +2 | cut -d ',' -f1 | tr -d \")
+
+    # if more then one keypair available
+    if [ "${#keypairs[@]}" -gt 1 ]; then
+      echo "Select Keypair to be used when creating sodalite-demo VM:"
+
+      select keypair in "${keypairs[@]}"; do
+        if [ -z "$keypair" ]; then
+          echo "Invalid entry. Try again"
+        else
+          break
+        fi
+      done
+    else
+      keypair="${keypairs[0]}"
+      echo "Keypair to be used when creating sodalite-demo VM: $keypair"
+    fi
+
+    echo
+    echo "######## sodalite-demo VM ########"
+    echo Image: \""$image"\"
+    echo Username: "$username"
+    echo Flavor: "$flavor"
+    echo Network: "$network"
+    echo Keypair: "$keypair"
+    echo "##################################"
+
+    export VM_IMAGE_NAME=$image
+    export VM_USERNAME=$username
+    export VM_FLAVOR=$flavor
+    export OS_NETWORK=$network
+    export VM_SSH_KEY_NAME=$keypair
+
+    # for xOpera
+    export OPERA_SSH_USER=$username
+
+    echo
+    read -rp "Please enter email for SODALITE certificate: " EMAIL_INPUT
+    export SODALITE_EMAIL=$EMAIL_INPUT
+
+    echo
+    read -rp "Please enter username for SODALITE blueprint database: " USERNAME_INPUT
+    export SODALITE_DB_USERNAME=$USERNAME_INPUT
+
+    echo
+    read -rp "Please enter password for SODALITE blueprint database: " PASSWORD_INPUT
+    export SODALITE_DB_PASSWORD=$PASSWORD_INPUT
+
+    echo
+    read -rp "Please enter token (UUID) for SODALITE Gitlab repository: " TOKEN_INPUT
+    while [[ ! "$TOKEN_INPUT" =~ $UUID_pattern ]]; do
+      read -rp "\"$TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " TOKEN_INPUT
+    done
+    export SODALITE_GIT_TOKEN=$TOKEN_INPUT
+
+    echo
+    read -rp "Please enter token (UUID) for Vault: " VAULT_TOKEN_INPUT
+    while [[ ! "$VAULT_TOKEN_INPUT" =~ $UUID_pattern ]]; do
+      read -rp "\"$VAULT_TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " VAULT_TOKEN_INPUT
+    done
+    export VAULT_TOKEN=$VAULT_TOKEN_INPUT
+
+    echo
+    read -rp "Please enter admin password for Keycloak: " KEYCLOAK_ADMIN_PASSWORD_INPUT
+    export KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD_INPUT
+
+    echo
+    read -rp "Please enter client secret (UUID) for Keycloak: " KEYCLOAK_CLIENT_SECRET_INPUT
+    while [[ ! "$KEYCLOAK_CLIENT_SECRET_INPUT" =~ $UUID_pattern ]]; do
+      read -rp "\"$KEYCLOAK_CLIENT_SECRET_INPUT\" is not UUID. Please enter a valid UUID: " KEYCLOAK_CLIENT_SECRET_INPUT
+    done
+    export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_INPUT
+
+    echo
+    read -rp "Please enter admin password for Knowledge Base: " KB_PASSWORD_INPUT
+    export KB_PASSWORD=$KB_PASSWORD_INPUT
+    # prepare inputs
+    envsubst <./openstack/input.yaml.tmpl >./openstack/input.yaml || exit 1
+
+    unset CURRENT_USER
+    unset SODALITE_GIT_TOKEN
+    unset SODALITE_DB_USERNAME
+    unset SODALITE_DB_PASSWORD
+    unset KEYCLOAK_ADMIN_PASSWORD
+    unset VAULT_TOKEN
+    unset KEYCLOAK_CLIENT_SECRET
+    unset KB_PASSWORD
+    unset VM_IMAGE_NAME
+    unset VM_USERNAME
+    unset VM_FLAVOR
+    unset OS_NETWORK
+    unset VM_SSH_KEY_NAME
+
+  fi
+
 fi
-
-echo
-echo "######## sodalite-demo VM ########"
-echo Image: \""$image"\"
-echo Username: "$username"
-echo Flavor: "$flavor"
-echo Network: "$network"
-echo Keypair: "$keypair"
-echo "##################################"
-
-export VM_IMAGE_NAME=$image
-export VM_USERNAME=$username
-export VM_FLAVOR=$flavor
-export OS_NETWORK=$network
-export VM_SSH_KEY_NAME=$keypair
-
-# for xOpera
-export OPERA_SSH_USER=$username
-
-
-echo
-read -rp "Please enter email for SODALITE certificate: " EMAIL_INPUT
-export SODALITE_EMAIL=$EMAIL_INPUT
-
-echo
-read -rp "Please enter username for SODALITE blueprint database: " USERNAME_INPUT
-export SODALITE_DB_USERNAME=$USERNAME_INPUT
-
-echo
-read -rp "Please enter password for SODALITE blueprint database: " PASSWORD_INPUT
-export SODALITE_DB_PASSWORD=$PASSWORD_INPUT
-
-echo
-read -rp "Please enter token (UUID) for SODALITE Gitlab repository: " TOKEN_INPUT
-while [[ ! "$TOKEN_INPUT" =~ $UUID_pattern ]]; do
-    read -rp "\"$TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " TOKEN_INPUT
-done
-export SODALITE_GIT_TOKEN=$TOKEN_INPUT
-
-echo
-read -rp "Please enter token (UUID) for Vault: " VAULT_TOKEN_INPUT
-while [[ ! "$VAULT_TOKEN_INPUT" =~ $UUID_pattern ]]; do
-    read -rp "\"$VAULT_TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " VAULT_TOKEN_INPUT
-done
-export VAULT_TOKEN=$VAULT_TOKEN_INPUT
-
-echo
-read -rp "Please enter admin password for Keycloak: " KEYCLOAK_ADMIN_PASSWORD_INPUT
-export KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD_INPUT
-
-echo
-read -rp "Please enter client secret (UUID) for Keycloak: " KEYCLOAK_CLIENT_SECRET_INPUT
-while [[ ! "$KEYCLOAK_CLIENT_SECRET_INPUT" =~ $UUID_pattern ]]; do
-    read -rp "\"$KEYCLOAK_CLIENT_SECRET_INPUT\" is not UUID. Please enter a valid UUID: " KEYCLOAK_CLIENT_SECRET_INPUT
-done
-export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_INPUT
-
-echo
-read -rp "Please enter admin password for Knowledge Base: " KB_PASSWORD_INPUT
-export KB_PASSWORD=$KB_PASSWORD_INPUT
-# prepare inputs
-envsubst <./openstack/input.yaml.tmpl >./openstack/input.yaml || exit 1
 
 echo
 echo "Checking TLS key and certificate..."
@@ -364,8 +404,8 @@ if [ -f "$FILE_KEY" ] && [ -f "$FILE_KEY2" ]; then
   echo "TLS key file already exists."
 else
   echo "TLS key does not exist. Generating..."
-  openssl genrsa -out $FILE_KEY 4096  || exit 1
-  cp $FILE_KEY $FILE_KEY2  || exit 1
+  openssl genrsa -out $FILE_KEY 4096 || exit 1
+  cp $FILE_KEY $FILE_KEY2 || exit 1
 fi
 FILE_CRT=openstack/modules/docker/artifacts/ca.crt
 FILE_CRT2=openstack/modules/misc/tls/artifacts/ca.crt
@@ -374,23 +414,10 @@ if [ -f "$FILE_CRT" ] && [ -f "$FILE_CRT2" ]; then
 else
   echo "TLS certificate does not exist. Generating..."
   openssl req -new -x509 -key $FILE_KEY -out $FILE_CRT -subj "/C=SI/O=XLAB/CN=$SODALITE_EMAIL" 2>/dev/null
-  cp $FILE_CRT $FILE_CRT2  || exit 1
+  cp $FILE_CRT $FILE_CRT2 || exit 1
 fi
 
-unset CURRENT_USER
-unset SODALITE_GIT_TOKEN
-unset SODALITE_DB_USERNAME
-unset SODALITE_DB_PASSWORD
 unset SODALITE_EMAIL
-unset KEYCLOAK_ADMIN_PASSWORD
-unset VAULT_TOKEN
-unset KEYCLOAK_CLIENT_SECRET
-unset KB_PASSWORD
-unset VM_IMAGE_NAME
-unset VM_USERNAME
-unset VM_FLAVOR
-unset OS_NETWORK
-unset VM_SSH_KEY_NAME
 
 echo
 echo
@@ -398,7 +425,6 @@ echo
 # sudo is needed to ensure ansible will get user's password
 echo
 sudo echo "MODE: $MODE"
-
 
 if [[ $MODE == "deploy" ]]; then
   echo "Deploying with opera..."
