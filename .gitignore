@@ -2,6 +2,8 @@
 docker-local/.opera
 docker-local/modules
 docker-local/library
+docker-local/input.yaml
 openstack/.opera
 openstack/modules
 openstack/library
+openstack/input.yaml

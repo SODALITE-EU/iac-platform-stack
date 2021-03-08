@@ -1,5 +1,7 @@
+# Local computer
 username: $CURRENT_USER
 local_ipv4_address: $IP_ADDRESS
+# Docker host
 docker-network: sodalite
 dockerhub-user: 
 dockerhub-pass: 
@@ -8,6 +10,7 @@ docker-private-registry-url: registry
 docker-registry-cert-country-name: SI
 docker-registry-cert-organization-name: XLAB
 docker-registry-cert-email-address: $SODALITE_EMAIL
+# xOpera REST API
 postgres_env:
   POSTGRES_USER: $SODALITE_DB_USERNAME
   POSTGRES_PASSWORD: $SODALITE_DB_PASSWORD
@@ -24,9 +27,11 @@ xopera_env:
   OIDC_INTROSPECTION_ENDPOINT: http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect 
   OIDC_CLIENT_SECRET: $KEYCLOAK_CLIENT_SECRET 
   SECRET_VAULT_LOGIN_URI: http://vault:8200/v1/auth/jwt/login 
-  SECRET_VAULT_URI: http://vault:8200/v1/  
+  SECRET_VAULT_URI: http://vault:8200/v1/
+# Image Builder
 image_builder_env:
   REGISTRY_IP: $IP_ADDRESS
+# Modak
 modak_api_env:
   MODAK_DATABASE_PASSWORD: $SODALITE_DB_PASSWORD
   MODAK_DATABASE_HOST: modak-db
@@ -34,22 +39,26 @@ modak_api_env:
 modak_db_env:
   MYSQL_ROOT_HOST: "%"
   MYSQL_ROOT_PASSWORD: $SODALITE_DB_PASSWORD
-vault_env:  
+# Vault
+vault_env:
   VAULT_LOCAL_CONFIG: '{"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "16h", "max_lease_ttl": "72h"}'
   VAULT_DEV_ROOT_TOKEN_ID: $VAULT_TOKEN
   VAULT_TOKEN: $VAULT_TOKEN
+vault_token: $VAULT_TOKEN
+project_domains: [ snow, clinical, vehicle, pds ]
+# Keycloak
 keycloak_env:
   KEYCLOAK_USER: admin
   KEYCLOAK_PASSWORD: $KEYCLOAK_ADMIN_PASSWORD
   KEYCLOAK_IMPORT: /tmp/sodalite-realm.json
 keycloak_client_secret: $KEYCLOAK_CLIENT_SECRET
-vault_token: $VAULT_TOKEN
-project_domains: [ snow, clinical, vehicle, pds ]
+# Platform Discovery Service
 pds_env:
   SECRET_VAULT_LOGIN_URI: http://vault:8200/v1/auth/jwt/login 
   SECRET_VAULT_URI: http://vault:8200/v1/ 
   OIDC_INTROSPECTION_ENDPOINT: http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect 
   OIDC_CLIENT_SECRET: $KEYCLOAK_CLIENT_SECRET
+# Semantic Reasoner
 reasoner_env:
   WAIT_HOSTS: graph-db:7200
   environment: docker
@@ -62,10 +71,11 @@ reasoner_env:
   keycloak: http://keycloak:8080/
   keycloakClientId: sodalite-ide
   keycloakClientSecret: $KEYCLOAK_CLIENT_SECRET
+kb_password: $KB_PASSWORD
+# Defect Prediction
 toscasmells_env:
   environment: docker
   WAIT_HOSTS: graph-db:7200
   graphdb: http://graph-db:7200
   kbUsername: admin
-  kbPassword: $KB_PASSWORD  
-kb_password: $KB_PASSWORD  
+  kbPassword: $KB_PASSWORD

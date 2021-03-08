@@ -6,6 +6,9 @@
 OPERA_VERSION="0.6.4"
 IAC_MODULES_VERSION="3.2.1"
 
+# UUID regex for validation of uuid inputs
+UUID_pattern='^\{?[A-Z0-9a-z]{8}-[A-Z0-9a-z]{4}-[A-Z0-9a-z]{4}-[A-Z0-9a-z]{4}-[A-Z0-9a-z]{12}\}?$'
+
 ########################
 
 # Usage: ./deploy_local.sh deploy [--resume]
@@ -209,11 +212,17 @@ read -rp "Please enter password for SODALITE blueprint database: " PASSWORD_INPU
 export SODALITE_DB_PASSWORD=$PASSWORD_INPUT
 
 echo
-read -rp "Please enter token for SODALITE Gitlab repository: " TOKEN_INPUT
+read -rp "Please enter token (UUID) for SODALITE Gitlab repository: " TOKEN_INPUT
+while [[ ! "$TOKEN_INPUT" =~ $UUID_pattern ]]; do
+    read -rp "\"$TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " TOKEN_INPUT
+done
 export SODALITE_GIT_TOKEN=$TOKEN_INPUT
 
 echo
-read -rp "Please enter token for Vault: " VAULT_TOKEN_INPUT
+read -rp "Please enter token (UUID) for Vault: " VAULT_TOKEN_INPUT
+while [[ ! "$VAULT_TOKEN_INPUT" =~ $UUID_pattern ]]; do
+    read -rp "\"$VAULT_TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " VAULT_TOKEN_INPUT
+done
 export VAULT_TOKEN=$VAULT_TOKEN_INPUT
 
 echo
@@ -221,7 +230,10 @@ read -rp "Please enter admin password for Keycloak: " KEYCLOAK_ADMIN_PASSWORD_IN
 export KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD_INPUT
 
 echo
-read -rp "Please enter client secret for Keycloak: " KEYCLOAK_CLIENT_SECRET_INPUT
+read -rp "Please enter client secret (UUID) for Keycloak: " KEYCLOAK_CLIENT_SECRET_INPUT
+while [[ ! "$KEYCLOAK_CLIENT_SECRET_INPUT" =~ $UUID_pattern ]]; do
+    read -rp "\"$KEYCLOAK_CLIENT_SECRET_INPUT\" is not UUID. Please enter a valid UUID: " KEYCLOAK_CLIENT_SECRET_INPUT
+done
 export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_INPUT
 
 echo
