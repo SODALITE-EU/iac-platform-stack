@@ -184,7 +184,37 @@ cp -r library/ openstack/library/
 
 echo
 echo "Installing required Ansible roles"
-ansible-galaxy install -r requirements.yml --force
+
+mapfile -t existing_roles < <(ansible-galaxy role list 2>/dev/null)
+version_exist() {
+  desired_role=$1
+  desired_version=$2
+  for existin_role in "${existing_roles[@]}"; do
+    if [[ "$existin_role" == *"$desired_role"* ]]; then
+      if [[ "$existin_role" == *"$desired_version"* ]]; then
+        return 0
+      else
+        return 1
+      fi
+
+    fi
+  done
+  return 1
+}
+
+mapfile -t requirements < <(grep src requirements.yml -A1 | paste -d" |" - -)
+
+for requirement in "${requirements[@]}"; do
+  # shellcheck disable=SC2086
+  package="$(echo $requirement | cut -d ' ' -f3)"
+  # shellcheck disable=SC2086
+  version="$(echo $requirement | cut -d ' ' -f5)"
+  if version_exist "$package" "$version"; then
+    echo "Ansible role $package,$version already installed"
+  else
+    ansible-galaxy install "$package,$version" --force
+  fi
+done
 
 CURRENT_USER=$(whoami)
 export CURRENT_USER
