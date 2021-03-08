@@ -37,7 +37,7 @@ if [ -f .venv/bin/activate ]; then
   if [ "$ynvenv" != "${ynvenv#[Yy]}" ]; then
 
     echo "Activating .venv"
-    . .venv/bin/activate  || exit 1
+    . .venv/bin/activate || exit 1
   else
     echo "Abort."
   fi
@@ -56,8 +56,8 @@ OPERA_NOT_INSTALLED=$(if [ -z "$(pip3 show opera 2>/dev/null)" ]; then echo true
 OPERA_WRONG_VERSION=$(if [ "$OPERA_CURRENT_VERSION" != "$OPERA_VERSION" ]; then echo true; else echo false; fi)
 
 # ansible version
-ANSIBLE_VERSION=$(ansible --version 2>/dev/null | head -n 1| awk '{print $2}')
-ANSIBLE_WRONG_VERSION=$(if [[ $ANSIBLE_VERSION == 2.10*  ]] || [[ -z $ANSIBLE_VERSION ]]; then echo false; else echo true; fi)
+ANSIBLE_VERSION=$(ansible --version 2>/dev/null | head -n 1 | awk '{print $2}')
+ANSIBLE_WRONG_VERSION=$(if [[ $ANSIBLE_VERSION == 2.10* ]] || [[ -z $ANSIBLE_VERSION ]]; then echo false; else echo true; fi)
 
 # check python3 and pip3
 PIP_INSTALLED=$(command -v pip3)
@@ -70,7 +70,7 @@ if [ -z "$PIP_INSTALLED" ]; then
     echo "Installing pip3"
 
     sudo apt update
-    sudo apt install -y python3 python3-pip  || exit 1
+    sudo apt install -y python3 python3-pip || exit 1
 
   else
     echo
@@ -104,8 +104,7 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $ANSIBLE_
 
     echo "Installing system packages"
     sudo apt update
-    sudo apt install -y python3-venv python3-wheel python-wheel-common python3-apt  || exit 1
-
+    sudo apt install -y python3-venv python3-wheel python-wheel-common python3-apt || exit 1
 
     if $ANSIBLE_WRONG_VERSION; then
       echo
@@ -124,8 +123,8 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $ANSIBLE_
     echo
     echo "Creating new venv"
     sudo rm -rf .venv
-    python3 -m venv --system-site-packages .venv && . .venv/bin/activate  || exit 1
-    pip3 install --upgrade pip  || exit 1
+    python3 -m venv --system-site-packages .venv && . .venv/bin/activate || exit 1
+    pip3 install --upgrade pip || exit 1
     echo
     echo "Installing xOpera"
     pip3 install --ignore-installed "opera==$OPERA_VERSION" || exit 1
@@ -153,7 +152,7 @@ if [ -z "$GIT_INSTALLED" ]; then
     echo "Installing git"
 
     sudo apt update
-    sudo apt install -y git  || exit 1
+    sudo apt install -y git || exit 1
 
   else
     echo
@@ -168,8 +167,8 @@ if [[ "$IAC_MODULES_CURRENT_VERSION" != *"$IAC_MODULES_VERSION"* ]]; then
 
   rm -r -f docker-local/modules/
   git config --global advice.detachedHead "false" &&
-  git clone -b "$IAC_MODULES_VERSION" https://github.com/SODALITE-EU/iac-modules.git docker-local/modules &&
-  git config --global advice.detachedHead "true"
+    git clone -b "$IAC_MODULES_VERSION" https://github.com/SODALITE-EU/iac-modules.git docker-local/modules &&
+    git config --global advice.detachedHead "true"
 fi
 
 # copy library
@@ -180,67 +179,131 @@ cp -r library/ docker-local/library/
 
 echo
 echo "Installing required Ansible roles"
-ansible-galaxy install -r requirements.yml --force
 
-CURRENT_USER=$(whoami)
-export CURRENT_USER
+mapfile -t existing_roles < <(ansible-galaxy role list 2>/dev/null)
+version_exist() {
+  desired_role=$1
+  desired_version=$2
+  for existin_role in "${existing_roles[@]}"; do
+    if [[ "$existin_role" == *"$desired_role"* ]]; then
+      if [[ "$existin_role" == *"$desired_version"* ]]; then
+        return 0
+      else
+        return 1
+      fi
 
-echo
-echo
-echo "Running installation script as" "$CURRENT_USER"
+    fi
+  done
+  return 1
+}
 
-IP_ADDRESS=$(ip route get 1 | awk '{print $(NF-2);exit}')
-export IP_ADDRESS
+mapfile -t requirements < <(grep src requirements.yml -A1 | paste -d" |" - -)
 
-echo
-echo
-echo "Running installation script on ip address:" "$IP_ADDRESS"
-
-echo
-echo
-echo "These are basic minimal inputs. If more advanced inputs are required please edit /docker-local/input.yaml file manually."
-echo
-read -rp "Please enter email for SODALITE certificate: " EMAIL_INPUT
-export SODALITE_EMAIL=$EMAIL_INPUT
-
-echo
-read -rp "Please enter username for SODALITE blueprint database: " USERNAME_INPUT
-export SODALITE_DB_USERNAME=$USERNAME_INPUT
-
-echo
-read -rp "Please enter password for SODALITE blueprint database: " PASSWORD_INPUT
-export SODALITE_DB_PASSWORD=$PASSWORD_INPUT
-
-echo
-read -rp "Please enter token (UUID) for SODALITE Gitlab repository: " TOKEN_INPUT
-while [[ ! "$TOKEN_INPUT" =~ $UUID_pattern ]]; do
-    read -rp "\"$TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " TOKEN_INPUT
+for requirement in "${requirements[@]}"; do
+  # shellcheck disable=SC2086
+  package="$(echo $requirement | cut -d ' ' -f3)"
+  # shellcheck disable=SC2086
+  version="$(echo $requirement | cut -d ' ' -f5)"
+  if version_exist "$package" "$version"; then
+    echo "Ansible role $package,$version already installed"
+  else
+    ansible-galaxy install "$package,$version" --force
+  fi
 done
-export SODALITE_GIT_TOKEN=$TOKEN_INPUT
 
-echo
-read -rp "Please enter token (UUID) for Vault: " VAULT_TOKEN_INPUT
-while [[ ! "$VAULT_TOKEN_INPUT" =~ $UUID_pattern ]]; do
-    read -rp "\"$VAULT_TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " VAULT_TOKEN_INPUT
-done
-export VAULT_TOKEN=$VAULT_TOKEN_INPUT
+# use docker-local/input.yaml, if exists
+INPUT_FILE=docker-local/input.yaml
+if [ -f "$INPUT_FILE" ]; then
+  echo
+  echo
+  read -rp "Found existing file $INPUT_FILE, do you want to use it [Y/n] " yninput
+  if [ "$yninput" != "${yninput#[Yy]}" ]; then
 
-echo
-read -rp "Please enter admin password for Keycloak: " KEYCLOAK_ADMIN_PASSWORD_INPUT
-export KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD_INPUT
+    echo "Using existing file with inputs"
 
-echo
-read -rp "Please enter client secret (UUID) for Keycloak: " KEYCLOAK_CLIENT_SECRET_INPUT
-while [[ ! "$KEYCLOAK_CLIENT_SECRET_INPUT" =~ $UUID_pattern ]]; do
-    read -rp "\"$KEYCLOAK_CLIENT_SECRET_INPUT\" is not UUID. Please enter a valid UUID: " KEYCLOAK_CLIENT_SECRET_INPUT
-done
-export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_INPUT
+    email=$(grep email-address "$INPUT_FILE" | cut -d ' ' -f2)
 
-echo
-read -rp "Please enter admin password for Knowledge Base: " KB_PASSWORD_INPUT
-export KB_PASSWORD=$KB_PASSWORD_INPUT
-# prepare inputs
-envsubst <./docker-local/input.yaml.tmpl >./docker-local/input.yaml || exit 1
+    if [[ -z "$email" ]]; then
+      echo Input file $INPUT_FILE invalid.
+      exit 1
+    fi
+    export SODALITE_EMAIL=$email
+
+  else
+
+    CURRENT_USER=$(whoami)
+    export CURRENT_USER
+
+    echo
+    echo
+    echo "Running installation script as" "$CURRENT_USER"
+
+    IP_ADDRESS=$(ip route get 1 | awk '{print $(NF-2);exit}')
+    export IP_ADDRESS
+
+    echo
+    echo
+    echo "Running installation script on ip address:" "$IP_ADDRESS"
+
+    echo
+    echo
+    echo "These are basic minimal inputs. If more advanced inputs are required please edit /docker-local/input.yaml file manually."
+    echo
+    read -rp "Please enter email for SODALITE certificate: " EMAIL_INPUT
+    export SODALITE_EMAIL=$EMAIL_INPUT
+
+    echo
+    read -rp "Please enter username for SODALITE blueprint database: " USERNAME_INPUT
+    export SODALITE_DB_USERNAME=$USERNAME_INPUT
+
+    echo
+    read -rp "Please enter password for SODALITE blueprint database: " PASSWORD_INPUT
+    export SODALITE_DB_PASSWORD=$PASSWORD_INPUT
+
+    echo
+    read -rp "Please enter token (UUID) for SODALITE Gitlab repository: " TOKEN_INPUT
+    while [[ ! "$TOKEN_INPUT" =~ $UUID_pattern ]]; do
+      read -rp "\"$TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " TOKEN_INPUT
+    done
+    export SODALITE_GIT_TOKEN=$TOKEN_INPUT
+
+    echo
+    read -rp "Please enter token (UUID) for Vault: " VAULT_TOKEN_INPUT
+    while [[ ! "$VAULT_TOKEN_INPUT" =~ $UUID_pattern ]]; do
+      read -rp "\"$VAULT_TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " VAULT_TOKEN_INPUT
+    done
+    export VAULT_TOKEN=$VAULT_TOKEN_INPUT
+
+    echo
+    read -rp "Please enter admin password for Keycloak: " KEYCLOAK_ADMIN_PASSWORD_INPUT
+    export KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD_INPUT
+
+    echo
+    read -rp "Please enter client secret (UUID) for Keycloak: " KEYCLOAK_CLIENT_SECRET_INPUT
+    while [[ ! "$KEYCLOAK_CLIENT_SECRET_INPUT" =~ $UUID_pattern ]]; do
+      read -rp "\"$KEYCLOAK_CLIENT_SECRET_INPUT\" is not UUID. Please enter a valid UUID: " KEYCLOAK_CLIENT_SECRET_INPUT
+    done
+    export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_INPUT
+
+    echo
+    read -rp "Please enter admin password for Knowledge Base: " KB_PASSWORD_INPUT
+    export KB_PASSWORD=$KB_PASSWORD_INPUT
+    # prepare inputs
+    envsubst <./docker-local/input.yaml.tmpl >./docker-local/input.yaml || exit 1
+
+    unset CURRENT_USER
+    unset SODALITE_GIT_TOKEN
+    unset SODALITE_DB_USERNAME
+    unset SODALITE_DB_PASSWORD
+    unset KEYCLOAK_ADMIN_PASSWORD
+    unset VAULT_TOKEN
+    unset KEYCLOAK_CLIENT_SECRET
+    unset IP_ADDRESS
+    unset KB_PASSWORD
+
+  fi
+
+fi
 
 echo
 echo "Checking TLS key and certificate..."
@@ -250,8 +313,8 @@ if [ -f "$FILE_KEY" ] && [ -f "$FILE_KEY2" ]; then
   echo "TLS key file already exists."
 else
   echo "TLS key does not exist. Generating..."
-  openssl genrsa -out $FILE_KEY 4096  || exit 1
-  cp $FILE_KEY $FILE_KEY2  || exit 1
+  openssl genrsa -out $FILE_KEY 4096 || exit 1
+  cp $FILE_KEY $FILE_KEY2 || exit 1
 fi
 FILE_CRT=docker-local/modules/docker/artifacts/ca.crt
 FILE_CRT2=docker-local/modules/misc/tls/artifacts/ca.crt
@@ -260,25 +323,14 @@ if [ -f "$FILE_CRT" ] && [ -f "$FILE_CRT2" ]; then
 else
   echo "TLS certificate does not exist. Generating..."
   openssl req -new -x509 -key $FILE_KEY -out $FILE_CRT -subj "/C=SI/O=XLAB/CN=$SODALITE_EMAIL" 2>/dev/null
-  cp $FILE_CRT $FILE_CRT2  || exit 1
+  cp $FILE_CRT $FILE_CRT2 || exit 1
 fi
 
-unset CURRENT_USER
-unset SODALITE_GIT_TOKEN
-unset SODALITE_DB_USERNAME
-unset SODALITE_DB_PASSWORD
 unset SODALITE_EMAIL
-unset KEYCLOAK_ADMIN_PASSWORD
-unset VAULT_TOKEN
-unset KEYCLOAK_CLIENT_SECRET
-unset IP_ADDRESS
-unset KB_PASSWORD
-
 
 # sudo is needed to ensure ansible will get user's password
 echo
 sudo echo "MODE: $MODE"
-
 
 if [[ $MODE == "deploy" ]]; then
   echo "Deploying with opera..."
