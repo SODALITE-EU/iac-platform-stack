@@ -63,13 +63,13 @@ cd iac-platform-stack
 ### Script content and workflow
 Deploy scripts ([deploy_local.sh](deploy_local.sh) and [deploy_openstack.sh](deploy_openstack.sh)) test environment,
 set up and deploy blueprint. Steps:
-- ensure correct version of python3, pip3, ansible, xOpera, git, ansible playbooks
-- clone SODALITE iac modules and copy library
-- export openstack environment variables (Openstack only)
-- target image selection (Openstack only)
-- create inputs
-- create TLS certificates
-- deploy stack with xOpera
+-   ensure correct version of python3, pip3, ansible, xOpera, git, ansible playbooks
+-   clone SODALITE iac modules and copy library
+-   export openstack environment variables (OpenStack only)
+-   target image selection (OpenStack only)
+-   create inputs
+-   create TLS certificates
+-   deploy stack with xOpera
 
 Alternatively, scripts can also undeploy stack or deploy with resume, check script usage:
 ```shell script
