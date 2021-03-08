@@ -382,10 +382,7 @@ if [[ -z "$REUSE_INPUT_FILE" ]]; then
   export SODALITE_DB_PASSWORD=$PASSWORD_INPUT
 
   echo
-  read -rp "Please enter token (UUID) for SODALITE Gitlab repository: " TOKEN_INPUT
-  while [[ ! "$TOKEN_INPUT" =~ $UUID_pattern ]]; do
-    read -rp "\"$TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " TOKEN_INPUT
-  done
+  read -rp "Please enter token for SODALITE Gitlab repository: " TOKEN_INPUT
   export SODALITE_GIT_TOKEN=$TOKEN_INPUT
 
   echo
