@@ -216,9 +216,10 @@ echo
 echo
 echo "These are basic minimal inputs. If more advanced inputs are required please edit /openstack/input.yaml file manually."
 
+# Openstack image selection
 echo
 mapfile -t images < <(openstack image list -f csv | grep active | cut -d ',' -f2 | tr -d \")
-echo "Pick Openstack image for iac-platform-stack deployment:"
+echo "Select Openstack image for sodalite-demo VM:"
 
 select image in "${images[@]}"; do
   if [ -z "$image" ]; then
@@ -234,21 +235,80 @@ if [[ "$image_lower" == *"ubuntu"* ]]; then
 elif [[ "$image_lower" == *"centos"* ]]; then
   username="centos"
 else
-  read -rp "Please enter username for VM with $image: " username
+  read -rp "Please enter username for sodalite-demo VM ($image): " username
 fi
 
-echo Image name: \""$image"\"
+# Openstack flavor selection
+echo
+mapfile -t flavors < <(openstack flavor list -f csv | tail -n +2 | cut -d ',' -f2 | tr -d \")
+echo "Select Openstack Flavor for sodalite-demo VM (m1.large recommended):"
+
+select flavor in "${flavors[@]}"; do
+  if [ -z "$flavor" ]; then
+    echo "Invalid entry. Try again"
+  else
+    break
+  fi
+done
+
+# Openstack network selection
+echo
+mapfile -t networks < <(openstack network list -f csv | tail -n +2 | cut -d ',' -f2 | tr -d \")
+
+# if more then one network available
+if [ "${#networks[@]}" -gt 1 ]; then
+  echo "Select Openstack Network to attach sodalite-demo VM to:"
+
+  select network in "${networks[@]}"; do
+    if [ -z "$network" ]; then
+      echo "Invalid entry. Try again"
+    else
+      break
+    fi
+  done
+else
+  network="${networks[0]}"
+  echo "Openstack Network to attach sodalite-demo VM to: $network"
+fi
+
+# Openstack keypair selection
+echo
+mapfile -t keypairs < <(openstack keypair list -f csv | tail -n +2 | cut -d ',' -f1 | tr -d \")
+
+# if more then one keypair available
+if [ "${#keypairs[@]}" -gt 1 ]; then
+  echo "Select Keypair to be used when creating sodalite-demo VM:"
+
+  select keypair in "${keypairs[@]}"; do
+    if [ -z "$keypair" ]; then
+      echo "Invalid entry. Try again"
+    else
+      break
+    fi
+  done
+else
+  keypair="${keypairs[0]}"
+  echo "Keypair to be used when creating sodalite-demo VM: $keypair"
+fi
+
+echo
+echo "######## sodalite-demo VM ########"
+echo Image: \""$image"\"
 echo Username: "$username"
+echo Flavor: "$flavor"
+echo Network: "$network"
+echo Keypair: "$keypair"
+echo "##################################"
 
 export VM_IMAGE_NAME=$image
 export VM_USERNAME=$username
+export VM_FLAVOR=$flavor
+export OS_NETWORK=$network
+export VM_SSH_KEY_NAME=$keypair
 
 # for xOpera
 export OPERA_SSH_USER=$username
 
-echo
-read -rp "Please enter Key pair name, to be assigned to sodalite-demo VM: " KEY_NAME_INPUT
-export VM_SSH_KEY_NAME=$KEY_NAME_INPUT
 
 echo
 read -rp "Please enter email for SODALITE certificate: " EMAIL_INPUT
@@ -314,9 +374,11 @@ unset KEYCLOAK_ADMIN_PASSWORD
 unset VAULT_TOKEN
 unset KEYCLOAK_CLIENT_SECRET
 unset KB_PASSWORD
-unset VM_SSH_KEY_NAME
 unset VM_IMAGE_NAME
 unset VM_USERNAME
+unset VM_FLAVOR
+unset OS_NETWORK
+unset VM_SSH_KEY_NAME
 
 echo
 echo
