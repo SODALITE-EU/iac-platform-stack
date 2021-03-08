@@ -73,7 +73,7 @@ set up and deploy blueprint. Steps:
 
 Alternatively, scripts can also undeploy stack or deploy with resume, check script usage:
 ```shell script
-# Invoking scripts without params will print scripts help
+# Invoking scripts without params will print script's help
 ./deploy_local.sh
 ./deploy_openstack.sh
 ```
@@ -81,10 +81,11 @@ Alternatively, scripts can also undeploy stack or deploy with resume, check scri
 ### Input guidelines
 Part of deploy scripts is also creating file with inputs for stack deployment. User will be prompted to enter them 
 following guidelines:
-- no input should be empty
-- password should not have special characters
-- [xOpera GIT config](https://github.com/SODALITE-EU/xopera-rest-api#git-backend-server-optional-recommended) 
+-   no input should be empty
+-   password should not have special characters
+-   [xOpera GIT config](https://github.com/SODALITE-EU/xopera-rest-api#git-backend-server-optional-recommended) 
 (url, token) should be real, otherwise xOpera REST API will not start. 
+-   all tokens (SODALITE_GIT_TOKEN, VAULT_TOKEN, KEYCLOAK_CLIENT_SECRET) must comply with [UUID standard](https://tools.ietf.org/html/rfc4122)
 ### Alternative installation
 Preferred method for installation is use of [deploy_local.sh](deploy_local.sh) and [deploy_openstack.sh](deploy_openstack.sh). Alternatively, see [manuall install steps](manual_install.md).
 
