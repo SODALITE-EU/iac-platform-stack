@@ -264,167 +264,170 @@ if [ -f "$INPUT_FILE" ]; then
     export OPERA_SSH_USER=$username
     export SODALITE_EMAIL=$email
 
+    REUSE_INPUT_FILE=True
+  fi
+fi
+
+if [[ -z "$REUSE_INPUT_FILE" ]]; then
+
+  echo "Creating file with inputs..."
+
+  echo
+  echo
+  echo "These are basic minimal inputs. If more advanced inputs are required please edit openstack/input.yaml file manually."
+
+  # Openstack image selection
+  echo
+  mapfile -t images < <(openstack image list -f csv | grep active | cut -d ',' -f2 | tr -d \")
+  echo "Select Openstack image for sodalite-demo VM:"
+
+  select image in "${images[@]}"; do
+    if [ -z "$image" ]; then
+      echo "Invalid entry. Try again"
+    else
+      break
+    fi
+  done
+
+  image_lower="${image,,}"
+  if [[ "$image_lower" == *"ubuntu"* ]]; then
+    username="ubuntu"
+  elif [[ "$image_lower" == *"centos"* ]]; then
+    username="centos"
   else
-
-    echo "Creating file with inputs..."
-
-    echo
-    echo
-    echo "These are basic minimal inputs. If more advanced inputs are required please edit openstack/input.yaml file manually."
-
-    # Openstack image selection
-    echo
-    mapfile -t images < <(openstack image list -f csv | grep active | cut -d ',' -f2 | tr -d \")
-    echo "Select Openstack image for sodalite-demo VM:"
-
-    select image in "${images[@]}"; do
-      if [ -z "$image" ]; then
-        echo "Invalid entry. Try again"
-      else
-        break
-      fi
-    done
-
-    image_lower="${image,,}"
-    if [[ "$image_lower" == *"ubuntu"* ]]; then
-      username="ubuntu"
-    elif [[ "$image_lower" == *"centos"* ]]; then
-      username="centos"
-    else
-      read -rp "Please enter username for sodalite-demo VM ($image): " username
-    fi
-
-    # Openstack flavor selection
-    echo
-    mapfile -t flavors < <(openstack flavor list -f csv | tail -n +2 | cut -d ',' -f2 | tr -d \")
-    echo "Select Openstack Flavor for sodalite-demo VM (m1.large recommended):"
-
-    select flavor in "${flavors[@]}"; do
-      if [ -z "$flavor" ]; then
-        echo "Invalid entry. Try again"
-      else
-        break
-      fi
-    done
-
-    # Openstack network selection
-    echo
-    mapfile -t networks < <(openstack network list -f csv | tail -n +2 | cut -d ',' -f2 | tr -d \")
-
-    # if more then one network available
-    if [ "${#networks[@]}" -gt 1 ]; then
-      echo "Select Openstack Network to attach sodalite-demo VM to:"
-
-      select network in "${networks[@]}"; do
-        if [ -z "$network" ]; then
-          echo "Invalid entry. Try again"
-        else
-          break
-        fi
-      done
-    else
-      network="${networks[0]}"
-      echo "Openstack Network to attach sodalite-demo VM to: $network"
-    fi
-
-    # Openstack keypair selection
-    echo
-    mapfile -t keypairs < <(openstack keypair list -f csv | tail -n +2 | cut -d ',' -f1 | tr -d \")
-
-    # if more then one keypair available
-    if [ "${#keypairs[@]}" -gt 1 ]; then
-      echo "Select Keypair to be used when creating sodalite-demo VM:"
-
-      select keypair in "${keypairs[@]}"; do
-        if [ -z "$keypair" ]; then
-          echo "Invalid entry. Try again"
-        else
-          break
-        fi
-      done
-    else
-      keypair="${keypairs[0]}"
-      echo "Keypair to be used when creating sodalite-demo VM: $keypair"
-    fi
-
-    echo
-    echo "######## sodalite-demo VM ########"
-    echo Image: \""$image"\"
-    echo Username: "$username"
-    echo Flavor: "$flavor"
-    echo Network: "$network"
-    echo Keypair: "$keypair"
-    echo "##################################"
-
-    export VM_IMAGE_NAME=$image
-    export VM_USERNAME=$username
-    export VM_FLAVOR=$flavor
-    export OS_NETWORK=$network
-    export VM_SSH_KEY_NAME=$keypair
-
-    # for xOpera
-    export OPERA_SSH_USER=$username
-
-    echo
-    read -rp "Please enter email for SODALITE certificate: " EMAIL_INPUT
-    export SODALITE_EMAIL=$EMAIL_INPUT
-
-    echo
-    read -rp "Please enter username for SODALITE blueprint database: " USERNAME_INPUT
-    export SODALITE_DB_USERNAME=$USERNAME_INPUT
-
-    echo
-    read -rp "Please enter password for SODALITE blueprint database: " PASSWORD_INPUT
-    export SODALITE_DB_PASSWORD=$PASSWORD_INPUT
-
-    echo
-    read -rp "Please enter token (UUID) for SODALITE Gitlab repository: " TOKEN_INPUT
-    while [[ ! "$TOKEN_INPUT" =~ $UUID_pattern ]]; do
-      read -rp "\"$TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " TOKEN_INPUT
-    done
-    export SODALITE_GIT_TOKEN=$TOKEN_INPUT
-
-    echo
-    read -rp "Please enter token (UUID) for Vault: " VAULT_TOKEN_INPUT
-    while [[ ! "$VAULT_TOKEN_INPUT" =~ $UUID_pattern ]]; do
-      read -rp "\"$VAULT_TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " VAULT_TOKEN_INPUT
-    done
-    export VAULT_TOKEN=$VAULT_TOKEN_INPUT
-
-    echo
-    read -rp "Please enter admin password for Keycloak: " KEYCLOAK_ADMIN_PASSWORD_INPUT
-    export KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD_INPUT
-
-    echo
-    read -rp "Please enter client secret (UUID) for Keycloak: " KEYCLOAK_CLIENT_SECRET_INPUT
-    while [[ ! "$KEYCLOAK_CLIENT_SECRET_INPUT" =~ $UUID_pattern ]]; do
-      read -rp "\"$KEYCLOAK_CLIENT_SECRET_INPUT\" is not UUID. Please enter a valid UUID: " KEYCLOAK_CLIENT_SECRET_INPUT
-    done
-    export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_INPUT
-
-    echo
-    read -rp "Please enter admin password for Knowledge Base: " KB_PASSWORD_INPUT
-    export KB_PASSWORD=$KB_PASSWORD_INPUT
-    # prepare inputs
-    envsubst <./openstack/input.yaml.tmpl >./openstack/input.yaml || exit 1
-
-    unset CURRENT_USER
-    unset SODALITE_GIT_TOKEN
-    unset SODALITE_DB_USERNAME
-    unset SODALITE_DB_PASSWORD
-    unset KEYCLOAK_ADMIN_PASSWORD
-    unset VAULT_TOKEN
-    unset KEYCLOAK_CLIENT_SECRET
-    unset KB_PASSWORD
-    unset VM_IMAGE_NAME
-    unset VM_USERNAME
-    unset VM_FLAVOR
-    unset OS_NETWORK
-    unset VM_SSH_KEY_NAME
-
+    read -rp "Please enter username for sodalite-demo VM ($image): " username
   fi
 
+  # Openstack flavor selection
+  echo
+  mapfile -t flavors < <(openstack flavor list -f csv | tail -n +2 | cut -d ',' -f2 | tr -d \")
+  echo "Select Openstack Flavor for sodalite-demo VM (m1.large recommended):"
+
+  select flavor in "${flavors[@]}"; do
+    if [ -z "$flavor" ]; then
+      echo "Invalid entry. Try again"
+    else
+      break
+    fi
+  done
+
+  # Openstack network selection
+  echo
+  mapfile -t networks < <(openstack network list -f csv | tail -n +2 | cut -d ',' -f2 | tr -d \")
+
+  # if more then one network available
+  if [ "${#networks[@]}" -gt 1 ]; then
+    echo "Select Openstack Network to attach sodalite-demo VM to:"
+
+    select network in "${networks[@]}"; do
+      if [ -z "$network" ]; then
+        echo "Invalid entry. Try again"
+      else
+        break
+      fi
+    done
+  else
+    network="${networks[0]}"
+    echo "Openstack Network to attach sodalite-demo VM to: $network"
+  fi
+
+  # Openstack keypair selection
+  echo
+  mapfile -t keypairs < <(openstack keypair list -f csv | tail -n +2 | cut -d ',' -f1 | tr -d \")
+
+  # if more then one keypair available
+  if [ "${#keypairs[@]}" -gt 1 ]; then
+    echo "Select Keypair to be used when creating sodalite-demo VM:"
+
+    select keypair in "${keypairs[@]}"; do
+      if [ -z "$keypair" ]; then
+        echo "Invalid entry. Try again"
+      else
+        break
+      fi
+    done
+  else
+    keypair="${keypairs[0]}"
+    echo "Keypair to be used when creating sodalite-demo VM: $keypair"
+  fi
+
+  echo
+  echo "######## sodalite-demo VM ########"
+  echo Image: \""$image"\"
+  echo Username: "$username"
+  echo Flavor: "$flavor"
+  echo Network: "$network"
+  echo Keypair: "$keypair"
+  echo "##################################"
+
+  export VM_IMAGE_NAME=$image
+  export VM_USERNAME=$username
+  export VM_FLAVOR=$flavor
+  export OS_NETWORK=$network
+  export VM_SSH_KEY_NAME=$keypair
+
+  # for xOpera
+  export OPERA_SSH_USER=$username
+
+  echo
+  read -rp "Please enter email for SODALITE certificate: " EMAIL_INPUT
+  export SODALITE_EMAIL=$EMAIL_INPUT
+
+  echo
+  read -rp "Please enter username for SODALITE blueprint database: " USERNAME_INPUT
+  export SODALITE_DB_USERNAME=$USERNAME_INPUT
+
+  echo
+  read -rp "Please enter password for SODALITE blueprint database: " PASSWORD_INPUT
+  export SODALITE_DB_PASSWORD=$PASSWORD_INPUT
+
+  echo
+  read -rp "Please enter token (UUID) for SODALITE Gitlab repository: " TOKEN_INPUT
+  while [[ ! "$TOKEN_INPUT" =~ $UUID_pattern ]]; do
+    read -rp "\"$TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " TOKEN_INPUT
+  done
+  export SODALITE_GIT_TOKEN=$TOKEN_INPUT
+
+  echo
+  read -rp "Please enter token (UUID) for Vault: " VAULT_TOKEN_INPUT
+  while [[ ! "$VAULT_TOKEN_INPUT" =~ $UUID_pattern ]]; do
+    read -rp "\"$VAULT_TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " VAULT_TOKEN_INPUT
+  done
+  export VAULT_TOKEN=$VAULT_TOKEN_INPUT
+
+  echo
+  read -rp "Please enter admin password for Keycloak: " KEYCLOAK_ADMIN_PASSWORD_INPUT
+  export KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD_INPUT
+
+  echo
+  read -rp "Please enter client secret (UUID) for Keycloak: " KEYCLOAK_CLIENT_SECRET_INPUT
+  while [[ ! "$KEYCLOAK_CLIENT_SECRET_INPUT" =~ $UUID_pattern ]]; do
+    read -rp "\"$KEYCLOAK_CLIENT_SECRET_INPUT\" is not UUID. Please enter a valid UUID: " KEYCLOAK_CLIENT_SECRET_INPUT
+  done
+  export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_INPUT
+
+  echo
+  read -rp "Please enter admin password for Knowledge Base: " KB_PASSWORD_INPUT
+  export KB_PASSWORD=$KB_PASSWORD_INPUT
+  # prepare inputs
+  envsubst <./openstack/input.yaml.tmpl >./openstack/input.yaml || exit 1
+
+  unset CURRENT_USER
+  unset SODALITE_GIT_TOKEN
+  unset SODALITE_DB_USERNAME
+  unset SODALITE_DB_PASSWORD
+  unset KEYCLOAK_ADMIN_PASSWORD
+  unset VAULT_TOKEN
+  unset KEYCLOAK_CLIENT_SECRET
+  unset KB_PASSWORD
+  unset VM_IMAGE_NAME
+  unset VM_USERNAME
+  unset VM_FLAVOR
+  unset OS_NETWORK
+  unset VM_SSH_KEY_NAME
+
 fi
+
 
 echo
 echo "Checking TLS key and certificate..."

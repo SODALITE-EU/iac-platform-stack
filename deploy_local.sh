@@ -229,79 +229,81 @@ if [ -f "$INPUT_FILE" ]; then
     fi
     export SODALITE_EMAIL=$email
 
-  else
-
-    CURRENT_USER=$(whoami)
-    export CURRENT_USER
-
-    echo
-    echo
-    echo "Running installation script as" "$CURRENT_USER"
-
-    IP_ADDRESS=$(ip route get 1 | awk '{print $(NF-2);exit}')
-    export IP_ADDRESS
-
-    echo
-    echo
-    echo "Running installation script on ip address:" "$IP_ADDRESS"
-
-    echo
-    echo
-    echo "These are basic minimal inputs. If more advanced inputs are required please edit /docker-local/input.yaml file manually."
-    echo
-    read -rp "Please enter email for SODALITE certificate: " EMAIL_INPUT
-    export SODALITE_EMAIL=$EMAIL_INPUT
-
-    echo
-    read -rp "Please enter username for SODALITE blueprint database: " USERNAME_INPUT
-    export SODALITE_DB_USERNAME=$USERNAME_INPUT
-
-    echo
-    read -rp "Please enter password for SODALITE blueprint database: " PASSWORD_INPUT
-    export SODALITE_DB_PASSWORD=$PASSWORD_INPUT
-
-    echo
-    read -rp "Please enter token (UUID) for SODALITE Gitlab repository: " TOKEN_INPUT
-    while [[ ! "$TOKEN_INPUT" =~ $UUID_pattern ]]; do
-      read -rp "\"$TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " TOKEN_INPUT
-    done
-    export SODALITE_GIT_TOKEN=$TOKEN_INPUT
-
-    echo
-    read -rp "Please enter token (UUID) for Vault: " VAULT_TOKEN_INPUT
-    while [[ ! "$VAULT_TOKEN_INPUT" =~ $UUID_pattern ]]; do
-      read -rp "\"$VAULT_TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " VAULT_TOKEN_INPUT
-    done
-    export VAULT_TOKEN=$VAULT_TOKEN_INPUT
-
-    echo
-    read -rp "Please enter admin password for Keycloak: " KEYCLOAK_ADMIN_PASSWORD_INPUT
-    export KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD_INPUT
-
-    echo
-    read -rp "Please enter client secret (UUID) for Keycloak: " KEYCLOAK_CLIENT_SECRET_INPUT
-    while [[ ! "$KEYCLOAK_CLIENT_SECRET_INPUT" =~ $UUID_pattern ]]; do
-      read -rp "\"$KEYCLOAK_CLIENT_SECRET_INPUT\" is not UUID. Please enter a valid UUID: " KEYCLOAK_CLIENT_SECRET_INPUT
-    done
-    export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_INPUT
-
-    echo
-    read -rp "Please enter admin password for Knowledge Base: " KB_PASSWORD_INPUT
-    export KB_PASSWORD=$KB_PASSWORD_INPUT
-    # prepare inputs
-    envsubst <./docker-local/input.yaml.tmpl >./docker-local/input.yaml || exit 1
-
-    unset CURRENT_USER
-    unset SODALITE_GIT_TOKEN
-    unset SODALITE_DB_USERNAME
-    unset SODALITE_DB_PASSWORD
-    unset KEYCLOAK_ADMIN_PASSWORD
-    unset VAULT_TOKEN
-    unset KEYCLOAK_CLIENT_SECRET
-    unset IP_ADDRESS
-    unset KB_PASSWORD
-
+    REUSE_INPUT_FILE=True
   fi
+fi
+
+if [[ -z "$REUSE_INPUT_FILE" ]]; then
+
+  CURRENT_USER=$(whoami)
+  export CURRENT_USER
+
+  echo
+  echo
+  echo "Running installation script as" "$CURRENT_USER"
+
+  IP_ADDRESS=$(ip route get 1 | awk '{print $(NF-2);exit}')
+  export IP_ADDRESS
+
+  echo
+  echo
+  echo "Running installation script on ip address:" "$IP_ADDRESS"
+
+  echo
+  echo
+  echo "These are basic minimal inputs. If more advanced inputs are required please edit /docker-local/input.yaml file manually."
+  echo
+  read -rp "Please enter email for SODALITE certificate: " EMAIL_INPUT
+  export SODALITE_EMAIL=$EMAIL_INPUT
+
+  echo
+  read -rp "Please enter username for SODALITE blueprint database: " USERNAME_INPUT
+  export SODALITE_DB_USERNAME=$USERNAME_INPUT
+
+  echo
+  read -rp "Please enter password for SODALITE blueprint database: " PASSWORD_INPUT
+  export SODALITE_DB_PASSWORD=$PASSWORD_INPUT
+
+  echo
+  read -rp "Please enter token (UUID) for SODALITE Gitlab repository: " TOKEN_INPUT
+  while [[ ! "$TOKEN_INPUT" =~ $UUID_pattern ]]; do
+    read -rp "\"$TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " TOKEN_INPUT
+  done
+  export SODALITE_GIT_TOKEN=$TOKEN_INPUT
+
+  echo
+  read -rp "Please enter token (UUID) for Vault: " VAULT_TOKEN_INPUT
+  while [[ ! "$VAULT_TOKEN_INPUT" =~ $UUID_pattern ]]; do
+    read -rp "\"$VAULT_TOKEN_INPUT\" is not UUID. Please enter a valid UUID: " VAULT_TOKEN_INPUT
+  done
+  export VAULT_TOKEN=$VAULT_TOKEN_INPUT
+
+  echo
+  read -rp "Please enter admin password for Keycloak: " KEYCLOAK_ADMIN_PASSWORD_INPUT
+  export KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD_INPUT
+
+  echo
+  read -rp "Please enter client secret (UUID) for Keycloak: " KEYCLOAK_CLIENT_SECRET_INPUT
+  while [[ ! "$KEYCLOAK_CLIENT_SECRET_INPUT" =~ $UUID_pattern ]]; do
+    read -rp "\"$KEYCLOAK_CLIENT_SECRET_INPUT\" is not UUID. Please enter a valid UUID: " KEYCLOAK_CLIENT_SECRET_INPUT
+  done
+  export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_INPUT
+
+  echo
+  read -rp "Please enter admin password for Knowledge Base: " KB_PASSWORD_INPUT
+  export KB_PASSWORD=$KB_PASSWORD_INPUT
+  # prepare inputs
+  envsubst <./docker-local/input.yaml.tmpl >./docker-local/input.yaml || exit 1
+
+  unset CURRENT_USER
+  unset SODALITE_GIT_TOKEN
+  unset SODALITE_DB_USERNAME
+  unset SODALITE_DB_PASSWORD
+  unset KEYCLOAK_ADMIN_PASSWORD
+  unset VAULT_TOKEN
+  unset KEYCLOAK_CLIENT_SECRET
+  unset IP_ADDRESS
+  unset KB_PASSWORD
 
 fi
 
