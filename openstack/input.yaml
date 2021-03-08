@@ -1,6 +1,6 @@
-ssh-key-name: some_key
-image-name: "centos-7 x86_64"
-username: centos
+ssh-key-name: mihatr
+image-name: "ubuntu-20.04 x86_64"
+username: ubuntu
 openstack-network-name: xlab
 flavor-name: m1.large
 docker-network: sodalite
@@ -9,46 +9,47 @@ dockerhub-pass:
 docker-public-registry-url: registry.hub.docker.com
 docker-registry-cert-country-name: SI
 docker-registry-cert-organization-name: XLAB
-docker-registry-cert-email-address: some_email@email.com
+docker-registry-cert-email-address: mail@xlab.si
 postgres_env:
-  POSTGRES_USER: username
-  POSTGRES_PASSWORD: password
+  POSTGRES_USER: username-blueprint-database
+  POSTGRES_PASSWORD: pass-blueprint-database
   POSTGRES_DB: postgres
 xopera_env:
   XOPERA_GIT_TYPE: gitlab
   XOPERA_GIT_URL: https://gitlab.com
-  XOPERA_GIT_AUTH_TOKEN: some_token
+  XOPERA_GIT_AUTH_TOKEN: gitlab-token
   XOPERA_VERBOSE_MODE: debug
   XOPERA_DATABASE_IP: xopera-postgres
   XOPERA_DATABASE_NAME: postgres
-  XOPERA_DATABASE_USER: username
-  XOPERA_DATABASE_PASSWORD: password
+  XOPERA_DATABASE_USER: username-blueprint-database
+  XOPERA_DATABASE_PASSWORD: pass-blueprint-database
   OIDC_INTROSPECTION_ENDPOINT: http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect 
-  OIDC_CLIENT_SECRET: a8337e6d-ffbf-45ac-9fef-a8d3bd5c45cb 
+  OIDC_CLIENT_SECRET: client-secret 
   SECRET_VAULT_LOGIN_URI: http://vault:8200/v1/auth/jwt/login 
   SECRET_VAULT_URI: http://vault:8200/v1/  
 modak_api_env:
-  MODAK_DATABASE_PASSWORD: password
+  MODAK_DATABASE_PASSWORD: pass-blueprint-database
   MODAK_DATABASE_HOST: modak-db
   MODAK_DATABASE_PORT: "3306"
 modak_db_env:
   MYSQL_ROOT_HOST: "%"
+  MYSQL_ROOT_PASSWORD: pass-blueprint-database
 vault_env:  
   VAULT_LOCAL_CONFIG: '{"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "16h", "max_lease_ttl": "72h"}'
-  VAULT_DEV_ROOT_TOKEN_ID: test_token
-  VAULT_TOKEN: test_token
+  VAULT_DEV_ROOT_TOKEN_ID: vault-token
+  VAULT_TOKEN: vault-token
 keycloak_env:
   KEYCLOAK_USER: admin
-  KEYCLOAK_PASSWORD: admin
+  KEYCLOAK_PASSWORD: keycloak-pass
   KEYCLOAK_IMPORT: /tmp/sodalite-realm.json
-keycloak_client_secret: ca4d390e-c1ac-4a1d-afd7-51c1e9e16c6f
-vault_token: test_token
+keycloak_client_secret: client-secret
+vault_token: vault-token
 project_domains: [ snow, clinical, vehicle, pds ]
 pds_env:
   SECRET_VAULT_LOGIN_URI: http://vault:8200/v1/auth/jwt/login 
   SECRET_VAULT_URI: http://vault:8200/v1/ 
   OIDC_INTROSPECTION_ENDPOINT: http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect 
-  OIDC_CLIENT_SECRET: ca4d390e-c1ac-4a1d-afd7-51c1e9e16c6f
+  OIDC_CLIENT_SECRET: client-secret
 reasoner_env:
   WAIT_HOSTS: graph-db:7200
   environment: docker
@@ -57,14 +58,14 @@ reasoner_env:
   ansiblePath: /usr/local/tomcat/webapps/Ansibles/
   reasonerServer: http://semantic-web:8080/
   kbUsername: admin
-  kbPassword: test
+  kbPassword: admin-pass
   keycloak: http://keycloak:8080/
   keycloakClientId: sodalite-ide
-  keycloakClientSecret: ca4d390e-c1ac-4a1d-afd7-51c1e9e16c6f
+  keycloakClientSecret: client-secret
 toscasmells_env:
   environment: docker
   WAIT_HOSTS: graph-db:7200
   graphdb: http://graph-db:7200
   kbUsername: admin
-  kbPassword: test  
-kb_password: test
+  kbPassword: admin-pass  
+kb_password: admin-pass
