@@ -1,0 +1,31 @@
+- hosts: all
+  gather_facts: yes
+  become: yes
+  tasks:
+    # DATASOURCES FILE
+    - name: Ensure datasources directory exists
+      file:
+        path: "{{ dest_datasources | dirname }}"
+        state: directory
+    - name: Remove previous datasurces configurations
+      file:
+        path: "{{ dest_datasources }}"
+        state: absent
+    - name: Create datasources configuration file
+      template:
+        src: "grafana-datasources.yaml.tmpl"
+        dest: "{{ dest_datasources }}"
+    # DASHBOARDS FILE
+    - name: Ensure dashboards directory exists
+      file:
+        path: "{{ dest_dashboards | dirname }}"
+        state: directory
+    - name: Remove previous dashboards configurations
+      file:
+        path: "{{ dest_dashboards }}"
+        state: absent
+    - name: Create dashboards configuration file
+      template:
+        src: "grafana-dashboards.yaml.tmpl"
+        dest: "{{ dest_dashboards }}"
+    

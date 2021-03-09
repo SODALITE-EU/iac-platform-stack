@@ -1,0 +1,30 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+node_types:
+  sodalite.nodes.monitoring-system-grafana.config:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: Node for creation of Grafana config file
+    properties:
+      dest_datasources:
+        type: string
+        description: Destintation of datasources configurations
+      dest_dashboards:
+        type: string
+        description: Destination of dashboards configurations
+      prometheus_endpoint:
+        type: string
+        description: Ip address of prometheus server
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              dest_datasources:    { default: { get_property: [ SELF, dest_datasources ] }, type: string }
+              dest_dashboards:     { default: { get_property: [ SELF, dest_dashboards ] }, type: string }
+              prometheus_endpoint: { default: { get_property: [ SELF, prometheus_endpoint ] }, type: string }
+            implementation:
+              primary: playbooks/config_create.yml
+              dependencies:
+                - playbooks/templates/grafana-dashboards.yaml.tmpl
+                - playbooks/templates/grafana-datasources.yaml.tmpl
