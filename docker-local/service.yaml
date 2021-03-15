@@ -16,6 +16,7 @@ imports:
   - library/prometheus/prometheus_config.yaml
   - library/grafana/grafana_config.yaml
   - library/consul/consul_config.yaml
+  - library/alertmanager/alertmanager_config.yaml
 
 node_types:
 
@@ -693,6 +694,15 @@ topology_template:
         - registry: docker-public-registry
         - network: docker-network
 
+    alertmanager-config:
+      type: sodalite.nodes.monitoring-system-alertmanager.config
+      properties:
+        dest: /tmp/alertmananger/alertmanager.yml
+      requirements:
+        - dependency: monitoring-system-alertmanager
+        - dependency: monitoring-system-consul
+        - host: sodalite-vm
+
     monitoring-system-alertmanager:
       type: sodalite.nodes.DockerizedComponent
       properties:
@@ -702,10 +712,13 @@ topology_template:
         ports:  ['9093:9093']
         exposed_ports:  ['9093']
         docker_network_name:  { get_property: [ SELF, network, name ] }
+        volumes:
+          - "/tmp/alertmananger:/etc/alertmanager"
       requirements:
         - host: docker-host
         - registry: docker-public-registry
         - network: docker-network
+        - configuration: alertmanager-config
 
     prometheus-config:
       type: sodalite.nodes.monitoring-system-prometheus.config
