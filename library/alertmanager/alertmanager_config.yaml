@@ -1,0 +1,23 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+node_types:
+  sodalite.nodes.monitoring-system-alertmanager.config:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: Node for creation of Prometheus config file
+    properties:
+      dest:
+        type: string
+        description: Destintation of config file on target VM
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              dest:                  { default: { get_property: [ SELF, dest ] }, type: string }
+            implementation:
+              primary: playbooks/config_create.yml
+              dependencies:
+                - playbooks/templates/alertmanager.yaml.tmpl
+                - playbooks/files/alertmanager-config.yaml
+

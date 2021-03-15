@@ -1,0 +1,286 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+imports:
+  - modules/openstack/openstack_vm.yaml
+  - modules/docker/docker_host.yaml
+  - modules/docker/docker_network.yaml
+  - modules/docker/docker_registry.yaml
+  - modules/docker/docker_component.yaml
+  - modules/docker/docker_certificate.yaml
+  - modules/docker/docker_volume.yaml
+  - modules/misc/ssh/types.yaml
+  - modules/misc/tls/types.yaml
+  - modules/tests/test_definitions.yaml
+  - library/config/types.yaml
+  - library/api/types.yaml
+  - library/prometheus/prometheus_config.yaml
+  - library/grafana/grafana_config.yaml
+  - library/consul/consul_config.yaml
+  - library/alertmanager/alertmanager_config.yaml
+
+node_types:
+
+  sodalite.nodes.SodaliteVM:
+    derived_from: tosca.nodes.Compute
+    properties:
+      username:
+        type: string
+      name:
+        type: string
+        description: Name of machine. Used to write into registry certificate
+
+topology_template:
+
+  inputs:  
+    username:  
+      type: string
+    local_ipv4_address:
+      type: string
+    docker-network: 
+      type: string
+    dockerhub-user:
+      type: string
+      default: ""      
+    dockerhub-pass: 
+      type: string
+      default: "" 
+    docker-public-registry-url: 
+      type: string
+      default: ""
+    docker-private-registry-url: 
+      type: string
+      default: ""
+    docker-registry-cert-country-name:
+      type: string
+      default: ""
+    docker-registry-cert-organization-name: 
+      type: string
+      default: ""
+    docker-registry-cert-email-address: 
+      type: string
+      default: ""
+    postgres_env:
+      type: map
+    xopera_env:
+      type: map
+    image_builder_env:
+      type: map  
+    modak_api_env:
+      type: map
+    modak_db_env:
+      type: map
+    vault_env:
+      type: map
+    keycloak_env:
+      type: map  
+    pds_env:
+      type: map          
+    keycloak_client_secret:
+      type: string          
+    vault_token:
+      type: string
+    project_domains:
+      type: list    
+
+  node_templates: 
+
+    sodalite-vm:
+      type: sodalite.nodes.SodaliteVM
+      properties:
+        username: { get_input: username }
+        name: localhost
+      attributes:
+        private_address: localhost
+        public_address: localhost
+
+    docker-host:
+      type: sodalite.nodes.DockerHost
+      requirements:
+        - host: sodalite-vm
+
+    docker-network:
+      type: sodalite.nodes.DockerNetwork
+      properties:  
+        name: { get_input: docker-network }
+      requirements:
+        - host: sodalite-vm 
+        - dependency: docker-host    
+        
+    docker-public-registry:
+      type: sodalite.nodes.DockerRegistry
+      properties:  
+        docker_registry_url: { get_input: docker-public-registry-url } 
+      requirements:
+        - host: sodalite-vm
+        - dependency: docker-host
+
+    # https://github.com/SODALITE-EU/skydive-flow-exporter/prom_sky_con
+    prometheus-skydive-connector:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name: sodaliteh2020/prometheus-skydive-connector:1
+        command: /etc/prom_sky_con.yml
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        env:
+          SKYDIVE_PIPELINE_SUBSCRIBER_URL: ws://skydive-analyzer:8082/ws/subscriber/flow
+        ports:  ['9101:9100']
+        alias: prometheus-skydive-connector
+      requirements:
+        - host:  docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+
+
+    # MONITORING-SYSTEM
+    # https://github.com/SODALITE-EU/monitoring-system
+#    consul-config:
+#      type: sodalite.nodes.monitoring-system-consul.config
+#      properties:
+#        dest: /tmp/consul/config/config.json
+#      requirements:
+#        - host: docker-host
+#        - registry: docker-public-registry
+#        - network: docker-network
+#        - host: sodalite-vm
+
+    monitoring-system-consul:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: consul
+        image_name: library/consul:1.9.1
+        restart_policy: always
+        ports:  ['8500:8500','8600:8600/udp']
+        exposed_ports:  ['8500','8600/udp']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+#        volumes:
+#          - "/tmp/consul/config:/consul/config"
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+#        - configuration: consul-config
+
+    alertmanager-config:
+      type: sodalite.nodes.monitoring-system-alertmanager.config
+      properties:
+        dest: /tmp/alertmananger/alertmanager.yml
+      requirements:
+        - dependency: monitoring-system-alertmanager
+        - dependency: monitoring-system-consul
+        - host: sodalite-vm
+
+    monitoring-system-alertmanager:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: alertmanager
+        image_name: prom/alertmanager:v0.21.0
+        restart_policy: always
+        ports:  ['9093:9093']
+        exposed_ports:  ['9093']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        volumes:
+          - "/tmp/alertmananger:/etc/alertmanager"
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - configuration: alertmanager-config
+
+    prometheus-config:
+      type: sodalite.nodes.monitoring-system-prometheus.config
+      properties:
+        dest: /tmp/prometheus/prometheus.yml
+        alertmanager_endpoint: alertmanager:9093
+        consul_endpoint: consul:8500
+      requirements:
+        - dependency: monitoring-system-alertmanager
+        - dependency: monitoring-system-consul
+        - host: sodalite-vm
+
+    monitoring-system-prometheus:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: prometheus
+        image_name: prom/prometheus:v2.23.0
+        restart_policy: always
+        ports:  ['9090:9090']
+        exposed_ports:  ['9090']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        volumes:
+          - "/tmp/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+          - rules-volume:/etc/prometheus/rules
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - configuration: prometheus-config
+
+    grafana-config:
+      type: sodalite.nodes.monitoring-system-grafana.config
+      properties:
+        dest_conf_datasources: /tmp/grafana/conf-datasources/all.yml
+        dest_conf_dashboards: /tmp/grafana/conf-dashboards/all.yml
+        dest_dashboards: /tmp/grafana/dashboards
+        prometheus_endpoint: prometheus:9090
+      requirements:
+        - dependency: monitoring-system-prometheus
+        - host: sodalite-vm
+
+    monitoring-system-grafana:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: grafana
+        image_name: grafana/grafana:7.3.7
+        restart_policy: always
+        ports:  ['3000:3000']
+        exposed_ports:  ['3000']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        env:
+          GF_SECURITY_ADMIN_USER: "admin"
+          GF_SECURITY_ADMIN_PASSWORD: "admin"
+        volumes:
+          - "/tmp/grafana/conf-datasources/all.yml:/etc/grafana/provisioning/datasources/all.yaml"
+          - "/tmp/grafana/conf-dashboards/all.yml:/etc/grafana/provisioning/dashboards/all.yaml"
+          - "/tmp/grafana/dashboards:/var/lib/grafana/dashboards"
+      requirements:
+        - dependency: monitoring-system-prometheus
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - configuration: grafana-config
+        
+
+
+    # Register prometheus-skydive-connector with prometheus consul
+    prometheus-skydive-connector-registration:
+      type: sodalite.nodes.Tests.Text.Command
+      properties:
+        # localhost should really be replaced with something like {{ monitoring-system-consul }}; should use concat
+        command: " curl -X PUT -d ' { \"Name\": \"consul-registered-skydive-exporters\", \"ID\": \"fakeuniqueid-skydive-exporter\", \"Address\": \"prometheus-skydive-connector\", \"Port\": 9100 } ' localhost:8500/v1/agent/service/register "
+        comparable_string: '.*'
+        regex: true
+      requirements:
+        - dependency: prometheus-skydive-connector
+        - dependency: monitoring-system-consul
+        - dependency: monitoring-system-prometheus
+
+    monitoring-system-ruleserver:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name: sodaliteh2020/monitoring-system-ruleserver:0.2.0
+        restart_policy: always
+        ports: [ '9092:9092' ]
+        exposed_ports: [ '9092' ]
+        docker_network_name: { get_property: [ SELF, network, name ] }
+        env:
+          GUNICORN_WORKERS: "8"
+          RULESERVER_PORT: "9092"
+        volumes:
+          - "/var/run/docker.sock:/var/run/docker.sock"
+          - rules-volume:/etc/prometheus/rules
+        alias: ruleserver
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+        - dependency: monitoring-system-prometheus

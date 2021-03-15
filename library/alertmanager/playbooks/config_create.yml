@@ -1,0 +1,18 @@
+- hosts: all
+  gather_facts: yes
+  become: yes
+  tasks:
+    - name: Ensure dir exists
+      file:
+        path: "{{ dest | dirname }}"
+        state: directory
+        
+    - name: Remove previous config
+      file:
+        path: "{{ dest }}"
+        state: absent
+
+    - name: Create config file
+      copy:
+        src: "alertmanager-config.yaml"
+        dest: "{{ dest }}"
