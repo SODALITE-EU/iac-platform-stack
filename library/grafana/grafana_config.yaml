@@ -5,12 +5,15 @@ node_types:
     derived_from: tosca.nodes.SoftwareComponent
     description: Node for creation of Grafana config file
     properties:
-      dest_datasources:
+      dest_conf_datasources:
         type: string
         description: Destintation of datasources configurations
-      dest_dashboards:
+      dest_conf_dashboards:
         type: string
         description: Destination of dashboards configurations
+      dest_dashboards:
+        type: string
+        description: Destination of dashboards
       prometheus_endpoint:
         type: string
         description: Ip address of prometheus server
@@ -20,11 +23,17 @@ node_types:
         operations:
           create:
             inputs:
-              dest_datasources:    { default: { get_property: [ SELF, dest_datasources ] }, type: string }
-              dest_dashboards:     { default: { get_property: [ SELF, dest_dashboards ] }, type: string }
+              dest_conf_datasources:  { default: { get_property: [ SELF, dest_conf_datasources ] }, type: string }
+              dest_conf_dashboards:   { default: { get_property: [ SELF, dest_conf_dashboards ] }, type: string }
+              dest_dashboards:        { default: { get_property: [ SELF, dest_dashboards ] }, type: string }
               prometheus_endpoint: { default: { get_property: [ SELF, prometheus_endpoint ] }, type: string }
             implementation:
               primary: playbooks/config_create.yml
               dependencies:
                 - playbooks/templates/grafana-dashboards.yaml.tmpl
                 - playbooks/templates/grafana-datasources.yaml.tmpl
+                - playbooks/files/dashboard-1-sodalite-exporters.json
+                - playbooks/files/dashboard-2-sodalite-node-exporters.json
+                - playbooks/files/dashboard-3-sodalite-skydive-exporters.json
+                - playbooks/files/dashboard-4-sodalite-hpc-exporters.json
+                - playbooks/files/dashboard-5-sodalite-ipmi-exporters.json
