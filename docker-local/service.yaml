@@ -14,6 +14,8 @@ imports:
   - library/config/types.yaml
   - library/api/types.yaml
   - library/prometheus/prometheus_config.yaml
+  - library/grafana/grafana_config.yaml
+  - library/consul/consul_config.yaml
 
 node_types:
 
@@ -77,7 +79,7 @@ topology_template:
     vault_token:
       type: string
     project_domains:
-      type: list  
+      type: list    
     reasoner_env:
       type: map   
     toscasmells_env:
@@ -733,6 +735,40 @@ topology_template:
         - registry: docker-public-registry
         - network: docker-network
         - configuration: prometheus-config
+
+    grafana-config:
+      type: sodalite.nodes.monitoring-system-grafana.config
+      properties:
+        dest_conf_datasources: /tmp/grafana/conf-datasources/all.yml
+        dest_conf_dashboards: /tmp/grafana/conf-dashboards/all.yml
+        dest_dashboards: /tmp/grafana/dashboards
+        prometheus_endpoint: prometheus:9090
+      requirements:
+        - dependency: monitoring-system-prometheus
+        - host: sodalite-vm
+
+    monitoring-system-grafana:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: grafana
+        image_name: grafana/grafana:7.3.7
+        restart_policy: always
+        ports:  ['3000:3000']
+        exposed_ports:  ['3000']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        env:
+          GF_SECURITY_ADMIN_USER: "admin"
+          GF_SECURITY_ADMIN_PASSWORD: "admin"
+        volumes:
+          - "/tmp/grafana/conf-datasources/all.yml:/etc/grafana/provisioning/datasources/all.yaml"
+          - "/tmp/grafana/conf-dashboards/all.yml:/etc/grafana/provisioning/dashboards/all.yaml"
+          - "/tmp/grafana/dashboards:/var/lib/grafana/dashboards"
+      requirements:
+        - dependency: monitoring-system-prometheus
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - configuration: grafana-config
 
     # Register prometheus-skydive-connector with prometheus consul
     prometheus-skydive-connector-registration:
