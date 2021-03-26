@@ -132,7 +132,8 @@ if $APT_PKG_MISSING || $OPERA_NOT_INSTALLED || $OPERA_WRONG_VERSION || $OPENSTAC
     pip3 install --upgrade pip || exit 1
     echo
     echo "Installing xOpera"
-    pip3 install --ignore-installed "opera[openstack]==$OPERA_VERSION" || exit 1
+    pip3 install --ignore-installed "openstacksdk==0.52.0" || exit 1
+    pip3 install --ignore-installed "opera==$OPERA_VERSION" || exit 1
 
     echo
     echo "Switched to python interpreter from $(command -v python3)"
