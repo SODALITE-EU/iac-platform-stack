@@ -350,7 +350,7 @@ topology_template:
       properties:
         alias: xopera-rest-api
         docker_network_name: { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/xopera-rest-api:1.0.1
+        image_name: sodaliteh2020/xopera-rest-api:2.4.0
         restart_policy: always
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
@@ -430,16 +430,15 @@ topology_template:
     image-builder-api:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name:  sodaliteh2020/image-builder-api:0.3.1
+        image_name:  sodaliteh2020/image-builder-api:1.0.0
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        # exposed_ports:  ['5000']
         env: { get_input: image_builder_env }
         volumes:
           - "/var/run/docker.sock:/var/run/docker.sock"
         alias: image-builder-api
         labels:
           traefik.enable: "true"
-          traefik.http.services.image-builder.loadbalancer.server.port: "5000"
+          traefik.http.services.image-builder.loadbalancer.server.port: "8080"
 
           # https config
           traefik.http.routers.image-builder.rule: "PathPrefix(`/`)"
