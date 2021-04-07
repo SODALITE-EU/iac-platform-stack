@@ -568,7 +568,7 @@ topology_template:
         alias: image-builder-api
         labels:
           traefik.enable: "true"
-          traefik.http.services.image-builder.loadbalancer.server.port: "5000"
+          traefik.http.services.image-builder.loadbalancer.server.port: "8080"
 
           # https config
           traefik.http.routers.image-builder.rule: "PathPrefix(`/`)"
