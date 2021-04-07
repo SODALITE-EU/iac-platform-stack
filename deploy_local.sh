@@ -287,6 +287,10 @@ if [[ -z "$REUSE_INPUT_FILE" ]]; then
   export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_INPUT
 
   echo
+  read -rp "Please enter arbitrary key to override xOpera's authorization: " XOPERA_AUTH_API_KEY_INPUT
+  export XOPERA_AUTH_API_KEY=$XOPERA_AUTH_API_KEY_INPUT
+
+  echo
   read -rp "Please enter admin password for Knowledge Base: " KB_PASSWORD_INPUT
   export KB_PASSWORD=$KB_PASSWORD_INPUT
   # prepare inputs
@@ -301,6 +305,7 @@ if [[ -z "$REUSE_INPUT_FILE" ]]; then
   unset KEYCLOAK_CLIENT_SECRET
   unset IP_ADDRESS
   unset KB_PASSWORD
+  unset XOPERA_AUTH_API_KEY
 
 fi
 
