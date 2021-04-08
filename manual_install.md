@@ -16,7 +16,7 @@ Prerequisites for SODALITE stack deployment could also be set manually, followin
     ```shell script
     # $DEPLOY_DIR could be set to either docker-local or openstack
     export DEPLOY_DIR=docker-local
-    export IAC_MODULES_VERSION=3.1.1
+    export IAC_MODULES_VERSION=3.4.1
     git clone -b "$IAC_MODULES_VERSION" https://github.com/SODALITE-EU/iac-modules.git $DEPLOY_DIR/modules
     ```  
  

@@ -4,7 +4,7 @@
 # Pinned versions
 
 OPERA_VERSION="0.6.4"
-IAC_MODULES_VERSION="3.2.1"
+IAC_MODULES_VERSION="3.4.1"
 
 # UUID regex for validation of uuid inputs
 UUID_pattern='^\{?[A-Z0-9a-z]{8}-[A-Z0-9a-z]{4}-[A-Z0-9a-z]{4}-[A-Z0-9a-z]{4}-[A-Z0-9a-z]{12}\}?$'
