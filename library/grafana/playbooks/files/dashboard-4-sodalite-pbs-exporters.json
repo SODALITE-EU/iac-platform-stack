@@ -1,0 +1,1827 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Dashboard for the prometheus hpc exporters [PBS]",
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "iteration": 1623340738734,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 187,
+      "panels": [],
+      "title": "Global info (associated deployment)，Deployment：$deployment_label",
+      "type": "row"
+    },
+    {
+      "columns": [],
+      "datasource": "Prometheus",
+      "description": "Job information of the jobs selected for monitoring.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 185,
+      "pageSize": null,
+      "showHeader": true,
+      "sort": {
+        "col": null,
+        "desc": false
+      },
+      "styles": [
+        {
+          "$$hashKey": "object:143",
+          "alias": "HPC",
+          "align": "auto",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "hpc",
+          "thresholds": [],
+          "type": "string",
+          "unit": "bytes"
+        },
+        {
+          "$$hashKey": "object:144",
+          "alias": "Job ID (click for details)",
+          "align": "auto",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": true,
+          "linkTargetBlank": false,
+          "linkTooltip": "View job timeseries",
+          "linkUrl": "/d/JSu0321Nz/sodalite-pbs-exporters?orgId=1&var-job_id=${__cell}&var-deployment_label=${deployment_label}&var-queue=${queue}",
+          "mappingType": 1,
+          "pattern": "job_id",
+          "thresholds": [],
+          "type": "string",
+          "unit": "bytes"
+        },
+        {
+          "$$hashKey": "object:145",
+          "alias": "Job Name",
+          "align": "auto",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "job_name",
+          "thresholds": [],
+          "type": "string",
+          "unit": "bytes"
+        },
+        {
+          "$$hashKey": "object:146",
+          "alias": "Queue",
+          "align": "auto",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "job_queue",
+          "thresholds": [],
+          "type": "string",
+          "unit": "bytes"
+        },
+        {
+          "$$hashKey": "object:147",
+          "alias": "#CPUs",
+          "align": "auto",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #A",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "$$hashKey": "object:148",
+          "alias": "State",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #B",
+          "thresholds": [
+            "4"
+          ],
+          "type": "string",
+          "unit": "bytes",
+          "valueMaps": [
+            {
+              "$$hashKey": "object:384",
+              "text": "COMPLETED",
+              "value": "0"
+            },
+            {
+              "$$hashKey": "object:432",
+              "text": "EXITING",
+              "value": "1"
+            },
+            {
+              "$$hashKey": "object:434",
+              "text": "RUNNING",
+              "value": "2"
+            },
+            {
+              "$$hashKey": "object:436",
+              "text": "QUEUED",
+              "value": "3"
+            },
+            {
+              "$$hashKey": "object:438",
+              "text": "WAITING",
+              "value": "4"
+            },
+            {
+              "$$hashKey": "object:440",
+              "text": "HELD",
+              "value": "5"
+            },
+            {
+              "$$hashKey": "object:442",
+              "text": "MOVING",
+              "value": "6"
+            },
+            {
+              "$$hashKey": "object:444",
+              "text": "SUSPENDED",
+              "value": "7"
+            }
+          ]
+        },
+        {
+          "$$hashKey": "object:149",
+          "alias": "Priority",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #C",
+          "thresholds": [],
+          "type": "string",
+          "unit": "bytes"
+        },
+        {
+          "$$hashKey": "object:150",
+          "alias": "Walltime Used",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #D",
+          "thresholds": [],
+          "type": "number",
+          "unit": "dtdhms"
+        },
+        {
+          "$$hashKey": "object:151",
+          "alias": "%Walltime Used",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "#E0B400",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #E",
+          "thresholds": [
+            "70",
+            "90"
+          ],
+          "type": "number",
+          "unit": "percent"
+        },
+        {
+          "$$hashKey": "object:152",
+          "alias": "Time in queue",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #F",
+          "thresholds": [],
+          "type": "number",
+          "unit": "dtdhms"
+        },
+        {
+          "$$hashKey": "object:153",
+          "alias": "VMEM used",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #G",
+          "thresholds": [],
+          "type": "number",
+          "unit": "bytes"
+        },
+        {
+          "$$hashKey": "object:154",
+          "alias": "PMEM used",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #H",
+          "thresholds": [],
+          "type": "number",
+          "unit": "bytes"
+        },
+        {
+          "$$hashKey": "object:155",
+          "alias": "Exit code",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(0, 0, 0, 0.97)",
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #I",
+          "thresholds": [
+            "-49",
+            "1"
+          ],
+          "type": "string",
+          "unit": "bytes",
+          "valueMaps": [
+            {
+              "$$hashKey": "object:396",
+              "text": "NOT FINISHED",
+              "value": "-50"
+            }
+          ]
+        },
+        {
+          "$$hashKey": "object:156",
+          "alias": "",
+          "align": "right",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "pbs_job_cpu_n{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "ncpus",
+          "refId": "A"
+        },
+        {
+          "expr": "pbs_job_state{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "state",
+          "refId": "B"
+        },
+        {
+          "expr": "pbs_job_priority{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "priority",
+          "refId": "C"
+        },
+        {
+          "expr": "pbs_job_walltime_used{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "walltime used",
+          "refId": "D"
+        },
+        {
+          "expr": "pbs_job_walltime_used{deployment_label=~\"$deployment_label\"}*100/pbs_job_walltime_max{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "% walltime used",
+          "refId": "E"
+        },
+        {
+          "expr": "pbs_job_time_queued{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "time queued",
+          "refId": "F"
+        },
+        {
+          "expr": "pbs_job_mem_virtual{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "vmem",
+          "refId": "G"
+        },
+        {
+          "expr": "pbs_job_memory_physical{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "pmem",
+          "refId": "H"
+        },
+        {
+          "expr": "pbs_job_exit_status{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "exit",
+          "refId": "I"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Job information【Deployment：$deployment_label】",
+      "transform": "table",
+      "type": "table-old"
+    },
+    {
+      "columns": [],
+      "datasource": "Prometheus",
+      "description": "Queue information.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      },
+      "id": 186,
+      "pageSize": null,
+      "showHeader": true,
+      "sort": {
+        "col": 31,
+        "desc": false
+      },
+      "styles": [
+        {
+          "$$hashKey": "object:130",
+          "alias": "HPC",
+          "align": "auto",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "hpc",
+          "thresholds": [],
+          "type": "string",
+          "unit": "bytes"
+        },
+        {
+          "$$hashKey": "object:131",
+          "alias": "Queue",
+          "align": "auto",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": true,
+          "linkTargetBlank": false,
+          "linkTooltip": "View job timeseries",
+          "linkUrl": "/d/JSu0321Nz/sodalite-pbs-exporters?orgId=1&var-job_id=${job_id}&var-deployment_label=${deployment_label}&var-queue=${__cell}",
+          "mappingType": 1,
+          "pattern": "queue_name",
+          "thresholds": [],
+          "type": "string",
+          "unit": "bytes"
+        },
+        {
+          "$$hashKey": "object:132",
+          "alias": "Queue type",
+          "align": "center",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "queue_type",
+          "thresholds": [],
+          "type": "string",
+          "unit": "bytes"
+        },
+        {
+          "$$hashKey": "object:133",
+          "alias": "Enabled",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "#56A64B",
+            "#FADE2A"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #A",
+          "thresholds": [
+            "1",
+            "2"
+          ],
+          "type": "string",
+          "unit": "bytes",
+          "valueMaps": [
+            {
+              "$$hashKey": "object:391",
+              "text": "YES",
+              "value": "1"
+            },
+            {
+              "$$hashKey": "object:393",
+              "text": "NO",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "$$hashKey": "object:134",
+          "alias": "Started",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "#56A64B",
+            "#FADE2A"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #B",
+          "thresholds": [
+            "1",
+            "2"
+          ],
+          "type": "string",
+          "unit": "bytes",
+          "valueMaps": [
+            {
+              "$$hashKey": "object:395",
+              "text": "NO",
+              "value": "0"
+            },
+            {
+              "$$hashKey": "object:397",
+              "text": "YES",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "$$hashKey": "object:135",
+          "alias": "Max jobs",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgb(102, 77, 255)",
+            "#FF7383",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #C",
+          "thresholds": [
+            "0"
+          ],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "$$hashKey": "object:409",
+              "text": "No limit",
+              "value": "-1"
+            }
+          ]
+        },
+        {
+          "$$hashKey": "object:136",
+          "alias": "Total jobs",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgb(0, 0, 0)",
+            "#56A64B",
+            "#F2CC0C"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #D",
+          "thresholds": [
+            "1",
+            "10"
+          ],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "$$hashKey": "object:137",
+          "alias": "Queued jobs",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(0, 0, 0, 0.9)",
+            "#FF780A",
+            "#E02F44"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #E",
+          "thresholds": [
+            "1",
+            "5"
+          ],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "$$hashKey": "object:138",
+          "alias": "Running jobs",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(0, 0, 0, 0.97)",
+            "#56A64B",
+            "#F2CC0C"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #F",
+          "thresholds": [
+            "1",
+            "8"
+          ],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "$$hashKey": "object:139",
+          "alias": "Held jobs",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(0, 0, 0, 0.97)",
+            "#FF780A",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #G",
+          "thresholds": [
+            "1",
+            "3"
+          ],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "$$hashKey": "object:140",
+          "alias": "Waiting jobs",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(0, 0, 0, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #H",
+          "thresholds": [
+            "1",
+            "5"
+          ],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "$$hashKey": "object:141",
+          "alias": "Transiting jobs",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(0, 0, 0, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #I",
+          "thresholds": [
+            "1",
+            "3"
+          ],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "$$hashKey": "object:142",
+          "alias": "Exiting jobs",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(0, 0, 0, 0.97)",
+            "#56A64B",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #J",
+          "thresholds": [
+            "1"
+          ],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "$$hashKey": "object:143",
+          "alias": "Completed jobs",
+          "align": "center",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(0, 0, 0, 0.97)",
+            "#37872D",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "Value #K",
+          "thresholds": [
+            "1"
+          ],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "$$hashKey": "object:144",
+          "alias": "",
+          "align": "right",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "pbs_queue_enabled{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "enabled",
+          "refId": "A"
+        },
+        {
+          "expr": "pbs_queue_started{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "started",
+          "refId": "B"
+        },
+        {
+          "expr": "pbs_queue_jobs_max{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "C"
+        },
+        {
+          "expr": "pbs_queue_jobs_total{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "D"
+        },
+        {
+          "expr": "pbs_queue_jobs_queued{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "E"
+        },
+        {
+          "expr": "pbs_queue_jobs_running{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "F"
+        },
+        {
+          "expr": "pbs_queue_jobs_held{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "G"
+        },
+        {
+          "expr": "pbs_queue_jobs_waiting{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "H"
+        },
+        {
+          "expr": "pbs_queue_jobs_transit{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "I"
+        },
+        {
+          "expr": "pbs_queue_jobs_exiting{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "J"
+        },
+        {
+          "expr": "pbs_queue_jobs_complete{deployment_label=~\"$deployment_label\"}-0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "K"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Queue information【Deployment：$deployment_label】",
+      "transform": "table",
+      "type": "table-old"
+    },
+    {
+      "collapsed": false,
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 190,
+      "panels": [],
+      "title": "Job info (associated deployment)，Job ID：$job_id",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "0:Completed\n1:Exiting\n2:Running\n3:Queued\n4:Waiting\n5:Held\n6:Moving\n7:Suspended ",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 5,
+        "x": 0,
+        "y": 15
+      },
+      "hiddenSeries": false,
+      "id": 192,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.3.7",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "pbs_job_state{deployment_label=~\"$deployment_label\",job_id=~\"$job_id\"}",
+          "format": "time_series",
+          "interval": "",
+          "legendFormat": "$job_id",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Job State",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:148",
+          "decimals": 0,
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": "7",
+          "min": "0",
+          "show": true
+        },
+        {
+          "$$hashKey": "object:149",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {
+        "Mem": "light-blue"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Time"
+            },
+            "properties": [
+              {
+                "id": "links"
+              }
+            ]
+          }
+        ]
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 5,
+        "y": 15
+      },
+      "hiddenSeries": false,
+      "id": 194,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.3.7",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "pbs_job_mem_virtual{deployment_label=~\"$deployment_label\",job_id=~\"$job_id\"}",
+          "interval": "",
+          "legendFormat": "Mem",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Virtual memory",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:330",
+          "format": "bytes",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "$$hashKey": "object:331",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {
+        "Mem": "red"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 13,
+        "y": 15
+      },
+      "hiddenSeries": false,
+      "id": 196,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.3.7",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "pbs_job_memory_physical{deployment_label=~\"$deployment_label\",job_id=~\"$job_id\"}",
+          "interval": "",
+          "legendFormat": "Mem",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Physical memory",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:503",
+          "format": "bytes",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "$$hashKey": "object:504",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "datasource": null,
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "decimals": 2,
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "dark-yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 21,
+        "y": 15
+      },
+      "id": 198,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "limit": 1,
+          "values": true
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "7.3.7",
+      "targets": [
+        {
+          "expr": "pbs_job_walltime_used{deployment_label=~\"$deployment_label\",job_id=~\"$job_id\"}/pbs_job_walltime_max{deployment_label=~\"$deployment_label\",job_id=~\"$job_id\"}",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "$job_id",
+          "refId": "A"
+        },
+        {
+          "refId": "B"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Job walltime used",
+      "type": "gauge"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "dtdhms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 21,
+        "y": 21
+      },
+      "id": 204,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "pluginVersion": "7.3.7",
+      "targets": [
+        {
+          "expr": "pbs_job_time_queued{deployment_label=~\"$deployment_label\",job_id=~\"$job_id\"}",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Queued time",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 199,
+      "panels": [],
+      "title": "Queue info (associated deployment)，Queue：$queue",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "State of the selected queue",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 10,
+        "x": 0,
+        "y": 25
+      },
+      "hiddenSeries": false,
+      "id": 200,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.3.7",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "pbs_queue_enabled{deployment_label=~\"$deployment_label\",queue_name=~\"$queue\"}",
+          "format": "time_series",
+          "interval": "",
+          "legendFormat": "Enabled",
+          "refId": "A"
+        },
+        {
+          "expr": "pbs_queue_started{deployment_label=~\"$deployment_label\",queue_name=~\"$queue\"}",
+          "format": "time_series",
+          "interval": "",
+          "legendFormat": "Started",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Queue state",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:148",
+          "decimals": 0,
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": "1",
+          "min": "0",
+          "show": true
+        },
+        {
+          "$$hashKey": "object:149",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {
+        "Complete": "dark-green",
+        "Exiting": "rgb(196, 31, 160)",
+        "Held": "rgb(112, 72, 25)",
+        "Max": "dark-red",
+        "Queued": "yellow",
+        "Running": "dark-blue",
+        "Transit": "rgb(252, 166, 0)",
+        "Waiting": "dark-purple"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "decimals": 0,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Time"
+            },
+            "properties": [
+              {
+                "id": "links"
+              }
+            ]
+          }
+        ]
+      },
+      "fill": 10,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 14,
+        "x": 10,
+        "y": 25
+      },
+      "hiddenSeries": false,
+      "id": 202,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "sideWidth": 250,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 0,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": false
+      },
+      "percentage": false,
+      "pluginVersion": "7.3.7",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "pbs_queue_jobs_queued{deployment_label=~\"$deployment_label\",queue_name=~\"$queue\"}",
+          "interval": "",
+          "legendFormat": "Queued",
+          "refId": "B"
+        },
+        {
+          "expr": "pbs_queue_jobs_waiting{deployment_label=~\"$deployment_label\",queue_name=~\"$queue\"}",
+          "interval": "",
+          "legendFormat": "Waiting",
+          "refId": "D"
+        },
+        {
+          "expr": "pbs_queue_jobs_running{deployment_label=~\"$deployment_label\",queue_name=~\"$queue\"}",
+          "interval": "",
+          "legendFormat": "Running",
+          "refId": "A"
+        },
+        {
+          "expr": "pbs_queue_jobs_transit{deployment_label=~\"$deployment_label\",queue_name=~\"$queue\"}",
+          "interval": "",
+          "legendFormat": "Transit",
+          "refId": "E"
+        },
+        {
+          "expr": "pbs_queue_jobs_held{deployment_label=~\"$deployment_label\",queue_name=~\"$queue\"}",
+          "interval": "",
+          "legendFormat": "Held",
+          "refId": "C"
+        },
+        {
+          "expr": "pbs_queue_jobs_exiting{deployment_label=~\"$deployment_label\",queue_name=~\"$queue\"}",
+          "interval": "",
+          "legendFormat": "Exiting",
+          "refId": "F"
+        },
+        {
+          "expr": "(pbs_queue_jobs_max{deployment_label=~\"$deployment_label\",queue_name=~\"$queue\"}+abs(pbs_queue_jobs_max{deployment_label=~\"$deployment_label\",queue_name=~\"$queue\"}))/2*(1-pbs_queue_jobs_total{deployment_label=~\"$deployment_label\",queue_name=~\"$queue\"}/pbs_queue_jobs_max{deployment_label=~\"$deployment_label\",queue_name=~\"$queue\"})",
+          "interval": "",
+          "legendFormat": "Max",
+          "refId": "H"
+        },
+        {
+          "expr": "pbs_queue_jobs_complete{deployment_label=~\"$deployment_label\",queue_name=~\"$queue\"}",
+          "interval": "",
+          "legendFormat": "Complete",
+          "refId": "G"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Jobs submitted to queue: $queue",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:330",
+          "decimals": 0,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "$$hashKey": "object:331",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    }
+  ],
+  "refresh": "5m",
+  "schemaVersion": 26,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "testbed",
+          "value": "testbed"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(pbs_queue_enabled, deployment_label)",
+        "error": null,
+        "hide": 2,
+        "includeAll": false,
+        "label": "Deployment Label",
+        "multi": false,
+        "name": "deployment_label",
+        "options": [],
+        "query": "label_values(pbs_queue_enabled, deployment_label)",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "2378.cloudserver",
+          "value": "2378.cloudserver"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(pbs_job_state{deployment_label=~\"$deployment_label\"}, job_id)",
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Job ID",
+        "multi": false,
+        "name": "job_id",
+        "options": [],
+        "query": "label_values(pbs_job_state{deployment_label=~\"$deployment_label\"}, job_id)",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "batch",
+          "value": "batch"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(pbs_queue_enabled{deployment_label=~\"$deployment_label\"},queue_name)",
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Queue",
+        "multi": false,
+        "name": "queue",
+        "options": [
+          {
+            "selected": true,
+            "text": "batch",
+            "value": "batch"
+          },
+          {
+            "selected": false,
+            "text": "cpu",
+            "value": "cpu"
+          },
+          {
+            "selected": false,
+            "text": "gpu",
+            "value": "gpu"
+          },
+          {
+            "selected": false,
+            "text": "ssd",
+            "value": "ssd"
+          }
+        ],
+        "query": "label_values(pbs_queue_enabled{deployment_label=~\"$deployment_label\"},queue_name)",
+        "refresh": 0,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "timepicker": {
+    "hidden": false,
+    "now": true,
+    "refresh_intervals": [
+      "15s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "timezone": "",
+  "title": "SODALITE-PBS-EXPORTERS",
+  "uid": "JSu0321Nz",
+  "version": 4
+}
