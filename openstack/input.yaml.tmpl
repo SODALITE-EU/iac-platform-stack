@@ -78,3 +78,14 @@ toscasmells_env:
   graphdb: http://graph-db:7200
   kbUsername: admin
   kbPassword: $KB_PASSWORD
+# Grafana-registry
+grafana_registry_env:
+  OIDC_INTROSPECTION_ENDPOINT: http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect 
+  OIDC_CLIENT_SECRET: $KEYCLOAK_CLIENT_SECRET
+  GF_ADMIN_USER: $GF_SECURITY_ADMIN_USER
+  GF_ADMIN_PW: $GF_SECURITY_ADMIN_PASSWORD
+  GF_PORT: 3000
+# Grafana
+grafana_env:
+  GF_SECURITY_ADMIN_USER: $GF_SECURITY_ADMIN_USER
+  GF_SECURITY_ADMIN_PASSWORD: $GF_SECURITY_ADMIN_PASSWORD

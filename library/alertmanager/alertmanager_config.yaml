@@ -18,6 +18,5 @@ node_types:
             implementation:
               primary: playbooks/config_create.yml
               dependencies:
-                - playbooks/templates/alertmanager.yaml.tmpl
                 - playbooks/files/alertmanager-config.yaml
 

@@ -678,8 +678,6 @@ topology_template:
 
 
     # MONITORING-SYSTEM
-    # https://github.com/SODALITE-EU/monitoring-system
-
     monitoring-system-consul:
       type: sodalite.nodes.DockerizedComponent
       properties:
@@ -752,10 +750,11 @@ topology_template:
     grafana-config:
       type: sodalite.nodes.monitoring-system-grafana.config
       properties:
+        dest_conf: /etc/grafana/grafana.ini
         dest_conf_datasources: /tmp/grafana/conf-datasources/all.yml
-        dest_conf_dashboards: /tmp/grafana/conf-dashboards/all.yml
-        dest_dashboards: /tmp/grafana/dashboards
         prometheus_endpoint: prometheus:9090
+        keycloak_endpoint: keycloak:8080
+        keycloak_realm: SODALITE
       requirements:
         - dependency: monitoring-system-prometheus
         - host: sodalite-vm
@@ -769,19 +768,34 @@ topology_template:
         ports:  ['3000:3000']
         exposed_ports:  ['3000']
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        env:
-          GF_SECURITY_ADMIN_USER: "admin"
-          GF_SECURITY_ADMIN_PASSWORD: "admin"
+        env: { get_input: grafana_env }
         volumes:
-          - "/tmp/grafana/conf-datasources/all.yml:/etc/grafana/provisioning/datasources/all.yaml"
-          - "/tmp/grafana/conf-dashboards/all.yml:/etc/grafana/provisioning/dashboards/all.yaml"
-          - "/tmp/grafana/dashboards:/var/lib/grafana/dashboards"
+          - "/etc/grafana/conf-datasources:/etc/grafana/provisioning/datasources"
+          - "/etc/grafana:/etc/grafana"
       requirements:
         - dependency: monitoring-system-prometheus
         - host: docker-host
         - registry: docker-public-registry
         - network: docker-network
         - configuration: grafana-config
+
+    grafana-registry:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: grafana-registry
+        image_name: sodaliteh2020/grafana-registry
+        restart_policy: always
+        ports:  ['3001:3001']
+        exposed_ports:  ['3001']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        env: { get_input: grafana_registry_env }
+        volumes:
+          - "/etc/grafana-registry:/app/data"
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: monitoring-system-grafana
 
     # Register prometheus-skydive-connector with prometheus consul
     prometheus-skydive-connector-registration:
