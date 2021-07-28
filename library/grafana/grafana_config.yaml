@@ -11,12 +11,6 @@ node_types:
       dest_conf:
         type: string
         description: Destination of config file
-      dest_conf_dashboards:
-        type: string
-        description: Destination of dashboards configurations
-      dest_dashboards:
-        type: string
-        description: Destination of dashboards
       prometheus_endpoint:
         type: string
         description: Ip address of prometheus server
@@ -44,8 +38,6 @@ node_types:
             inputs:
               dest_conf_datasources:  { default: { get_property: [ SELF, dest_conf_datasources ] }, type: string }
               dest_conf:              { default: { get_property: [ SELF, dest_conf ] },             type: string }
-              dest_conf_dashboards:   { default: { get_property: [ SELF, dest_conf_dashboards ] },  type: string }
-              dest_dashboards:        { default: { get_property: [ SELF, dest_dashboards ] },       type: string }
               prometheus_endpoint:    { default: { get_property: [ SELF, prometheus_endpoint ] },   type: string }
               keycloak_endpoint:      { default: { get_property: [ SELF, keycloak_endpoint ] },     type: string }
               keycloak_realm:         { default: { get_property: [ SELF, keycloak_realm ] },        type: string }
@@ -58,8 +50,3 @@ node_types:
                 - playbooks/templates/grafana-dashboards.yaml.j2
                 - playbooks/templates/grafana-datasources.yaml.j2
                 - playbooks/templates/grafana-config.ini.j2
-                - playbooks/files/dashboard-1-sodalite-exporters.json
-                - playbooks/files/dashboard-2-sodalite-node-exporters.json
-                - playbooks/files/dashboard-3-sodalite-skydive-exporters.json
-                - playbooks/files/dashboard-4-sodalite-pbs-exporters.json
-                - playbooks/files/dashboard-5-sodalite-slurm-exporters.json

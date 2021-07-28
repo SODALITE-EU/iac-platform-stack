@@ -182,7 +182,6 @@ topology_template:
         keycloak_endpoint: 77.231.202.214:8080
         keycloak_realm: SODALITE
         keycloak_secret: { get_input: keycloak_client_secret }
-        gf_admin_pw: { get_property: monitoring-system-grafana, env, GF_SECURITY_ADMIN_PASSWORD }
       requirements:
         - dependency: monitoring-system-prometheus
         - host: sodalite-vm
@@ -196,11 +195,12 @@ topology_template:
         ports:  ['3000:3000']
         exposed_ports:  ['3000']
         docker_network_name:  { get_property: [ SELF, network, name ] }
+        user: 472:0
         env: { get_input: grafana_env }
         volumes:
           - "/etc/grafana/conf-datasources:/etc/grafana/provisioning/datasources"
           - "/etc/grafana:/etc/grafana"
-          - "/var/lib/grafana:/var/lib/grafana"
+          - "grafana:/var/lib/grafana"
       requirements:
         - dependency: monitoring-system-prometheus
         - host: docker-host
