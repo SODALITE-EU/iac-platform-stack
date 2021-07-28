@@ -53,6 +53,36 @@ topology_template:
     docker-registry-cert-email-address: 
       type: string
       default: ""
+    gf_admin_user: 
+      type: string
+      default: "" 
+    gf_admin_pw: 
+      type: string
+      default: ""
+    gf_port: 
+      type: string
+      default: ""
+    gf_registry_port: 
+      type: string
+      default: "" 
+    oidc_introspection_endpoint: 
+      type: string
+      default: ""
+    oidc_introspection_secret: 
+      type: string
+      default: ""
+    vault_address: 
+      type: string
+      default: ""
+    vault_admin_token: 
+      type: string
+      default: ""
+    vault_secret_uploader_port: 
+      type: string
+      default: ""
+    ruleserver_port: 
+      type: string
+      default: ""
 
   node_templates: 
 
@@ -181,8 +211,8 @@ topology_template:
         prometheus_endpoint: prometheus:9090
         keycloak_endpoint: 77.231.202.214:8080
         keycloak_realm: SODALITE
-        keycloak_secret: { get_input: keycloak_client_secret }
-        gf_admin_pw: { get_property: monitoring-system-grafana, env, GF_SECURITY_ADMIN_PASSWORD }
+        keycloak_secret: { get_input: oidc_introspection_secret }
+        gf_admin_pw: { get_input: gf_admin_pw }
       requirements:
         - dependency: monitoring-system-prometheus
         - host: sodalite-vm
@@ -196,7 +226,9 @@ topology_template:
         ports:  ['3000:3000']
         exposed_ports:  ['3000']
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        env: { get_input: grafana_env }
+        env: 
+          GF_SECURITY_ADMIN_USER: { get_input: gf_admin_user }
+          GF_SECURITY_ADMIN_PASSWORD: { get_input: gf_admin_pw }
         volumes:
           - "/etc/grafana/conf-datasources:/etc/grafana/provisioning/datasources"
           - "/etc/grafana:/etc/grafana"
@@ -217,7 +249,14 @@ topology_template:
         ports:  ['3001:3001']
         exposed_ports:  ['3001']
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        env: { get_input: grafana_registry_env }
+        env: 
+          GF_ADMIN_USER: { get_input: gf_admin_user }
+          GF_ADMIN_PW: { get_input: gf_admin_pw }
+          GF_PORT: { get_input: gf_port }
+          GF_REGISTRY_GUNICORN_WORKERS: "4"
+          GF_REGISTRY_PORT: { get_input: gf_registry_port }
+          OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
+          OIDC_CLIENT_SECRET: { get_input: oidc_introspection_secret }
         volumes:
           - "/var/lib/grafana-registry:/app/data"
       requirements:
@@ -239,17 +278,35 @@ topology_template:
         - dependency: monitoring-system-consul
         - dependency: monitoring-system-prometheus
 
+    hpc-exporter:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: hpc-exporter
+        image_name: sodaliteh2020/hpc-exporter-mt
+        restart_policy: always
+        ports:  ['9110:9110']
+        exposed_ports:  ['9110']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        env: 
+          OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
+          OIDC_INTROSPECTION_SECRET: { get_input: oidc_introspection_secret }
+          VAULT_ADDRESS: { get_input: vault_address }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+
     monitoring-system-ruleserver:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name: sodaliteh2020/monitoring-system-ruleserver:0.2.0
+        image_name: sodaliteh2020/monitoring-system-ruleserver:latest
         restart_policy: always
         ports: [ '9092:9092' ]
         exposed_ports: [ '9092' ]
         docker_network_name: { get_property: [ SELF, network, name ] }
         env:
           GUNICORN_WORKERS: "8"
-          RULESERVER_PORT: "9092"
+          RULESERVER_PORT: { get_input: ruleserver_port }
         volumes:
           - "/var/run/docker.sock:/var/run/docker.sock"
           - rules-volume:/etc/prometheus/rules
@@ -259,3 +316,23 @@ topology_template:
         - network: docker-network
         - registry: docker-public-registry
         - dependency: monitoring-system-prometheus
+
+    vault-secret-uploader:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name: sodaliteh2020/vault-secret-uploader:latest
+        restart_policy: always
+        ports: [ '8201:8201' ]
+        exposed_ports: [ '8201' ]
+        docker_network_name: { get_property: [ SELF, network, name ] }
+        env: 
+          OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
+          OIDC_INTROSPECTION_SECRET: { get_input: oidc_introspection_secret }
+          VAULT_ADDRESS: { get_input: vault_address }
+          VAULT_ADMIN_TOKEN: { get_input: vault_admin_token }
+          VAULT_SECRET_UPLOADER_PORT: { get_input: vault_secret_uploader_port }
+        alias: vault-secret-uploader
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
