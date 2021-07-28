@@ -232,7 +232,7 @@ topology_template:
         volumes:
           - "/etc/grafana/conf-datasources:/etc/grafana/provisioning/datasources"
           - "/etc/grafana:/etc/grafana"
-          - "/var/lib/grafana:/var/lib/grafana"
+          - "grafana:/var/lib/grafana"
       requirements:
         - dependency: monitoring-system-prometheus
         - host: docker-host
