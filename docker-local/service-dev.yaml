@@ -153,7 +153,6 @@ topology_template:
       properties:
         dest: /etc/alertmananger/alertmanager.yml
       requirements:
-        - dependency: monitoring-system-alertmanager
         - dependency: monitoring-system-consul
         - host: sodalite-vm
 
@@ -322,8 +321,8 @@ topology_template:
       properties:
         image_name: sodaliteh2020/vault-secret-uploader:latest
         restart_policy: always
-        ports: [ '8201:8201' ]
-        exposed_ports: [ '8201' ]
+        ports: [ '8202:8202' ]
+        exposed_ports: [ '8202' ]
         docker_network_name: { get_property: [ SELF, network, name ] }
         env: 
           OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
