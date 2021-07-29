@@ -302,7 +302,7 @@ topology_template:
       properties:
         alias: pds
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/platform-discovery-service
+        image_name: sodaliteh2020/platform-discovery-service:M24Release
         restart_policy: always
         ports:  ['8089:8081']
         env: { get_input: pds_env }
@@ -350,7 +350,7 @@ topology_template:
       properties:
         alias: xopera-rest-api
         docker_network_name: { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/xopera-rest-api:2.4.0
+        image_name: sodaliteh2020/xopera-rest-api:M24Release
         restart_policy: always
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
@@ -430,7 +430,7 @@ topology_template:
     image-builder-api:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name:  sodaliteh2020/image-builder-api:1.0.0
+        image_name:  sodaliteh2020/image-builder-api:M24Release
         docker_network_name:  { get_property: [ SELF, network, name ] }
         env: { get_input: image_builder_env }
         volumes:
@@ -456,7 +456,7 @@ topology_template:
       properties:
         alias: graph-db
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/graph_db:192
+        image_name: sodaliteh2020/graph_db:M24Release
         restart_policy: always
         ports:  ['7200:7200']
         exposed_ports:  ['7200']
@@ -502,7 +502,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: iac-metrics
-        image_name: sodaliteh2020/iacmetrics:8
+        image_name: sodaliteh2020/iacmetrics:M24Release
         restart_policy: always
         ports:  ['5003:5000']
       requirements:
@@ -516,7 +516,7 @@ topology_template:
       properties:
         alias: tosca-smells
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/toscasmells:349
+        image_name: sodaliteh2020/toscasmells:M24Release
         restart_policy: always
         env: { get_input: toscasmells_env }
         ports:  ['8082:8080']
@@ -531,7 +531,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: ansible-smells
-        image_name: sodaliteh2020/ansiblesmells:349
+        image_name: sodaliteh2020/ansiblesmells:M24Release
         restart_policy: always
         ports:  ['5004:5000']
       requirements:
@@ -544,7 +544,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: tosca-syntax
-        image_name: sodaliteh2020/toscasynverifier:8
+        image_name: sodaliteh2020/toscasynverifier:M24Release
         restart_policy: always
         ports:  ['5005:5000']
       requirements:
@@ -555,7 +555,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: workflow-verifier
-        image_name: sodaliteh2020/workflowverifier:8
+        image_name: sodaliteh2020/workflowverifier:M24Release
         restart_policy: always
         ports:  ['5006:5000']
       requirements:
@@ -568,7 +568,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: rule-based-refactorer
-        image_name: sodaliteh2020/rule_based_refactorer:49
+        image_name: sodaliteh2020/rule_based_refactorer:M24Release
         restart_policy: always
         ports:  ['8083:8080']
         docker_network_name:  { get_property: [ SELF, network, name ] }
@@ -589,7 +589,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: performance-predictor-refactoring
-        image_name: sodaliteh2020/fo_perf_predictor_api:49
+        image_name: sodaliteh2020/fo_perf_predictor_api:M24Release
         restart_policy: always
         ports:  ['5007:5000']
         docker_network_name:  { get_property: [ SELF, network, name ] }
@@ -610,7 +610,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: refactoring-option-discoverer
-        image_name: sodaliteh2020/refactoring_option_discoverer:60
+        image_name: sodaliteh2020/refactoring_option_discoverer:M24Release
         restart_policy: always
         ports:  ['8084:8080']
         env:
@@ -660,7 +660,7 @@ topology_template:
     prometheus-skydive-connector:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name: sodaliteh2020/prometheus-skydive-connector:1
+        image_name: sodaliteh2020/prometheus-skydive-connector:M24Release
         command: /etc/prom_sky_con.yml
         docker_network_name:  { get_property: [ SELF, network, name ] }
         env:
@@ -749,7 +749,7 @@ topology_template:
     monitoring-system-ruleserver:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name: sodaliteh2020/monitoring-system-ruleserver:0.2.0
+        image_name: sodaliteh2020/monitoring-system-ruleserver:M24Release
         restart_policy: always
         ports: [ '9092:9092' ]
         exposed_ports: [ '9092' ]
@@ -773,7 +773,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: modak-api
-        image_name: sodaliteh2020/modak-api:0.1.2-dev
+        image_name: sodaliteh2020/modak-api:M24Release
         restart_policy: always
         ports:  ['55000:5000']
         exposed_ports:  ['55000']
@@ -789,7 +789,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: modak-db
-        image_name: sodaliteh2020/modak-py3-mysql:0.1.2-dev
+        image_name: sodaliteh2020/modak-py3-mysql:M24Release
         restart_policy: always
         ports:  ['32000:3306']
         exposed_ports:  ['32000']
