@@ -411,6 +411,12 @@ if [[ -z "$REUSE_INPUT_FILE" ]]; then
   echo
   read -rp "Please enter admin password for Knowledge Base: " KB_PASSWORD_INPUT
   export KB_PASSWORD=$KB_PASSWORD_INPUT
+
+  echo
+  read -rp "Please enter admin password for Grafana: " GF_ADMIN_PW_INPUT
+  export GF_ADMIN_PW=$GF_ADMIN_PW_INPUT
+
+
   # prepare inputs
   envsubst <./openstack/input.yaml.tmpl >./openstack/input.yaml || exit 1
 

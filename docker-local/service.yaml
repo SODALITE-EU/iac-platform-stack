@@ -73,7 +73,23 @@ topology_template:
     pds_env:
       type: map          
     keycloak_client_secret:
-      type: string          
+      type: string     
+    gf_admin_pw:
+      type: string
+    gf_admin_user:
+      type: string
+    gf_port:
+      type: string
+    gf_registry_port:
+      type: string
+    oidc_introspection_endpoint:
+      type: string
+    vault_address:
+      type: string
+    vault_secret_uploader_port:
+      type: string
+    ruleserver_port:
+      type: string     
     vault_token:
       type: string
     project_domains:
@@ -305,9 +321,9 @@ topology_template:
         docker_network_name: { get_property: [ SELF, network, name ] }
         env: 
           OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
-          OIDC_INTROSPECTION_SECRET: { get_input: oidc_introspection_secret }
+          OIDC_INTROSPECTION_SECRET: { get_input: keycloak_client_secret }
           VAULT_ADDRESS: { get_input: vault_address }
-          VAULT_ADMIN_TOKEN: { get_input: vault_admin_token }
+          VAULT_ADMIN_TOKEN: { get_input: vault_token }
           VAULT_SECRET_UPLOADER_PORT: { get_input: vault_secret_uploader_port }
         alias: vault-secret-uploader
       requirements:
@@ -774,7 +790,7 @@ topology_template:
         prometheus_endpoint: prometheus:9090
         keycloak_endpoint: 77.231.202.214:8080
         keycloak_realm: SODALITE
-        keycloak_secret: { get_input: oidc_introspection_secret }
+        keycloak_secret: { get_input: keycloak_client_secret }
         gf_admin_pw: { get_input: gf_admin_pw }
       requirements:
         - dependency: monitoring-system-prometheus
@@ -819,7 +835,7 @@ topology_template:
           GF_PORT: { get_input: gf_port }
           GF_REGISTRY_GUNICORN_WORKERS: "4"
           OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
-          OIDC_CLIENT_SECRET: { get_input: oidc_introspection_secret }
+          OIDC_CLIENT_SECRET: { get_input: keycloak_client_secret }
           FLASK_RUN_PORT: { get_input: gf_registry_port }
         volumes:
           - "/var/lib/grafana-registry:/app/data"
@@ -854,7 +870,7 @@ topology_template:
         docker_network_name:  { get_property: [ SELF, network, name ] }
         env: 
           OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
-          OIDC_INTROSPECTION_SECRET: { get_input: oidc_introspection_secret }
+          OIDC_INTROSPECTION_SECRET: { get_input: keycloak_client_secret }
           VAULT_ADDRESS: { get_input: vault_address }
       requirements:
         - host: docker-host

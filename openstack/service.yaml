@@ -75,7 +75,23 @@ topology_template:
     pds_env:
       type: map          
     keycloak_client_secret:
-      type: string          
+      type: string
+    gf_admin_pw:
+      type: string
+    gf_admin_user:
+      type: string
+    gf_port:
+      type: string
+    gf_registry_port:
+      type: string
+    oidc_introspection_endpoint:
+      type: string
+    vault_address:
+      type: string
+    vault_secret_uploader_port:
+      type: string
+    ruleserver_port:
+      type: string               
     vault_token:
       type: string
     project_domains:
@@ -134,7 +150,12 @@ topology_template:
             port_range_min: 8200
             port_range_max: 8201
             remote_ip_prefix: 0.0.0.0/0
-            protocol: tcp   
+            protocol: tcp
+          vault-secret-uploader:
+            port_range_min: { get_input: vault_secret_uploader_port }
+            port_range_max: { get_input: vault_secret_uploader_port }
+            remote_ip_prefix: 0.0.0.0/0
+            protocol: tcp      
           keycloak_1:
             port_range_min: 8100
             port_range_max: 8100
@@ -175,6 +196,16 @@ topology_template:
             port_range_max: 7200
             protocol: tcp
             remote_ip_prefix: 0.0.0.0/0
+          grafana:
+            port_range_min: { get_input: gf_port }
+            port_range_max: { get_input: gf_port }
+            remote_ip_prefix: 0.0.0.0/0
+            protocol: tcp   
+          grafana-registry:
+            port_range_min: { get_input: gf_registry_port }
+            port_range_max: { get_input: gf_registry_port }
+            remote_ip_prefix: 0.0.0.0/0
+            protocol: tcp   
         group_name:  sodalite-uc 
         group_description:  Sodalite UC security group     
 
@@ -411,6 +442,28 @@ topology_template:
       requirements:
         - server: sodalite-vm
         - dependency: vault-container
+
+    vault-secret-uploader:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name: sodaliteh2020/vault-secret-uploader:latest
+        restart_policy: always
+        ports: [ '8202:8202' ]
+        exposed_ports: [ '8202' ]
+        docker_network_name: { get_property: [ SELF, network, name ] }
+        env: 
+          OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
+          OIDC_INTROSPECTION_SECRET: { get_input: keycloak_client_secret }
+          VAULT_ADDRESS: { get_input: vault_address }
+          VAULT_ADMIN_TOKEN: { get_input: vault_token }
+          VAULT_SECRET_UPLOADER_PORT: { get_input: vault_secret_uploader_port }
+        alias: vault-secret-uploader
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+        - dependency: vault-container
+        - dependency: keycloak-container
 
     # platform-discovery-service
     # https://github.com/SODALITE-EU/platform-discovery-service  
@@ -754,6 +807,182 @@ topology_template:
         - network: docker-network         
         - dependency: know-db-container
 
+    # MONITORING-SYSTEM
+    # https://github.com/SODALITE-EU/monitoring-system
+
+    monitoring-system-consul:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: consul
+        image_name: library/consul:1.9.1
+        restart_policy: always
+        ports:  ['8500:8500','8600:8600/udp']
+        exposed_ports:  ['8500','8600/udp']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+
+    alertmanager-config:
+      type: sodalite.nodes.monitoring-system-alertmanager.config
+      properties:
+        dest: /etc/alertmananger/alertmanager.yml
+      requirements:
+        - dependency: monitoring-system-consul
+        - host: sodalite-vm
+
+    monitoring-system-alertmanager:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: alertmanager
+        image_name: prom/alertmanager:v0.21.0
+        restart_policy: always
+        ports:  ['9093:9093']
+        exposed_ports:  ['9093']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        volumes:
+          - "/etc/alertmananger:/etc/alertmanager"
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - configuration: alertmanager-config
+
+    prometheus-config:
+      type: sodalite.nodes.monitoring-system-prometheus.config
+      properties:
+        dest: /etc/prometheus/prometheus.yml
+        alertmanager_endpoint: alertmanager:9093
+        consul_endpoint: consul:8500
+      requirements:
+        - dependency: monitoring-system-alertmanager
+        - dependency: monitoring-system-consul
+        - host: sodalite-vm
+
+    monitoring-system-prometheus:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: prometheus
+        image_name: prom/prometheus:v2.23.0
+        restart_policy: always
+        ports:  ['9090:9090']
+        exposed_ports:  ['9090']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        volumes:
+          - "/etc/prometheus:/etc/prometheus"
+          - rules-volume:/etc/prometheus/rules
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - configuration: prometheus-config
+
+    grafana-config:
+      type: sodalite.nodes.monitoring-system-grafana.config
+      properties:
+        dest_conf: /etc/grafana/grafana.ini
+        dest_conf_datasources: /etc/grafana/conf-datasources/datasources.yaml
+        prometheus_endpoint: prometheus:9090
+        keycloak_endpoint: 77.231.202.214:8080
+        keycloak_realm: SODALITE
+        keycloak_secret: { get_input: keycloak_client_secret }
+        gf_admin_pw: { get_input: gf_admin_pw }
+      requirements:
+        - dependency: monitoring-system-prometheus
+        - host: sodalite-vm
+
+    monitoring-system-grafana:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: grafana
+        image_name: grafana/grafana:7.3.7
+        restart_policy: always
+        ports:  ['3000:3000']
+        exposed_ports:  ['3000']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        env: 
+          GF_SECURITY_ADMIN_USER: { get_input: gf_admin_user }
+          GF_SECURITY_ADMIN_PASSWORD: { get_input: gf_admin_pw }
+        volumes:
+          - "/etc/grafana/conf-datasources:/etc/grafana/provisioning/datasources"
+          - "/etc/grafana:/etc/grafana"
+          - "grafana:/var/lib/grafana"
+      requirements:
+        - dependency: monitoring-system-prometheus
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - configuration: grafana-config
+        - dependency: keycloak-container
+
+    grafana-registry:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: grafana-registry
+        image_name: sodaliteh2020/grafana-registry
+        restart_policy: always
+        ports:  ['3001:3001']
+        exposed_ports:  ['3001']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        env: 
+          GF_ADMIN_USER: { get_input: gf_admin_user }
+          GF_ADMIN_PW: { get_input: gf_admin_pw }
+          GF_PORT: { get_input: gf_port }
+          GF_REGISTRY_GUNICORN_WORKERS: "4"
+          OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
+          OIDC_CLIENT_SECRET: { get_input: keycloak_client_secret }
+          FLASK_RUN_PORT: { get_input: gf_registry_port }
+        volumes:
+          - "/var/lib/grafana-registry:/app/data"
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: monitoring-system-grafana
+        - dependency: keycloak-container
+
+    hpc-exporter:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: hpc-exporter
+        image_name: sodaliteh2020/hpc-exporter-mt
+        restart_policy: always
+        ports:  ['9110:9110']
+        exposed_ports:  ['9110']
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        env: 
+          OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
+          OIDC_INTROSPECTION_SECRET: { get_input: keycloak_client_secret }
+          VAULT_ADDRESS: { get_input: vault_address }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: vault-container
+        - dependency: keycloak-container
+
+    monitoring-system-ruleserver:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        image_name: sodaliteh2020/monitoring-system-ruleserver:latest
+        restart_policy: always
+        ports: [ '9092:9092' ]
+        exposed_ports: [ '9092' ]
+        docker_network_name: { get_property: [ SELF, network, name ] }
+        env:
+          GUNICORN_WORKERS: "8"
+          RULESERVER_PORT: { get_input: ruleserver_port }
+        volumes:
+          - "/var/run/docker.sock:/var/run/docker.sock"
+          - rules-volume:/etc/prometheus/rules
+        alias: ruleserver
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+        - dependency: monitoring-system-prometheus
+
     # skydive-analyzer
     # https://github.com/skydive-project/skydive
     skydive-analyzer:
@@ -804,67 +1033,6 @@ topology_template:
         - registry: docker-public-registry
         - network: docker-network
 
-
-    # MONITORING-SYSTEM
-    # https://github.com/SODALITE-EU/monitoring-system
-
-    monitoring-system-consul:
-      type: sodalite.nodes.DockerizedComponent
-      properties:
-        alias: consul
-        image_name: library/consul:1.9.1
-        restart_policy: always
-        ports:  ['8500:8500','8600:8600/udp']
-        exposed_ports:  ['8500','8600/udp']
-        docker_network_name:  { get_property: [ SELF, network, name ] }
-      requirements:
-        - host: docker-host
-        - registry: docker-public-registry
-        - network: docker-network
-
-    monitoring-system-alertmanager:
-      type: sodalite.nodes.DockerizedComponent
-      properties:
-        alias: alertmanager
-        image_name: prom/alertmanager:v0.21.0
-        restart_policy: always
-        ports:  ['9093:9093']
-        exposed_ports:  ['9093']
-        docker_network_name:  { get_property: [ SELF, network, name ] }
-      requirements:
-        - host: docker-host
-        - registry: docker-public-registry
-        - network: docker-network
-
-    prometheus-config:
-      type: sodalite.nodes.monitoring-system-prometheus.config
-      properties:
-        dest: /tmp/prometheus/prometheus.yml
-        alertmanager_endpoint: alertmanager:9093
-        consul_endpoint: consul:8500
-      requirements:
-        - dependency: monitoring-system-alertmanager
-        - dependency: monitoring-system-consul
-        - host: sodalite-vm
-
-    monitoring-system-prometheus:
-      type: sodalite.nodes.DockerizedComponent
-      properties:
-        alias: prometheus
-        image_name: prom/prometheus:v2.23.0
-        restart_policy: always
-        ports:  ['9090:9090']
-        exposed_ports:  ['9090']
-        docker_network_name:  { get_property: [ SELF, network, name ] }
-        volumes:
-          - "/tmp/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
-          - rules-volume:/etc/prometheus/rules
-      requirements:
-        - host: docker-host
-        - registry: docker-public-registry
-        - network: docker-network
-        - configuration: prometheus-config
-
     # Register prometheus-skydive-connector with prometheus consul
     prometheus-skydive-connector-registration:
       type: sodalite.nodes.Tests.Text.Command
@@ -876,27 +1044,6 @@ topology_template:
       requirements:
         - dependency: prometheus-skydive-connector
         - dependency: monitoring-system-consul
-        - dependency: monitoring-system-prometheus
-
-    monitoring-system-ruleserver:
-      type: sodalite.nodes.DockerizedComponent
-      properties:
-        image_name: sodaliteh2020/monitoring-system-ruleserver:0.2.0
-        restart_policy: always
-        ports: [ '9092:9092' ]
-        exposed_ports: [ '9092' ]
-        docker_network_name: { get_property: [ SELF, network, name ] }
-        env:
-          GUNICORN_WORKERS: "8"
-          RULESERVER_PORT: "9092"
-        volumes:
-          - "/var/run/docker.sock:/var/run/docker.sock"
-          - rules-volume:/etc/prometheus/rules
-        alias: ruleserver
-      requirements:
-        - host: docker-host
-        - network: docker-network
-        - registry: docker-public-registry
         - dependency: monitoring-system-prometheus
 
     # MODAK
