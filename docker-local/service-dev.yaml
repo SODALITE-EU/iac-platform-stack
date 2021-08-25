@@ -253,9 +253,9 @@ topology_template:
           GF_ADMIN_PW: { get_input: gf_admin_pw }
           GF_PORT: { get_input: gf_port }
           GF_REGISTRY_GUNICORN_WORKERS: "4"
-          GF_REGISTRY_PORT: { get_input: gf_registry_port }
           OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
           OIDC_CLIENT_SECRET: { get_input: oidc_introspection_secret }
+          FLASK_RUN_PORT: { get_input: gf_registry_port }
         volumes:
           - "/var/lib/grafana-registry:/app/data"
       requirements:
