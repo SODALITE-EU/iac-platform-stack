@@ -22,11 +22,6 @@ scrape_configs:
       - server: "{{ consul_endpoint }}"
         services: [consul-registered-node-exporters]
 
-  - job_name: 'consul-registered-ipmi-exporters'
-    consul_sd_configs:
-      - server: "{{ consul_endpoint }}"
-        services: [consul-registered-ipmi-exporters]
-
   - job_name: 'consul-registered-hpc-exporters'
     consul_sd_configs:
       - server: "{{ consul_endpoint }}"

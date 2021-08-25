@@ -1,0 +1,22 @@
+- hosts: all
+  gather_facts: yes
+  become: yes
+  pre_tasks:
+   - set_fact:
+      grafana_endpoint: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+  tasks:
+
+    # DIRECTORIES 
+    - name: Ensure configuration datasources directory exists
+      file:
+        path: "{{ dest_conf_datasources | dirname }}"
+        state: directory
+    # CONF FILES
+    - name: Create datasources configuration file
+      template:
+        src: "grafana-datasources.yaml.j2"
+        dest: "{{ dest_conf_datasources }}"
+    - name: Create oauth configuration file
+      template:
+        src: "grafana-config.ini.j2"
+        dest: "{{ dest_conf }}"

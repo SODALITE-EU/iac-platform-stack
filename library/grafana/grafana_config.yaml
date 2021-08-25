@@ -1,0 +1,52 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+node_types:
+  sodalite.nodes.monitoring-system-grafana.config:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: Node for creation of Grafana config file
+    properties:
+      dest_conf_datasources:
+        type: string
+        description: Destintation of datasources configurations
+      dest_conf:
+        type: string
+        description: Destination of config file
+      prometheus_endpoint:
+        type: string
+        description: Ip address of prometheus server
+      keycloak_endpoint:
+        type: string
+        description: keycloak endpoint
+      keycloak_realm:
+        type: string
+        description: Realm in keycloak used for Grafana
+      keycloak_client:
+        type: string
+        description: Keycloak client
+        default: sodalite-ide
+      keycloak_secret:
+        type: string
+        description: Keycloak client secret
+      gf_admin_pw:
+        type: string
+        description: Admin password
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              dest_conf_datasources:  { default: { get_property: [ SELF, dest_conf_datasources ] }, type: string }
+              dest_conf:              { default: { get_property: [ SELF, dest_conf ] },             type: string }
+              prometheus_endpoint:    { default: { get_property: [ SELF, prometheus_endpoint ] },   type: string }
+              keycloak_endpoint:      { default: { get_property: [ SELF, keycloak_endpoint ] },     type: string }
+              keycloak_realm:         { default: { get_property: [ SELF, keycloak_realm ] },        type: string }
+              keycloak_secret:        { default: { get_property: [ SELF, keycloak_secret ] },       type: string }
+              keycloak_client:        { default: { get_property: [ SELF, keycloak_client ] },       type: string }
+              gf_admin_pw:            { default: { get_property: [ SELF, gf_admin_pw ] },           type: string }
+            implementation:
+              primary: playbooks/config_create.yml
+              dependencies:
+                - playbooks/templates/grafana-dashboards.yaml.j2
+                - playbooks/templates/grafana-datasources.yaml.j2
+                - playbooks/templates/grafana-config.ini.j2

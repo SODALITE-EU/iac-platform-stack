@@ -305,7 +305,7 @@ topology_template:
         cert_files_prefix: { get_attribute: [ SELF, dependency, cert_files_prefix ] }
         dir: /home/nginx
         filename: certificates.toml
-        template_name: certificates.toml.tmpl
+        template_name: certificates.toml.j2
       requirements:
         - host: sodalite-vm
         - dependency: traefik-tls-certs
@@ -363,7 +363,7 @@ topology_template:
       properties:
         dir: /home/keycloak
         filename: sodalite-realm.json
-        template_name: sodalite-realm.json.tmpl
+        template_name: sodalite-realm.json.j2
         client_secret: { get_input: keycloak_client_secret }
       requirements:
         - host: sodalite-vm
@@ -550,7 +550,7 @@ topology_template:
         public_ipv4_address: { get_attribute: [ SELF, host, public_address ] }
         dir: /tmp/image-builder/
         filename: image-builder.env
-        template_name: image-builder.env.tmpl
+        template_name: image-builder.env.j2
       requirements:
         - host: sodalite-vm
 
