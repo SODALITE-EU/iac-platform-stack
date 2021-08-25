@@ -22,10 +22,10 @@ scrape_configs:
       - server: "{{ consul_endpoint }}"
         services: [consul-registered-node-exporters]
 
-  - job_name: 'consul-registered-hpc-exporters'
-    consul_sd_configs:
-      - server: "{{ consul_endpoint }}"
-        services: [consul-registered-hpc-exporters]
+  - job_name: 'hpc-exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['hpc-exporter:9110']
 
   - job_name: 'consul-registered-skydive-exporters'
     consul_sd_configs:
