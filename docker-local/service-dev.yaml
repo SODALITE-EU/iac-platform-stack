@@ -326,7 +326,7 @@ topology_template:
         docker_network_name: { get_property: [ SELF, network, name ] }
         env: 
           OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
-          OIDC_INTROSPECTION_SECRET: { get_input: oidc_introspection_secret }
+          OIDC_CLIENT_SECRET: { get_input: oidc_introspection_secret }
           VAULT_ADDRESS: { get_input: vault_address }
           VAULT_ADMIN_TOKEN: { get_input: vault_admin_token }
           VAULT_SECRET_UPLOADER_PORT: { get_input: vault_secret_uploader_port }
