@@ -849,7 +849,7 @@ topology_template:
         - host: docker-host
         - registry: docker-public-registry
         - network: docker-network
-        - configuration: alertmanager-config
+        - dependency: alertmanager-config
 
     prometheus-config:
       type: sodalite.nodes.monitoring-system-prometheus.config
@@ -878,7 +878,7 @@ topology_template:
         - host: docker-host
         - registry: docker-public-registry
         - network: docker-network
-        - configuration: prometheus-config
+        - dependency: prometheus-config
 
     grafana-config:
       type: sodalite.nodes.monitoring-system-grafana.config
@@ -915,7 +915,7 @@ topology_template:
         - host: docker-host
         - registry: docker-public-registry
         - network: docker-network
-        - configuration: grafana-config
+        - dependency: grafana-config
         - dependency: keycloak-container
 
     grafana-registry:

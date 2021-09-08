@@ -3,8 +3,8 @@ username: $CURRENT_USER
 local_ipv4_address: $IP_ADDRESS
 # Docker host
 docker-network: sodalite
-dockerhub-user: 
-dockerhub-pass: 
+dockerhub-user:
+dockerhub-pass:
 docker-public-registry-url: registry.hub.docker.com
 docker-private-registry-url: registry
 docker-registry-cert-country-name: SI
@@ -65,16 +65,16 @@ keycloak_env:
 keycloak_client_secret: $KEYCLOAK_CLIENT_SECRET
 # Platform Discovery Service
 pds_env:
-  SECRET_VAULT_LOGIN_URI: http://vault:8200/v1/auth/jwt/login 
-  SECRET_VAULT_URI: http://vault:8200/v1/ 
-  OIDC_INTROSPECTION_ENDPOINT: http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect 
+  SECRET_VAULT_LOGIN_URI: http://vault:8200/v1/auth/jwt/login
+  SECRET_VAULT_URI: http://vault:8200/v1/
+  OIDC_INTROSPECTION_ENDPOINT: http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect
   OIDC_CLIENT_SECRET: $KEYCLOAK_CLIENT_SECRET
 # Semantic Reasoner
 reasoner_env:
   WAIT_HOSTS: graph-db:7200
   environment: docker
   graphdb:  http://graph-db:7200
-  bugPredictorServer:  http://tosca-smells:8080/  
+  bugPredictorServer:  http://tosca-smells:8080/
   ansiblePath: /usr/local/tomcat/webapps/Ansibles/
   reasonerServer: http://semantic-web:8080/
   kbUsername: admin
@@ -92,9 +92,9 @@ toscasmells_env:
   kbPassword: $KB_PASSWORD
 gf_admin_pw: $GF_ADMIN_PW
 gf_admin_user: admin
-gf_port: 3000
-gf_registry_port: 3001
-ruleserver_port: 9092
-vault_secret_uploader_port: 8202
+gf_port: "3000"
+gf_registry_port: "3001"
+ruleserver_port: "9092"
+vault_secret_uploader_port: "8202"
 oidc_introspection_endpoint: http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect
 vault_address: vault
