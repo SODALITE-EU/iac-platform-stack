@@ -16,6 +16,6 @@ node_types:
             inputs:
               dest:                  { default: { get_property: [ SELF, dest ] }, type: string }
             implementation:
-              primary: playbooks/config_create.yml
+              primary: playbooks/config_create.yaml
               dependencies:
                 - playbooks/files/alertmanager-config.yaml

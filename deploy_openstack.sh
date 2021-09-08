@@ -3,7 +3,7 @@
 ######################
 # Pinned versions
 
-OPERA_VERSION="0.6.4"
+OPERA_VERSION="0.6.6"
 IAC_MODULES_VERSION="3.4.1"
 
 # UUID regex for validation of uuid inputs

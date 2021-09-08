@@ -45,7 +45,7 @@ node_types:
               keycloak_client:        { default: { get_property: [ SELF, keycloak_client ] },       type: string }
               gf_admin_pw:            { default: { get_property: [ SELF, gf_admin_pw ] },           type: string }
             implementation:
-              primary: playbooks/config_create.yml
+              primary: playbooks/config_create.yaml
               dependencies:
                 - playbooks/templates/grafana-dashboards.yaml.j2
                 - playbooks/templates/grafana-datasources.yaml.j2
