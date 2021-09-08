@@ -23,6 +23,7 @@ project_domains: [ snow, clinical, vehicle, pds ]
 # Keycloak
 keycloak_admin_password: $KEYCLOAK_ADMIN_PASSWORD
 keycloak_client_secret: $KEYCLOAK_CLIENT_SECRET
+oidc_introspection_endpoint: http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect
 # Semantic Reasoner
 kb_password: $KB_PASSWORD
 gf_admin_pw: $GF_ADMIN_PW
@@ -31,5 +32,4 @@ gf_port: "3000"
 gf_registry_port: "3001"
 ruleserver_port: "9092"
 vault_secret_uploader_port: "8202"
-oidc_introspection_endpoint: http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect
 vault_address: vault

@@ -58,21 +58,19 @@ topology_template:
     docker-registry-cert-email-address:
       type: string
       default: ""
-    postgres_env:
-      type: map
-    xopera_env:
-      type: map
-    image_builder_env:
-      type: map
-    modak_api_env:
-      type: map
-    modak_db_env:
-      type: map
-    vault_env:
-      type: map
-    keycloak_env:
-      type: map
-    pds_env:
+    sodalite_db_username:
+      type: string
+    sodalite_db_password:
+      type: string
+    sodalite_git_token:
+      type: string
+    xopera_auth_api_key:
+      type: string
+    registry_ip_address:
+      type: string
+    vault_token:
+      type: string
+    keycloak_admin_password:
       type: map
     keycloak_client_secret:
       type: string
@@ -92,14 +90,8 @@ topology_template:
       type: string
     ruleserver_port:
       type: string
-    vault_token:
-      type: string
     project_domains:
       type: list
-    reasoner_env:
-      type: map
-    toscasmells_env:
-      type: map
     kb_password:
       type: string
 
