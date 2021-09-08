@@ -26,4 +26,4 @@ node_types:
             implementation:
               primary: playbooks/config_create.yml
               dependencies:
-                - playbooks/templates/prometheus.yaml.tmpl
+                - playbooks/templates/prometheus.yaml.j2

@@ -3,7 +3,7 @@
 ######################
 # Pinned versions
 
-OPERA_VERSION="0.6.4"
+OPERA_VERSION="0.6.6"
 IAC_MODULES_VERSION="3.4.1"
 
 # UUID regex for validation of uuid inputs
@@ -293,6 +293,12 @@ if [[ -z "$REUSE_INPUT_FILE" ]]; then
   echo
   read -rp "Please enter admin password for Knowledge Base: " KB_PASSWORD_INPUT
   export KB_PASSWORD=$KB_PASSWORD_INPUT
+
+  echo
+  read -rp "Please enter admin password for Grafana: " GF_ADMIN_PW_INPUT
+  export GF_ADMIN_PW=$GF_ADMIN_PW_INPUT
+
+
   # prepare inputs
   envsubst <./docker-local/input.yaml.tmpl >./docker-local/input.yaml || exit 1
 

@@ -10,7 +10,7 @@ node_types:
         description: Filename of configuration template
         required: True
         type: string
-        default: "certificates.toml.tmpl"
+        default: "certificates.toml.j2"
       cert_files_prefix:
         description: Certificate filename prefix.
         required: True
@@ -30,7 +30,7 @@ node_types:
             implementation:
               primary: ../../modules/misc/conf/playbooks/create_conf.yml
               dependencies:
-                - artifacts/certificates.toml.tmpl
+                - artifacts/certificates.toml.j2
           delete:
             inputs:
               dir:                { type: string, default: { get_property: [ SELF, dir ] } }
@@ -46,9 +46,9 @@ node_types:
         description: Filename of configuration template
         required: True
         type: string
-        default: "sodalite-realm.json.tmpl"
+        default: "sodalite-realm.json.j2"
       client_secret:
-        description: Filename of configuration template
+        description: Client secret
         required: True
         type: string            
     interfaces:
@@ -66,7 +66,7 @@ node_types:
             implementation:
               primary: ../../modules/misc/conf/playbooks/create_conf.yml
               dependencies:
-                - artifacts/sodalite-realm.json.tmpl
+                - artifacts/sodalite-realm.json.j2
           delete:
             inputs:
               dir:                { type: string, default: { get_property: [ SELF, dir ] } }

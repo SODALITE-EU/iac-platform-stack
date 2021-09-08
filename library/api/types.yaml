@@ -18,7 +18,7 @@ node_types:
         description: Filename of configuration template
         required: True
         type: string
-        default: "vault_api_calls.json.tmpl"
+        default: "vault_api_calls.json.j2"
       api_token:
         description: Filename of configuration template
         required: True
@@ -42,7 +42,7 @@ node_types:
             implementation:
               primary: playbooks/api_calls.yml
               dependencies:
-                - artifacts/vault_api_calls.json.tmpl
+                - artifacts/vault_api_calls.json.j2
     requirements:
       - server:
           capability: tosca.capabilities.Node
@@ -77,7 +77,7 @@ node_types:
         description: Filename of configuration template
         required: True
         type: string
-        default: "kb_api_calls.json.tmpl"
+        default: "kb_api_calls.json.j2"
       kb_password:
         description: Filename of configuration template
         required: True
@@ -97,7 +97,7 @@ node_types:
             implementation:
               primary: playbooks/api_calls.yml
               dependencies:
-                - artifacts/kb_api_calls.json.tmpl
+                - artifacts/kb_api_calls.json.j2
     requirements:
       - server:
           capability: tosca.capabilities.Node
