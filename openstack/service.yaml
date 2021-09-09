@@ -62,19 +62,19 @@ topology_template:
     docker-registry-cert-email-address:
       type: string
       default: ""
-    postgres_env:
-      type: map
-    xopera_env:
-      type: map
-    modak_api_env:
-      type: map
-    modak_db_env:
-      type: map
-    vault_env:
-      type: map
-    keycloak_env:
-      type: map
-    pds_env:
+    sodalite_db_username:
+      type: string
+    sodalite_db_password:
+      type: string
+    sodalite_git_token:
+      type: string
+    xopera_auth_api_key:
+      type: string
+    registry_ip_address:
+      type: string
+    vault_token:
+      type: string
+    keycloak_admin_password:
       type: map
     keycloak_client_secret:
       type: string
@@ -94,14 +94,8 @@ topology_template:
       type: string
     ruleserver_port:
       type: string
-    vault_token:
-      type: string
     project_domains:
       type: list
-    reasoner_env:
-      type: map
-    toscasmells_env:
-      type: map
     kb_password:
       type: string
 
@@ -154,8 +148,8 @@ topology_template:
             remote_ip_prefix: 0.0.0.0/0
             protocol: tcp
           vault-secret-uploader:
-            port_range_min: { get_input: vault_secret_uploader_port }
-            port_range_max: { get_input: vault_secret_uploader_port }
+            port_range_min: 8202
+            port_range_max: 8202
             remote_ip_prefix: 0.0.0.0/0
             protocol: tcp
           keycloak_1:
@@ -199,13 +193,13 @@ topology_template:
             protocol: tcp
             remote_ip_prefix: 0.0.0.0/0
           grafana:
-            port_range_min: { get_input: gf_port }
-            port_range_max: { get_input: gf_port }
+            port_range_min: 3000
+            port_range_max: 3000
             remote_ip_prefix: 0.0.0.0/0
             protocol: tcp
           grafana-registry:
-            port_range_min: { get_input: gf_registry_port }
-            port_range_max: { get_input: gf_registry_port }
+            port_range_min: 3001
+            port_range_max: 3001
             remote_ip_prefix: 0.0.0.0/0
             protocol: tcp
         group_name:  sodalite-uc
@@ -409,7 +403,10 @@ topology_template:
         image_name: jboss/keycloak
         restart_policy: always
         ports:  ['8100:8080', '8443:8443']
-        env: { get_input: keycloak_env }
+        env:
+          KEYCLOAK_USER: admin
+          KEYCLOAK_PASSWORD: { get_input: keycloak_admin_password }
+          KEYCLOAK_IMPORT: /tmp/sodalite-realm.json
         volumes:
           - "/home/keycloak/sodalite-realm.json:/tmp/sodalite-realm.json"
       requirements:
@@ -427,7 +424,10 @@ topology_template:
         restart_policy: always
         ports:  ['8200:8200', '8201:8201']
         capabilities: ['IPC_LOCK']
-        env: { get_input: vault_env }
+        env:
+          VAULT_LOCAL_CONFIG: '{"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "16h", "max_lease_ttl": "72h"}'
+          VAULT_DEV_ROOT_TOKEN_ID: { get_input: vault_token }
+          VAULT_TOKEN: { get_input: vault_token }
         command: server -dev
       requirements:
         - host: docker-host
@@ -477,7 +477,11 @@ topology_template:
         image_name: sodaliteh2020/platform-discovery-service
         restart_policy: always
         ports:  ['8089:8081']
-        env: { get_input: pds_env }
+        env:
+          SECRET_VAULT_LOGIN_URI: http://vault:8200/v1/auth/jwt/login
+          SECRET_VAULT_URI: http://vault:8200/v1/
+          OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
+          OIDC_CLIENT_SECRET: { get_input: keycloak_client_secret }
       requirements:
         - host: docker-host
         - network: docker-network
@@ -504,7 +508,10 @@ topology_template:
         volumes:
           - "/home/postgres:/var/lib/postgresql/data"
         alias: xopera-postgres
-        env: { get_input: postgres_env }
+        env:
+          POSTGRES_USER: { get_input: sodalite_db_username }
+          POSTGRES_PASSWORD: { get_input: sodalite_db_password }
+          POSTGRES_DB: postgres
         docker_network_name: { get_property: [ SELF, network, name ] }
         labels:
           traefik.enable: "true"
@@ -538,7 +545,28 @@ topology_template:
           traefik.http.routers.xopera-rest-api.rule: "PathPrefix(`/`)"
           traefik.http.routers.xopera-rest-api.entrypoints: "xopera"
           traefik.http.routers.xopera-rest-api.tls: "true"
-        env: { get_input: xopera_env }
+        env:
+          DEBUG: "false"
+          LOG_LEVEL: debug
+          PYTHONUNBUFFERED: "1"
+          INVOCATION_SERVICE_WORKERS: "10"
+          # XOPERA GIT SETTINGS
+          XOPERA_GIT_TYPE: gitlab
+          XOPERA_GIT_URL: https://gitlab.com
+          XOPERA_GIT_AUTH_TOKEN: { get_input: sodalite_git_token }
+          # XOPERA POSTGRES CONNECTION
+          XOPERA_DATABASE_IP: xopera-postgres
+          XOPERA_DATABASE_NAME: postgres
+          XOPERA_DATABASE_USER: { get_input: sodalite_db_username }
+          XOPERA_DATABASE_PASSWORD: { get_input: sodalite_db_password }
+          # OIDC SETTINGS
+          OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
+          OIDC_CLIENT_SECRET: { get_input: keycloak_client_secret }
+          AUTH_API_KEY: { get_input: xopera_auth_api_key }
+          VAULT_LOGIN_URI: http://vault:8200/v1/auth/jwt/login
+          VAULT_SECRET_URI: http://vault:8200/v1/
+          # ANSIBLE CONFIGURATION
+          ANSIBLE_TIMEOUT: "60"
       requirements:
         - host: docker-host
         - registry: docker-public-registry
@@ -599,25 +627,15 @@ topology_template:
 
     # image-builder
     # https://github.com/SODALITE-EU/image-builder
-    image-builder-env:
-      type: sodalite.nodes.ImageBuilderEnv
-      properties:
-        public_ipv4_address: { get_attribute: [ SELF, host, public_address ] }
-        dir: /tmp/image-builder/
-        filename: image-builder.env
-        template_name: image-builder.env.j2
-      requirements:
-        - host: sodalite-vm
-
     image-builder-api:
       type: sodalite.nodes.DockerizedComponent
       properties:
         image_name:  sodaliteh2020/image-builder-api:1.0.0
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        env_file: /tmp/image-builder/image-builder.env
-        #TODO get REGISTRY_IP directly from host's public_address, when opera supports function evaluation on all depths
-#        env:
-#          REGISTRY_IP: { get_attribute: [ SELF, host_vm, public_address ] }
+        env:
+          REGISTRY_IP: { get_attribute: [ SELF, host, public_address ] }
+          DEBUG: "false"
+          LOG_LEVEL: debug
         volumes:
           - "/var/run/docker.sock:/var/run/docker.sock"
         alias: image-builder-api
@@ -630,11 +648,9 @@ topology_template:
           traefik.http.routers.image-builder.entrypoints: "image-builder"
           traefik.http.routers.image-builder.tls: "true"
       requirements:
-        - host_vm: sodalite-vm
         - host:  docker-host
         - registry: docker-public-registry
         - network: docker-network
-        - dependency: image-builder-env
 
     # semantic-reasoner
     # https://github.com/SODALITE-EU/semantic-reasoner
@@ -659,7 +675,18 @@ topology_template:
         docker_network_name:  { get_property: [ SELF, network, name ] }
         image_name: sodaliteh2020/semantic_web:M24Release
         restart_policy: always
-        env: { get_input: reasoner_env }
+        env:
+          WAIT_HOSTS: graph-db:7200
+          environment: docker
+          graphdb:  http://graph-db:7200
+          bugPredictorServer:  http://tosca-smells:8080/
+          ansiblePath: /usr/local/tomcat/webapps/Ansibles/
+          reasonerServer: http://semantic-web:8080/
+          kbUsername: admin
+          kbPassword: { get_input: kb_password }
+          keycloak: http://keycloak:8080/
+          keycloakClientId: sodalite-ide
+          keycloakClientSecret: { get_input: keycloak_client_secret }
         ports:  ['8080:8080']
         volumes:
           - "/tmp/tomcat/webapps/Ansibles:/usr/local/tomcat/webapps/Ansibles"
@@ -705,7 +732,12 @@ topology_template:
         docker_network_name:  { get_property: [ SELF, network, name ] }
         image_name: sodaliteh2020/toscasmells:349
         restart_policy: always
-        env: { get_input: toscasmells_env }
+        env:
+          environment: docker
+          WAIT_HOSTS: graph-db:7200
+          graphdb: http://graph-db:7200
+          kbUsername: admin
+          kbPassword: { get_input: kb_password }
         ports:  ['8082:8080']
         exposed_ports:  ['8080']
       requirements:
@@ -1058,7 +1090,10 @@ topology_template:
         restart_policy: always
         ports:  ['55000:5000']
         exposed_ports:  ['55000']
-        env: { get_input: modak_api_env }
+        env:
+          MODAK_DATABASE_PASSWORD: { get_input: sodalite_db_password }
+          MODAK_DATABASE_HOST: modak-db
+          MODAK_DATABASE_PORT: "3306"
         docker_network_name:  { get_property: [ SELF, network, name ] }
       requirements:
         - host: docker-host
@@ -1076,7 +1111,9 @@ topology_template:
         exposed_ports:  ['32000']
         volumes:
           - /docker-entrypoint-initdb.d/
-        env: { get_input: modak_db_env }
+        env:
+          MYSQL_ROOT_HOST: "%"
+          MYSQL_ROOT_PASSWORD: { get_input: sodalite_db_password }
         docker_network_name:  { get_property: [ SELF, network, name ] }
       requirements:
         - host: docker-host
