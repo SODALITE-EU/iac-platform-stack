@@ -1,0 +1,3 @@
+[submodule "iac-modules"]
+	path = iac-modules
+	url = https://github.com/SODALITE-EU/iac-modules.git
