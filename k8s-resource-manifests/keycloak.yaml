@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: keycloak
+  namespace: sodalite-services
+spec:
+  containers:
+  - name: keycloak
+    image: jboss/keycloak
+    resources:
+      limits:
+        cpu: "1"
+        memory: "512M"
+      requests:
+        cpu: "0.5"
+        memory: "512M"
+    volumeMounts:
+      - name: keycloak-secret
+        mountPath: "/home/secret/"
+        readOnly: true
+  volumes:
+    - name: keycloak-secret
+      secret:
+        secretName: keycloak-secret
+        items:
+          - key: sodalite-realm.json
+            path: sodalite-realm.json
+            mode: 0400
