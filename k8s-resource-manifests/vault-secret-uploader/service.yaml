@@ -3,6 +3,7 @@ kind: Service
 metadata:
   creationTimestamp: null
   name: vault-secret-uploader
+  namespace: sodalite-services
 spec:
   ports:
   - name: vault-secret-uploader

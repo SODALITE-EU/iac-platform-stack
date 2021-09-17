@@ -3,6 +3,7 @@ kind: Service
 metadata:
   creationTimestamp: null
   name: iac-builder
+  namespace: sodalite-services
 spec:
   ports:
   - name: iac-builder

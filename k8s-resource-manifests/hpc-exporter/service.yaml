@@ -3,6 +3,7 @@ kind: Service
 metadata:
   creationTimestamp: null
   name: hpc-exporter
+  namespace: sodalite-services
 spec:
   ports:
   - name: hpc-exporter

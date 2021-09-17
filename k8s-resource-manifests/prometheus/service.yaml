@@ -3,6 +3,7 @@ kind: Service
 metadata:
   creationTimestamp: null
   name: prometheus
+  namespace: sodalite-services
 spec:
   ports:
   - name: prometheus

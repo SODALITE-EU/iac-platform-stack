@@ -3,6 +3,7 @@ kind: Service
 metadata:
   creationTimestamp: null
   name: grafana
+  namespace: sodalite-services
 spec:
   ports:
   - name: grafana

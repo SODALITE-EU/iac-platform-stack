@@ -3,6 +3,7 @@ kind: Service
 metadata:
   creationTimestamp: null
   name: image-builder-api
+  namespace: sodalite-services
 spec:
   ports:
   - name: image-builder-api

@@ -3,6 +3,7 @@ kind: Service
 metadata:
   creationTimestamp: null
   name: semantic-web
+  namespace: sodalite-services
 spec:
   ports:
   - name: semantic-web

@@ -3,6 +3,7 @@ kind: Service
 metadata:
   creationTimestamp: null
   name: ruleserver
+  namespace: sodalite-services
 spec:
   ports:
   - name: ruleserver

@@ -3,6 +3,7 @@ kind: Service
 metadata:
   creationTimestamp: null
   name: platform-discovery-service
+  namespace: sodalite-services
 spec:
   ports:
   - name: platform-discovery-service

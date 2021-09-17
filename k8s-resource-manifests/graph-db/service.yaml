@@ -3,6 +3,7 @@ kind: Service
 metadata:
   creationTimestamp: null
   name: graph-db
+  namespace: sodalite-services
 spec:
   ports:
   - name: graph-db

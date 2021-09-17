@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: image-builder-api
+  namespace: sodalite-services
 spec:
   selector:
     matchLabels:

@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-registry
+  namespace: sodalite-services
 data:
   GF_ADMIN_USER: ${GRAFANA_ADMIN_USER}
   GF_ADMIN_PW: ${GRAFANA_ADMIN_PASSWORD}
