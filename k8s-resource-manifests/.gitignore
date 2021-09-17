@@ -1,3 +1,4 @@
 .env
-keycloak-secret.yaml
-vault.yaml
+keycloak/admin-password.yaml
+keycloak/config-secret.yaml
+vault/secret-token.yaml
