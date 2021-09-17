@@ -29,6 +29,11 @@ spec:
         value: admin
       - name: KEYCLOAK_IMPORT
         value: /home/secret/sodalite-realm.json
+      - name: KEYCLOAK_ADMIN_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: keycloak-admin-pw
+            key: keycloak-admin-pw
   volumes:
     - name: keycloak-secret
       secret:
