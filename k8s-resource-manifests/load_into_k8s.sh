@@ -2,6 +2,9 @@
 
 KUBECTL=${KUBECTL:-kubectl}
 
+# Functions for generating secrets
+# These functions are used to generate various deployment-specific secrets.
+
 uuid() {
     python3 -c 'import uuid; print(uuid.uuid4())'
 }
@@ -14,6 +17,7 @@ set -xe
 
 if [ ! -f .env ]
 then
+    # Generate deployment-specific secrets here
     export KEYCLOAK_CLIENT_SECRET=$(uuid)
     export VAULT_ROOT_TOKEN=$(uuid)
     export KEYCLOAK_ADMIN_PASSWORD=$(genpw)
