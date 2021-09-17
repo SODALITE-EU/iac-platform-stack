@@ -37,5 +37,10 @@ $KUBECTL apply -f namespace-sodalite-services.yaml
 
 for YAML in $(find keycloak/ -name '*.yaml') $(find vault/ -name '*.yaml')
 do
+    if [ -z "$(grep "sodalite-services" $YAML)" ]
+    then
+        echo "$YAML is not deployed in the sodalite-services namespace! Refusing to deploy"
+        exit 1
+    fi
     $KUBECTL apply -f $YAML
 done
