@@ -2,3 +2,15 @@
 keycloak/admin-password.yaml
 keycloak/config-secret.yaml
 vault/secret-token.yaml
+alertmanager/configmap.yaml
+consul/configmap.yaml
+grafana/configmap.yaml
+grafana-registry/configmap.yaml
+hpc-exporter/configmap.yaml
+iac-builder/configmap.yaml
+image-builder-api/configmap.yaml
+platform-discovery-service/configmap.yaml
+prometheus/configmap.yaml
+ruleserver/configmap.yaml
+semantic-web/configmap.yaml
+vault-secret-uploader/configmap.yaml
