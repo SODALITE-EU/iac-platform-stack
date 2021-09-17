@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: graph-db
+spec:
+  selector:
+    matchLabels:
+      app: graph-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: graph-db
+    spec:
+      containers:
+      - image: sodaliteh2020/graph_db:192
+        name: graph-db
+        ports:
+        - containerPort: 7200
+          protocol: TCP

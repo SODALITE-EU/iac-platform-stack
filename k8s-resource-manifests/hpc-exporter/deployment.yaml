@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hpc-exporter
+spec:
+  selector:
+    matchLabels:
+      app: hpc-exporter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hpc-exporter
+    spec:
+      containers:
+      - image: sodaliteh2020/hpc-exporter
+        name: hpc-exporter
+        env:
+        - name: OIDC_INTROSPECTION_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: hpc-exporter
+              key: OIDC_INTROSPECTION_ENDPOINT
+        - name: OIDC_CLIENT_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: hpc-exporter
+              key: OIDC_CLIENT_SECRET
+        - name: VAULT_SECRET_UPLOADER_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              name: hpc-exporter
+              key: VAULT_SECRET_UPLOADER_ADDRESS
+        ports:
+        - containerPort: 3001
+          protocol: TCP
+ 

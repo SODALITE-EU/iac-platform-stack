@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-builder-api
+spec:
+  selector:
+    matchLabels:
+      app: image-builder-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: image-builder-api
+    spec:
+      containers:
+      - image: sodaliteh2020/image-builder-api:1.0.0
+        name: image-builder-api
+        env:
+        - name: REGISTRY_IP
+          valueFrom:
+            configMapKeyRef:
+              name: image-builder-api
+              key: REGISTRY_IP
+        - name: DEBUG
+          valueFrom:
+            configMapKeyRef:
+              name: image-builder-api
+              key: DEBUG
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: image-builder-api
+              key: LOG_LEVEL
+        ports:
+        - containerPort: ???
+          protocol: TCP

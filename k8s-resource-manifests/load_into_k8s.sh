@@ -10,9 +10,9 @@ set -xe
 
 if [ ! -f .env ]
 then
-    export CLIENT_SECRET=$(uuid)
-    export VAULT_TOKEN=$(uuid)
-
+    export KEYCLOAK_CLIENT_SECRET=$(uuid)
+    export VAULT_ROOT_TOKEN=$(uuid)
+    
     envsubst < .env.tmpl > .env
 fi
 

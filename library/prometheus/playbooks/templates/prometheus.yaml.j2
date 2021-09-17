@@ -9,7 +9,7 @@ alerting:
        - {{ alertmanager_endpoint }}
 
 rule_files:
-  - /etc/prometheus/rules/rules_*
+  - /etc/prometheus/rules/*
 
 scrape_configs:
   - job_name: 'prometheus'

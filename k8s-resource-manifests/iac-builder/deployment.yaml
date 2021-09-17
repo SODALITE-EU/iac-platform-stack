@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iac-builder
+spec:
+  selector:
+    matchLabels:
+      app: iac-builder
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: iac-builder
+    spec:
+      containers:
+      - image: sodaliteh2020/iac-blueprint-builder:M24Release
+        name: iac-builder
+        env:
+        - name: XOPERA_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: iac-builder
+              key: XOPERA_ENDPOINT
+        ports:
+        - containerPort: 8081
+          protocol: TCP
+ 

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-registry
+data:
+  GF_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+  GF_ADMIN_PW: ${GRAFANA_ADMIN_PASSWORD}
+  GF_PORT: 3000
+  GF_REGISTRY_GUNICORN_WORKERS: "4"
+  OIDC_INTROSPECTION_ENDPOINT: http://keycloak/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token/introspect
+  OIDC_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+  OIDC_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+  PROMETHEUS_ADDRESS: prometheus
+  PROMETHEUS_PORT: 9090
+  GF_ADDRESS: grafana
+  FLASK_RUN_PORT: 3001
