@@ -13,7 +13,7 @@ spec:
     resources:
       limits:
         cpu: "1"
-        memory: "512M"
+        memory: "1G"
       requests:
         cpu: "0.5"
         memory: "512M"
@@ -41,4 +41,4 @@ spec:
         items:
           - key: sodalite-realm.json
             path: sodalite-realm.json
-            mode: 0400
+            mode: 0444
