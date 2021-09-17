@@ -315,7 +315,7 @@ disable_login_form = true
 ;disable_signout_menu = false
 
 # URL to redirect the user to after sign out
-;signout_redirect_url =
+signout_redirect_url = http://{{keycloak_endpoint}}/auth/realms/{{keycloak_realm}}/protocol/openid-connect/logout?redirect_uri=encodedRedirectUri
 
 # Set to true to attempt login with OAuth automatically, skipping the login screen.
 # This setting is ignored if multiple OAuth providers are configured.
@@ -439,7 +439,7 @@ api_url = http://{{keycloak_endpoint}}/auth/realms/{{keycloak_realm}}/protocol/o
 ;allowed_domains =
 ;team_ids =
 ;allowed_organizations =
-role_attribute_path = "contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'"
+role_attribute_path = "contains(resource_access.{{keycloak_client}}.roles[*], 'grafana-admin') && 'Admin' || contains(resource_access.{{keycloak_client}}.roles[*], 'grafana-editor') && 'Editor' || 'Viewer'"
 ;tls_skip_verify_insecure = false
 ;tls_client_cert =
 ;tls_client_key =
@@ -447,7 +447,7 @@ role_attribute_path = "contains(roles[*], 'admin') && 'Admin' || contains(roles[
 
 #################################### Basic Auth ##########################
 [auth.basic]
-;enabled = true
+enabled = false
 
 #################################### Auth Proxy ##########################
 [auth.proxy]

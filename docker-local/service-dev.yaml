@@ -68,7 +68,7 @@ topology_template:
     oidc_introspection_endpoint: 
       type: string
       default: ""
-    oidc_introspection_secret: 
+    oidc_client_secret: 
       type: string
       default: ""
     vault_address: 
@@ -210,7 +210,7 @@ topology_template:
         prometheus_endpoint: prometheus:9090
         keycloak_endpoint: 77.231.202.214:8080
         keycloak_realm: SODALITE
-        keycloak_secret: { get_input: oidc_introspection_secret }
+        keycloak_secret: { get_input: oidc_client_secret }
         gf_admin_pw: { get_input: gf_admin_pw }
       requirements:
         - dependency: monitoring-system-prometheus
@@ -254,7 +254,7 @@ topology_template:
           GF_PORT: { get_input: gf_port }
           GF_REGISTRY_GUNICORN_WORKERS: "4"
           OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
-          OIDC_CLIENT_SECRET: { get_input: oidc_introspection_secret }
+          OIDC_CLIENT_SECRET: { get_input: oidc_client_secret }
           FLASK_RUN_PORT: { get_input: gf_registry_port }
         volumes:
           - "/var/lib/grafana-registry:/app/data"
@@ -281,15 +281,15 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: hpc-exporter
-        image_name: sodaliteh2020/hpc-exporter-mt
+        image_name: sodaliteh2020/hpc-exporter:latest
         restart_policy: always
         ports:  ['9110:9110']
         exposed_ports:  ['9110']
         docker_network_name:  { get_property: [ SELF, network, name ] }
         env: 
           OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
-          OIDC_INTROSPECTION_SECRET: { get_input: oidc_introspection_secret }
-          VAULT_ADDRESS: { get_input: vault_address }
+          OIDC_CLIENT_SECRET: { get_input: oidc_client_secret }
+          VAULT_SECRET_UPLOADER_ADDRESS: vault-secret-uploader:8202
       requirements:
         - host: docker-host
         - registry: docker-public-registry
@@ -326,7 +326,7 @@ topology_template:
         docker_network_name: { get_property: [ SELF, network, name ] }
         env: 
           OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
-          OIDC_CLIENT_SECRET: { get_input: oidc_introspection_secret }
+          OIDC_CLIENT_SECRET: { get_input: oidc_client_secret }
           VAULT_ADDRESS: { get_input: vault_address }
           VAULT_ADMIN_TOKEN: { get_input: vault_admin_token }
           VAULT_SECRET_UPLOADER_PORT: { get_input: vault_secret_uploader_port }
