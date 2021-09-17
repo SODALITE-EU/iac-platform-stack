@@ -1,0 +1,67 @@
+# The tosca version of this loads in some additional configuration files
+# which I can't make heads or tails of and don't seem to be documented in
+# vault documentation. There's also a set of API calls made against vault
+# that we don't (yet) do here.
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vault-pv-claim
+  namespace: sodalite-services
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vault-token
+  namespace: sodalite-services
+type: Opaque
+stringData:
+  vault-token: ${VAULT_TOKEN}
+---      
+apiVersion: v1
+kind: Pod
+metadata:
+  name: vault
+  namespace: sodalite-services
+spec:
+  containers:
+  - name: vault
+    image: library/vault
+    resources:
+      limits:
+        cpu: "2"
+        memory: "8G"
+      requests:
+        cpu: "0.5"
+        memory: "512M"
+    securityContext:
+      capabilities:
+        add: ["IPC_LOCK"]
+    ports:
+    - containerPort: 8200
+    env:
+      - name: VAULT_LOCAL_CONFIG
+        value: '{"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "16h", "max_lease_ttl": "72h"}'
+      - name: VAULT_DEV_ROOT_TOKEN_ID
+        valueFrom:
+          secretKeyRef:
+            name: vault-token
+            key: vault-token
+      - name: VAULT_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: vault-token
+            key: vault-token
+    volumeMounts:
+      - mountPath: "/vault/file"
+        name: vault-pv-storage
+  volumes:
+    - name: vault-pv-storage
+      persistentVolumeClaim:
+        claimName: vault-pv-claim
