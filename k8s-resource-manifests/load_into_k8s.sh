@@ -17,6 +17,7 @@ then
     export KEYCLOAK_CLIENT_SECRET=$(uuid)
     export VAULT_ROOT_TOKEN=$(uuid)
     export KEYCLOAK_ADMIN_PASSWORD=$(genpw)
+    export GRAFANA_ADMIN_PASSWORD=$(genpw)
     
     envsubst < .env.tmpl > .env
 fi
@@ -30,7 +31,7 @@ done
 
 $KUBECTL apply -f namespace-sodalite-services.yaml
 
-for YAML in $(find . -name '*.yaml')
+for YAML in $(find keycloak/ -name '*.yaml') $(find vault/ -name '*.yaml')
 do
     $KUBECTL apply -f $YAML
 done
