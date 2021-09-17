@@ -1,8 +1,11 @@
+---
 apiVersion: v1
 kind: Pod
 metadata:
   name: keycloak
   namespace: sodalite-services
+  labels:
+    app.kubernetes.io/name: keycloak
 spec:
   containers:
   - name: keycloak
@@ -18,6 +21,14 @@ spec:
       - name: keycloak-secret
         mountPath: "/home/secret/"
         readOnly: true
+    ports:
+    - containerPort: 8080
+    - containerPort: 8443
+    env:
+      - name: KEYCLOAK_USER
+        value: admin
+      - name: KEYCLOAK_IMPORT
+        value: /home/secret/sodalite-realm.json
   volumes:
     - name: keycloak-secret
       secret:
