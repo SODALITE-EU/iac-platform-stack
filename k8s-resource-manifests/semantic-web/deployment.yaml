@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: semantic-web
+spec:
+  selector:
+    matchLabels:
+      app: semantic-web
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: semantic-web
+    spec:
+      containers:
+      - image: sodaliteh2020/semantic-web:M30Release
+        name: semantic-web
+        env:
+        - name: WAIT_HOSTS
+          valueFrom:
+            configMapKeyRef:
+              name: semantic-web
+              key: WAIT_HOSTS
+        - name: environment
+          valueFrom:
+            configMapKeyRef:
+              name: semantic-web
+              key: environment
+        - name: graphdb
+          valueFrom:
+            configMapKeyRef:
+              name: semantic-web
+              key: graphdb
+        - name: bugPredictorServer
+          valueFrom:
+            configMapKeyRef:
+              name: semantic-web
+              key: bugPredictorServer
+        - name: ansiblePath
+          valueFrom:
+            configMapKeyRef:
+              name: semantic-web
+              key: ansiblePath
+        - name: reasonerServer
+          valueFrom:
+            configMapKeyRef:
+              name: semantic-web
+              key: reasonerServer
+        - name: kbUsername
+          valueFrom:
+            configMapKeyRef:
+              name: semantic-web
+              key: kbUsername
+        - name: kbPassword
+          valueFrom:
+            configMapKeyRef:
+              name: semantic-web
+              key: kbPassword
+        - name: keycloak
+          valueFrom:
+            configMapKeyRef:
+              name: semantic-web
+              key: keycloak
+        - name: keycloakClientId
+          valueFrom:
+            configMapKeyRef:
+              name: semantic-web
+              key: keycloakClientId
+        - name: keycloakClientSecret
+          valueFrom:
+            configMapKeyRef:
+              name: semantic-web
+              key: keycloakClientSecret
+        ports:
+        - containerPort: 8080
+          protocol: TCP

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  name: graph-db
+spec:
+  ports:
+  - name: graph-db
+    port: 7200 
+    protocol: TCP
+    targetPort: 7200
+  selector:
+    app: graph-db
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-registry
+spec:
+  selector:
+    matchLabels:
+      app: grafana-registry
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: grafana-registry
+    spec:
+      containers:
+      - image: sodaliteh2020/grafana-registry
+        name: grafana-registry
+        env:
+        - name: GF_ADMIN_USER
+          valueFrom:
+            configMapKeyRef:
+              name: grafana-registry
+              key: GF_ADMIN_USER
+        - name: GF_ADMIN_PW
+          valueFrom:
+            configMapKeyRef:
+              name: grafana-registry
+              key: GF_ADMIN_PW
+        - name: GF_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: grafana-registry
+              key: GF_PORT
+        - name: GF_REGISTRY_GUNICORN_WORKERS
+          valueFrom:
+            configMapKeyRef:
+              name: grafana-registry
+              key: GF_REGISTRY_GUNICORN_WORKERS
+        - name: OIDC_INTROSPECTION_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: grafana-registry
+              key: OIDC_INTROSPECTION_ENDPOINT
+        - name: OIDC_CLIENT_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: grafana-registry
+              key: OIDC_CLIENT_SECRET
+        - name: OIDC_CLIENT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: grafana-registry
+              key: OIDC_CLIENT_ID
+        - name: PROMETHEUS_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              name: grafana-registry
+              key: PROMETHEUS_ADDRESS
+        - name: PROMETHEUS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: grafana-registry
+              key: PROMETHEUS_PORT
+        - name: GF_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              name: grafana-registry
+              key: GF_ADDRESS
+        - name: FLASK_RUN_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: grafana-registry
+              key: FLASK_RUN_PORT
+        ports:
+        - containerPort: 3001
+          protocol: TCP
+ 

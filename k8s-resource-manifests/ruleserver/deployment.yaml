@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ruleserver
+spec:
+  selector:
+    matchLabels:
+      app: ruleserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ruleserver
+    spec:
+      containers:
+      - image: sodaliteh2020/monitoring-system-ruleserver
+        name: ruleserver
+        env:
+        - name: GUNICORN_WORKERS
+          valueFrom:
+            configMapKeyRef:
+              name: ruleserver
+              key: GUNICORN_WORKERS
+        - name: RULESERVER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: ruleserver
+              key: RULESERVER_PORT
+        ports:
+        - containerPort: 9092
+          protocol: TCP
+ 

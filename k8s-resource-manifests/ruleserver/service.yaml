@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  name: ruleserver
+spec:
+  ports:
+  - name: ruleserver
+    port: 80 
+    protocol: TCP
+    targetPort: 9092
+  selector:
+    app: ruleserver
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault-secret-uploader
+spec:
+  selector:
+    matchLabels:
+      app: vault-secret-uploader
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: vault-secret-uploader
+    spec:
+      containers:
+      - image: sodaliteh2020/iac-blueprint-builder:M30Release
+        name: vault-secret-uploader
+        env:
+        - name: OIDC_INTROSPECTION_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: vault-secret-uploader
+              key: OIDC_INTROSPECTION_ENDPOINT
+        - name: OIDC_INTROSPECTION_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: vault-secret-uploader
+              key: OIDC_INTROSPECTION_SECRET
+        - name: VAULT_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              name: vault-secret-uploader
+              key: VAULT_ADDRESS
+        - name: VAULT_ADMIN_TOKEN
+          valueFrom:
+            configMapKeyRef:
+              name: vault-secret-uploader
+              key: VAULT_ADMIN_TOKEN
+        - name: VAULT_SECRET_UPLOADER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: vault-secret-uploader
+              key: VAULT_SECRET_UPLOADER_PORT
+        ports:
+        - containerPort: 8200
+          protocol: TCP
+ 

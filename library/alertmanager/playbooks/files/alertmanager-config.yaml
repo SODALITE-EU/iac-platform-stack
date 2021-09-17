@@ -1,9 +1,10 @@
 global:
-  slack_api_url: 'https://hooks.slack.com/services/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'
-                  
+  slack_api_url: 'https://hooks.slack.com/services/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'                  
 
 route:
-  receiver: 'slack-notifications'
+  receiver: 'refactorer-engine'
+  routes:
+    - receiver: 'slack-notifications'
 
 receivers:
 - name: 'slack-notifications'
@@ -33,3 +34,7 @@ receivers:
        {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
        {{ end }}
      {{ end }}
+
+- name: 'refactorer-engine'
+  webhook_configs: 
+  - url: http://192.168.2.166:8080/rule-based-refactorer/v0.1/api/alerts
