@@ -44,3 +44,23 @@ do
     fi
     $KUBECTL apply -f $YAML
 done
+
+# Wait for vault to come up
+while [ -z "$($KUBECTL get pods -n sodalite-services | grep vault-0 | grep Running)" ]
+do
+    sleep 1
+done
+
+# Now some specific setup for services that must be done exactly once.
+#First up, initalize vault
+VAULT_UNSEAL=$($KUBECTL exec -it -n sodalite-services vault-0 -- sh -c "VAULT_ADDR=http://127.0.0.1:8200 vault operator init")
+echo "$VAULT_UNSEAL"
+
+read -p "Pausing for you to record those vaules. Press enter when done."
+
+echo "Auto-unlocking vault..."
+echo "$VAULT_UNSEAL" | grep 'Unseal Key' | awk '{print $4}' | tr '\n' ' '
+for KEY in $(echo "$VAULT_UNSEAL" | grep 'Unseal Key' | awk '{print $4}' | tr '\n' ' ')
+do
+    $KUBECTL exec -it -n sodalite-services vault-0 -- sh -c VAULT_ADDR=http://127.0.0.1:8200 vault operator unseal "$KEY"
+done

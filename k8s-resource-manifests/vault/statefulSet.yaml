@@ -1,0 +1,58 @@
+# By default vault starts in dev mode, where it expects no initial data and will
+# throw an error if it finds any.
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vault
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: vault
+  serviceName: vault
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: vault
+    spec:
+      containers:
+      - name: vault
+        image: library/vault
+        args: [ "vault", "server", "-config", "/vault/config" ]
+        resources:
+          limits:
+            cpu: "2"
+            memory: "8G"
+          requests:
+            cpu: "0.5"
+            memory: "512M"
+        securityContext:
+          capabilities:
+            add: ["IPC_LOCK"]
+        ports:
+        - containerPort: 8200
+        - containerPort: 8201
+        env:
+          - name: VAULT_LOCAL_CONFIG
+            value: '{"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "16h", "max_lease_ttl": "72h"}'
+        volumeMounts:
+          - mountPath: "/vault/file"
+            name: vault
+          - mountPath: "/vault/config/main.hcl"
+            name: config
+            subPath: main.hcl
+      volumes:
+      - name: config
+        configMap:
+          name: vault
+  volumeClaimTemplates:
+  - metadata:
+      name: vault
+      namespace: sodalite-services
+    spec:
+      accessModes: [ ReadWriteOnce ]
+      resources:
+        requests:
+          storage: 10Gi
