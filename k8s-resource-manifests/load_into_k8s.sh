@@ -22,6 +22,7 @@ then
     export VAULT_ROOT_TOKEN=$(uuid)
     export KEYCLOAK_ADMIN_PASSWORD=$(genpw)
     export GRAFANA_ADMIN_PASSWORD=$(genpw)
+    export XOPERA_POSTGRES_PASSWORD=$(genpw)
     
     envsubst < .env.tmpl > .env
 fi
@@ -35,7 +36,9 @@ done
 
 $KUBECTL apply -f namespace-sodalite-services.yaml
 
-for YAML in $(find keycloak/ -name '*.yaml') $(find vault/ -name '*.yaml')
+for CDIR in keycloak vault vault-secret-uploader platform-discovery-service xopera-postgres
+do
+for YAML in $(find $CDIR -name '*.yaml')
 do
     if [ -z "$(grep "sodalite-services" $YAML)" ]
     then
@@ -43,6 +46,7 @@ do
         exit 1
     fi
     $KUBECTL apply -f $YAML
+done
 done
 
 # Wait for vault to come up

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: xopera-postgres
+  namespace: sodalite-services
+  labels:
+    app: xopera-postgres
+data:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: ${XOPERA_POSTGRES_PASSWORD}
+  POSTGRES_DB: postgres
+  
