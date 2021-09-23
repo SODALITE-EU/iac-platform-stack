@@ -14,7 +14,7 @@ spec:
         app: vault-secret-uploader
     spec:
       containers:
-      - image: sodaliteh2020/iac-blueprint-builder:M30Release
+      - image: sodaliteh2020/iac-blueprint-builder
         name: vault-secret-uploader
         env:
         - name: OIDC_INTROSPECTION_ENDPOINT
