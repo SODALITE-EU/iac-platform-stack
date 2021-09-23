@@ -7,3 +7,4 @@ openstack/.opera
 openstack/modules
 openstack/library
 openstack/input.yaml
+xopera-postgres/configmap.yaml

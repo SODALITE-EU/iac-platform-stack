@@ -1,0 +1,57 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: xopera-postgres
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: xopera-postgres
+  serviceName: vault
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: xopera-postgres
+    spec:
+      containers:
+      - name: vault
+        image: library/postgres:13
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1G"
+          requests:
+            cpu: "0.5"
+            memory: "512M"
+        ports:
+        - containerPort: 5432
+        env:
+          - name: POSTGRES_USER
+            valueFrom:
+              configMapKeyRef:
+                name: xopera-postgres
+                key: POSTGRES_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: xopera-postgres
+                key: POSTGRES_PASSWORD
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: xopera-postgres
+                key: POSTGRES_DB
+        volumeMounts:
+          - mountPath: "/var/lib/postgresql/data"
+            name: xopera-postgres
+  volumeClaimTemplates:
+  - metadata:
+      name: xopera-postgres
+      namespace: sodalite-services
+    spec:
+      accessModes: [ ReadWriteOnce ]
+      resources:
+        requests:
+          storage: 1Gi
