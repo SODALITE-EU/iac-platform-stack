@@ -22,14 +22,16 @@ spec:
         mountPath: "/home/secret/"
         readOnly: true
     ports:
-    - containerPort: 8080
-    - containerPort: 8443
+    - name: http
+      containerPort: 8080
+    - name: https
+      containerPort: 8443
     env:
       - name: KEYCLOAK_USER
         value: admin
       - name: KEYCLOAK_IMPORT
         value: /home/secret/sodalite-realm.json
-      - name: KEYCLOAK_ADMIN_PASSWORD
+      - name: KEYCLOAK_PASSWORD
         valueFrom:
           secretKeyRef:
             name: keycloak
