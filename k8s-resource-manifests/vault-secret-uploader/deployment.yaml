@@ -19,14 +19,14 @@ spec:
         env:
         - name: OIDC_INTROSPECTION_ENDPOINT
           valueFrom:
-            configMapKeyRef:
-              name: vault-secret-uploader
-              key: OIDC_INTROSPECTION_ENDPOINT
+            secretKeyRef:
+              name: keycloak
+              key: introspection_endpoint
         - name: OIDC_INTROSPECTION_SECRET
           valueFrom:
-            configMapKeyRef:
-              name: vault-secret-uploader
-              key: OIDC_INTROSPECTION_SECRET
+            secretKeyRef:
+              name: keycloak
+              key: client_secret
         - name: VAULT_ADDRESS
           valueFrom:
             configMapKeyRef:
@@ -34,9 +34,9 @@ spec:
               key: VAULT_ADDRESS
         - name: VAULT_ADMIN_TOKEN
           valueFrom:
-            configMapKeyRef:
-              name: vault-secret-uploader
-              key: VAULT_ADMIN_TOKEN
+            secretKeyRef:
+              name: vault
+              key: vault-token
         - name: VAULT_SECRET_UPLOADER_PORT
           valueFrom:
             configMapKeyRef:

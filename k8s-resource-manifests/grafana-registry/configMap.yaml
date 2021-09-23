@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-registry
+  namespace: sodalite-services
+data:
+  GF_PORT: 3000
+  GF_REGISTRY_GUNICORN_WORKERS: "4"
+  PROMETHEUS_ADDRESS: prometheus
+  PROMETHEUS_PORT: 9090
+  GF_ADDRESS: grafana
+  FLASK_RUN_PORT: 3001

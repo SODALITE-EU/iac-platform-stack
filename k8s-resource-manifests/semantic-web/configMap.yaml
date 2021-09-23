@@ -11,7 +11,4 @@ data:
   ansiblePath: /usr/local/tomcat/webapps/Ansibles/
   reasonerServer: http://semantic-web:8080/
   kbUsername: admin
-  kbPassword: ${KB_PASSWORD}
   keycloak: http://keycloak/
-  keycloakClientId: ${KEYCLOAK_CLIENT_ID}
-  keycloakClientSecret: ${KEYCLOAK_CLIENT_SECRET}

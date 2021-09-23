@@ -54,9 +54,9 @@ spec:
               key: kbUsername
         - name: kbPassword
           valueFrom:
-            configMapKeyRef:
+            secretKeyRef:
               name: semantic-web
-              key: kbPassword
+              key: kb_password
         - name: keycloak
           valueFrom:
             configMapKeyRef:
@@ -64,14 +64,14 @@ spec:
               key: keycloak
         - name: keycloakClientId
           valueFrom:
-            configMapKeyRef:
-              name: semantic-web
-              key: keycloakClientId
+            secretKeyRef:
+              name: keycloak
+              key: client_id
         - name: keycloakClientSecret
           valueFrom:
-            configMapKeyRef:
-              name: semantic-web
-              key: keycloakClientSecret
+            secretKeyRef:
+              name: keycloak
+              key: client_secret
         ports:
         - containerPort: 8080
           protocol: TCP

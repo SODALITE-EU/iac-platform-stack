@@ -18,7 +18,7 @@ spec:
         cpu: "0.5"
         memory: "512M"
     volumeMounts:
-      - name: keycloak-secret
+      - name: keycloak-realm
         mountPath: "/home/secret/"
         readOnly: true
     ports:
@@ -32,12 +32,12 @@ spec:
       - name: KEYCLOAK_ADMIN_PASSWORD
         valueFrom:
           secretKeyRef:
-            name: keycloak-admin-pw
+            name: keycloak
             key: keycloak-admin-pw
   volumes:
-    - name: keycloak-secret
+    - name: keycloak-realm
       secret:
-        secretName: keycloak-secret
+        secretName: keycloak-realm
         items:
           - key: sodalite-realm.json
             path: sodalite-realm.json

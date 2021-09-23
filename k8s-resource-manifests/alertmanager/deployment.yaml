@@ -19,4 +19,12 @@ spec:
         ports:
         - containerPort: 9093
           protocol: TCP
+      volumes:
+      - name: alertmanager-config
+        configMap:
+          name: alertmanager
+          items:
+          - key: alertmanager.yml
+            path: /etc/alertmananger/alertmanager.yml
+
  

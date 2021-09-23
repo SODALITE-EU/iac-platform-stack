@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hpc-exporter
+  namespace: sodalite-services
+data:
+  VAULT_SECRET_UPLOADER_ADDRESS: vault-secret-uploader:8202

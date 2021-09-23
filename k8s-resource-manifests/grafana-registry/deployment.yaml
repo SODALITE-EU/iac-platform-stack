@@ -19,14 +19,14 @@ spec:
         env:
         - name: GF_ADMIN_USER
           valueFrom:
-            configMapKeyRef:
-              name: grafana-registry
-              key: GF_ADMIN_USER
+            secretKeyRef:
+              name: grafana
+              key: grafana_admin_user
         - name: GF_ADMIN_PW
           valueFrom:
-            configMapKeyRef:
-              name: grafana-registry
-              key: GF_ADMIN_PW
+            secretKeyRef:
+              name: grafana
+              key: grafana_admin_pw
         - name: GF_PORT
           valueFrom:
             configMapKeyRef:
@@ -39,19 +39,19 @@ spec:
               key: GF_REGISTRY_GUNICORN_WORKERS
         - name: OIDC_INTROSPECTION_ENDPOINT
           valueFrom:
-            configMapKeyRef:
-              name: grafana-registry
-              key: OIDC_INTROSPECTION_ENDPOINT
+            secretKeyRef:
+              name: keycloak
+              key: introspection_endpoint
         - name: OIDC_CLIENT_SECRET
           valueFrom:
-            configMapKeyRef:
-              name: grafana-registry
-              key: OIDC_CLIENT_SECRET
+            secretKeyRef:
+              name: keycloak
+              key: client_secret
         - name: OIDC_CLIENT_ID
           valueFrom:
-            configMapKeyRef:
-              name: grafana-registry
-              key: OIDC_CLIENT_ID
+            secretKeyRef:
+              name: keycloak
+              key: client_id
         - name: PROMETHEUS_ADDRESS
           valueFrom:
             configMapKeyRef:

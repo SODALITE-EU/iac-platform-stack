@@ -24,9 +24,9 @@ spec:
               key: SECRET_VAULT_LOGIN_URI
         - name: OIDC_INTROSPECTION_ENDPOINT
           valueFrom:
-            configMapKeyRef:
-              name: platform-discovery-service
-              key: OIDC_INTROSPECTION_ENDPOINT
+            secretKeyRef:
+              name: keycloak
+              key: introspection_endpoint
         - name: SECRET_VAULT_URI
           valueFrom:
             configMapKeyRef:
@@ -34,9 +34,9 @@ spec:
               key: SECRET_VAULT_URI
         - name: OIDC_CLIENT_SECRET
           valueFrom:
-            configMapKeyRef:
-              name: platform-discovery-service
-              key: OIDC_CLIENT_SECRET
+            secretKeyRef:
+              name: keycloak
+              key: client_secret
         ports:
         - containerPort: 8089
           protocol: TCP
