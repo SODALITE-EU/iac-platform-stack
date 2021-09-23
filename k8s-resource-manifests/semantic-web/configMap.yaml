@@ -6,9 +6,4 @@ metadata:
 data:
   WAIT_HOSTS: graph-db:7200
   environment:
-  graphdb:  http://graph-db:7200
-  bugPredictorServer:  http://tosca-smells:8080/
   ansiblePath: /usr/local/tomcat/webapps/Ansibles/
-  reasonerServer: http://semantic-web:8080/
-  kbUsername: admin
-  keycloak: http://keycloak/

@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  name: performance-predictor-refactoring
+  namespace: sodalite-services
+spec:
+  ports:
+  - name: performance-predictor-refactoring
+    port: 5007
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: performance-predictor-refactoring
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

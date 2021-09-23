@@ -106,13 +106,19 @@ spec:
         - containerPort: 3000
           protocol: TCP
         volumeMounts:
-        - name: datasources
-          mountPath: /etc/grafana/provisioning/datasources
+        - name: provisioning
+          mountPath: /etc/grafana/provisioning
+        - name: dashboards
+          mountPath: /var/lib/grafana/dashboards
       volumes:
-      - name: datasources
+      - name: provisioning
         configMap:
           name: grafana
           items:
             - key: datasources
-              path: datasources.yaml
-      
+              path: datasources/datasources.yaml
+            - key: dashboards
+              path: dashboards/dashboards.yaml
+      - name: dashboards
+        persistentVolumeClaim:
+          claimName: grafana

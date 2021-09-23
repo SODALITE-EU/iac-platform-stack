@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workflow-verifier
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: workflow-verifier
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: workflow-verifier
+    spec:
+      containers:
+      - image: sodaliteh2020/workflowverifier:8
+        name: workflow-verifier
+        ports:
+        - containerPort: 5000
+          protocol: TCP

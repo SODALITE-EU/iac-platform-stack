@@ -28,50 +28,38 @@ spec:
               name: semantic-web
               key: environment
         - name: graphdb
-          valueFrom:
-            configMapKeyRef:
-              name: semantic-web
-              key: graphdb
+          value: http://graph-db:7200
         - name: bugPredictorServer
-          valueFrom:
-            configMapKeyRef:
-              name: semantic-web
-              key: bugPredictorServer
+          value: http://tosca-smells:8080/
         - name: ansiblePath
           valueFrom:
             configMapKeyRef:
               name: semantic-web
               key: ansiblePath
         - name: reasonerServer
-          valueFrom:
-            configMapKeyRef:
-              name: semantic-web
-              key: reasonerServer
+          value: http://semantic-web:8080/
         - name: kbUsername
           valueFrom:
-            configMapKeyRef:
+            secretKeyRef:
               name: semantic-web
-              key: kbUsername
+              key: kb_username
         - name: kbPassword
           valueFrom:
             secretKeyRef:
               name: semantic-web
               key: kb_password
         - name: keycloak
-          valueFrom:
-            configMapKeyRef:
-              name: semantic-web
-              key: keycloak
+          value: http://keycloak/
         - name: keycloakClientId
           valueFrom:
             secretKeyRef:
               name: keycloak
-              key: client_id
+              key: client-id
         - name: keycloakClientSecret
           valueFrom:
             secretKeyRef:
               name: keycloak
-              key: client_secret
+              key: client-secret
         ports:
         - containerPort: 8080
           protocol: TCP

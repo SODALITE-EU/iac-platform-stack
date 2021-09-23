@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  name: tosca-smells
+  namespace: sodalite-services
+spec:
+  ports:
+  - name: tosca-smells
+    port: 8082
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: tosca-smells
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

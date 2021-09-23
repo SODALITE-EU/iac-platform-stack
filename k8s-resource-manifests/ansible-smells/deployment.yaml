@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ansible-smells
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: ansible-smells
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ansible-smells
+    spec:
+      containers:
+      - image: sodaliteh2020/ansiblesmells:349
+        name: ansible-smells
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+ 

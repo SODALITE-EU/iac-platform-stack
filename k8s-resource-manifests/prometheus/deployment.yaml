@@ -19,3 +19,18 @@ spec:
         ports:
         - containerPort: 9090
           protocol: TCP
+        volumeMounts:
+        - name: config
+          mountPath: /etc/prometheus
+        - name: storage
+          mountPath: /etc/prometheus
+      volumes:
+      - name: prometheus-config
+        configMap:
+          name: prometheus
+          items:
+            - key: prometheus.yml
+              path: prometheus.yml
+      - name: prometheus-storage
+        persistentVolumeClaim:
+          claimName: prometheus

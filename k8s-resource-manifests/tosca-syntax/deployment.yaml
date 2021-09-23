@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tosca-syntax
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: tosca-syntax
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tosca-syntax
+    spec:
+      containers:
+      - image: sodaliteh2020/toscasynverifier:8
+        name: tosca-syntax
+        ports:
+        - containerPort: 5000
+          protocol: TCP

@@ -21,18 +21,15 @@ spec:
           valueFrom:
             secretKeyRef:
               name: keycloak
-              key: introspect_url
+              key: introspect-url
         - name: OIDC_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
               name: keycloak
-              key: client_secret
+              key: client-secret
         - name: VAULT_SECRET_UPLOADER_ADDRESS
-          valueFrom:
-            configMapKeyRef:
-              name: hpc-exporter
-              key: VAULT_SECRET_UPLOADER_ADDRESS
+          value: vault-secret-uploader:8202
         ports:
-        - containerPort: 3001
+        - containerPort: 9110
           protocol: TCP
  

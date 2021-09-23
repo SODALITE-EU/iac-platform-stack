@@ -8,7 +8,7 @@ spec:
   - name: vault-secret-uploader
     port: 80 
     protocol: TCP
-    targetPort: 8200
+    targetPort: 8202
   selector:
     app: vault-secret-uploader
   sessionAffinity: None

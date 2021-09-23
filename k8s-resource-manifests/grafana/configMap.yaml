@@ -30,5 +30,6 @@ data:
       type: 'file'
       disableDeletion: true
       updateIntervalSeconds: 30
+      allowUiUpdates: false
       options:
         folder: '/var/lib/grafana/dashboards'
