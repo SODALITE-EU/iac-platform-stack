@@ -8,7 +8,7 @@ spec:
   selector:
     matchLabels:
       app: xopera-postgres
-  serviceName: vault
+  serviceName: xopera-postgres
   replicas: 1
   template:
     metadata:
@@ -16,7 +16,7 @@ spec:
         app: xopera-postgres
     spec:
       containers:
-      - name: vault
+      - name: xopera-postgres
         image: library/postgres:13
         resources:
           limits:
