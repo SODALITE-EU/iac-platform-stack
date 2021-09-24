@@ -36,7 +36,7 @@ done
 
 $KUBECTL apply -f namespace-sodalite-services.yaml
 
-for CDIR in keycloak vault vault-secret-uploader platform-discovery-service xopera-postgres
+for CDIR in keycloak vault vault-secret-uploader platform-discovery-service xopera-postgres xopera-rest-api
 do
 for YAML in $(find $CDIR -name '*.yaml')
 do
