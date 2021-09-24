@@ -36,7 +36,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: keycloak
-              key: client_secret
+              key: client-secret
         ports:
         - containerPort: 8089
           protocol: TCP
