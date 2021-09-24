@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  name: tosca-syntax
+  namespace: sodalite-services
+spec:
+  ports:
+  - name: tosca-syntax
+    port: 5005
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: tosca-syntax
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

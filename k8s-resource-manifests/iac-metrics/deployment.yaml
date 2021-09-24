@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iac-metrics
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: iac-metrics
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: iac-metrics
+    spec:
+      containers:
+      - image: sodaliteh2020/iacmetrics:8
+        name: iac-metrics
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+ 

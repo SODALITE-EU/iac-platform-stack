@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rule-based-refactorer
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: rule-based-refactorer
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rule-based-refactorer
+    spec:
+      containers:
+      - image: sodaliteh2020/rule_based_refactorer:49
+        name: rule-based-refactorer
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: prometheus
+          value: http://prometheus:9090
+        - name: xopera
+          value: http://xopera
+        - name: refacopdiscoverer
+          value: http://refactoring-option-discoverer:8084
+        - name: perfpredictor
+          value: http://rule-based-refactorer:5007
+          
+       

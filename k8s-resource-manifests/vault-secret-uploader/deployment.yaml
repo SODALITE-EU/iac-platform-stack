@@ -19,30 +19,24 @@ spec:
         env:
         - name: OIDC_INTROSPECTION_ENDPOINT
           valueFrom:
-            configMapKeyRef:
-              name: vault-secret-uploader
-              key: OIDC_INTROSPECTION_ENDPOINT
+            secretKeyRef:
+              name: keycloak
+              key: introspect-url
         - name: OIDC_INTROSPECTION_SECRET
           valueFrom:
-            configMapKeyRef:
-              name: vault-secret-uploader
-              key: OIDC_INTROSPECTION_SECRET
+            secretKeyRef:
+              name: keycloak
+              key: client-secret
         - name: VAULT_ADDRESS
-          valueFrom:
-            configMapKeyRef:
-              name: vault-secret-uploader
-              key: VAULT_ADDRESS
+          value: vault:8200
         - name: VAULT_ADMIN_TOKEN
           valueFrom:
-            configMapKeyRef:
-              name: vault-secret-uploader
-              key: VAULT_ADMIN_TOKEN
+            secretKeyRef:
+              name: vault
+              key: vault-token
         - name: VAULT_SECRET_UPLOADER_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: vault-secret-uploader
-              key: VAULT_SECRET_UPLOADER_PORT
+          value: 8202
         ports:
-        - containerPort: 8200
+        - containerPort: 8202
           protocol: TCP
  

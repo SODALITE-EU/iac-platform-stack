@@ -19,20 +19,17 @@ spec:
         env:
         - name: OIDC_INTROSPECTION_ENDPOINT
           valueFrom:
-            configMapKeyRef:
-              name: hpc-exporter
-              key: OIDC_INTROSPECTION_ENDPOINT
+            secretKeyRef:
+              name: keycloak
+              key: introspect-url
         - name: OIDC_CLIENT_SECRET
           valueFrom:
-            configMapKeyRef:
-              name: hpc-exporter
-              key: OIDC_CLIENT_SECRET
+            secretKeyRef:
+              name: keycloak
+              key: client-secret
         - name: VAULT_SECRET_UPLOADER_ADDRESS
-          valueFrom:
-            configMapKeyRef:
-              name: hpc-exporter
-              key: VAULT_SECRET_UPLOADER_ADDRESS
+          value: vault-secret-uploader:8202
         ports:
-        - containerPort: 3001
+        - containerPort: 9110
           protocol: TCP
  

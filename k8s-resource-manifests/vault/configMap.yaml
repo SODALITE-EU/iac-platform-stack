@@ -6,6 +6,8 @@ metadata:
   labels:
     app: vault
 data:
+  VAULT_LOGIN_URI: http://vault:8200/v1/auth/jwt/login
+  VAULT_URI: http://vault:8200/v1/
   main.hcl: |
     storage "file" {
       path = "/vault/file"

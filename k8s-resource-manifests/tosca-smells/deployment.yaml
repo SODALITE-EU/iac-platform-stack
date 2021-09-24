@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tosca-smells
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: tosca-smells
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tosca-smells
+    spec:
+      containers:
+      - image: sodaliteh2020/toscasmells:349
+        name: tosca-smells
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: environment
+          valueFrom: 
+            configMapKeyRef:
+              name: semantic-web
+              key: environment
+        - name: WAIT_HOSTS
+          valueFrom: 
+            configMapKeyRef:
+              name: semantic-web
+              key: WAIT_HOSTS
+        - name: graphdb
+          value: http://graph-db:7200
+        - name: kbUsername
+          valueFrom:
+            secretKeyRef:
+              name: semantic-web
+              key: kb_username
+        - name: kbPassword
+          valueFrom:
+            secretKeyRef:
+              name: semantic-web
+              key: kb_password

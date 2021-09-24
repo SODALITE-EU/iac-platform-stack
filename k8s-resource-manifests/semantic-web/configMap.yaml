@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: semantic-web
+  namespace: sodalite-services
+data:
+  WAIT_HOSTS: graph-db:7200
+  environment:
+  ansiblePath: /usr/local/tomcat/webapps/Ansibles/

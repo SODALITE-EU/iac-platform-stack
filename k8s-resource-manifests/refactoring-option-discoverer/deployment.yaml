@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: refactoring-option-discoverer
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: refactoring-option-discoverer
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: refactoring-option-discoverer
+    spec:
+      containers:
+      - image: sodaliteh2020/refactoring_option_discoverer:60
+        name: refactoring-option-discoverer
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: graphdb
+          value: http://graph-db:7200

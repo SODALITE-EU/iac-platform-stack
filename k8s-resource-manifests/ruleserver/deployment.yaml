@@ -18,15 +18,9 @@ spec:
         name: ruleserver
         env:
         - name: GUNICORN_WORKERS
-          valueFrom:
-            configMapKeyRef:
-              name: ruleserver
-              key: GUNICORN_WORKERS
+          value: "4"
         - name: RULESERVER_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: ruleserver
-              key: RULESERVER_PORT
+          value: 9092
         ports:
         - containerPort: 9092
           protocol: TCP

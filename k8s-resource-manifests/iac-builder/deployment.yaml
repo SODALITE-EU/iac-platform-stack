@@ -20,7 +20,7 @@ spec:
         - name: XOPERA_ENDPOINT
           valueFrom:
             configMapKeyRef:
-              name: iac-builder
+              name: xopera
               key: XOPERA_ENDPOINT
         ports:
         - containerPort: 8081

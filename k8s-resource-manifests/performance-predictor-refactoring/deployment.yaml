@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: performance-predictor-refactoring
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: performance-predictor-refactoring
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: performance-predictor-refactoring
+    spec:
+      containers:
+      - image: sodaliteh2020/fo_perf_predictor_api:49
+        name: performance-predictor-refactoring
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        env:
+        - name: prometheus
+          value: http://prometheus:9090
+        - name: xopera
+          value: http://xopera
+        - name: refacopdiscoverer
+          value: http://refactoring-option-discoverer:8084
+        - name: perfpredictor
+          value: http://performance-predictor-refactoring:5007
+          
+       
