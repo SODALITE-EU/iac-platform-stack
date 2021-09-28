@@ -6,7 +6,7 @@ metadata:
   namespace: sodalite-services
 spec:
   selector:
-    app.kubernetes.io/name: xopera-postgres
+    app: xopera-postgres
   ports:
   - port: 5432
     protocol: TCP
