@@ -46,7 +46,7 @@ spec:
                 name: xopera-rest-api
                 key: git-auth-token
           - name: XOPERA_DATABASE_IP
-            value: xopera-postgres
+            value: xopera-postgres.sodalite-services.svc.cluster.local
           - name: XOPERA_DATABASE_NAME
             valueFrom:
               configMapKeyRef:
