@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: xopera-rest-api-ssh-keys
+  namespace: sodalite-services
+type: Opaque
+stringData:
+  default-xOpera.pk: "${XOPERA_PRIVATE_KEY}"
+  default-xOpera.pubk: "${XOPERA_PUBLIC_KEY}"

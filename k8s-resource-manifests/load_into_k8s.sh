@@ -24,6 +24,13 @@ then
     export GRAFANA_ADMIN_PASSWORD=$(genpw)
     export XOPERA_POSTGRES_PASSWORD=$(genpw)
     
+    # Generate keys for xopera
+    XOPERA_KEY_FILE=$(mktemp -u)
+    ssh-keygen -f $XOPERA_KEY_FILE -N ''
+    export XOPERA_PRIVATE_KEY=$(cat ${XOPERA_KEY_FILE})
+    export XOPERA_PUBLIC_KEY=$(cat ${XOPERA_KEY_FILE}.pub)
+    rm ${XOPERA_KEY_FILE} ${XOPERA_KEY_FILE}.pub
+
     envsubst < .env.tmpl > .env
 fi
 
