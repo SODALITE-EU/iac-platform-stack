@@ -6,7 +6,7 @@ metadata:
   namespace: sodalite-services
 spec:
   selector:
-    app.kubernetes.io/name: xopera-rest-api
+    app: xopera-rest-api
   ports:
   - port: 8080
     protocol: TCP

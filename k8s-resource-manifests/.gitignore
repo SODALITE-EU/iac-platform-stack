@@ -8,3 +8,4 @@ grafana/secret.yaml
 xopera-postgres/configmap.yaml
 semantic-web/secret.yaml
 */secret*.yaml
+xopera-rest-api/ssh-key.yaml

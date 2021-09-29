@@ -18,10 +18,12 @@ spec:
       initContainers:
       - name: copy-ssh-keys
         image: busybox
-        command: ['sh', '-c', 'mkdir -p /root/.ssh; cp /tmp/ssh-keys-src/* /root/.ssh/']
+        command: ['sh', '-c', 'cp /tmp/ssh-keys-src/* /root/.ssh/']
         volumeMounts:
           - mountPath: "/tmp/ssh-keys-src"
             name: ssh-keys
+          - mountPath: "/root/.ssh"
+            name: ssh-target
       containers:
       - name: xopera-rest-api
         image: sodaliteh2020/xopera-rest-api
@@ -90,11 +92,15 @@ spec:
         volumeMounts:
           - mountPath: "/var/lib/postgresql/data"
             name: xopera-rest-api
+          - mountPath: "/root/.ssh"
+            name: ssh-target
       volumes:
       - name: ssh-keys
         secret:
           secretName: xopera-rest-api-ssh-keys
           defaultMode: 0400
+      - name: ssh-target
+        emptyDir: {}
   volumeClaimTemplates:
   - metadata:
       name: xopera-rest-api
