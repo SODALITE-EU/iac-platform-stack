@@ -7,6 +7,63 @@ metadata:
   labels:
     app.kubernetes.io/name: keycloak
 spec:
+  initContainers:
+  - name: init-vault
+    image: curlimages/curl
+    command: ['sh', '-c', 
+      '
+      set -xe
+      curl -X POST -H "x-vault-token: ${VAULT_TOKEN}" -d "{
+            \"type\": \"jwt\",
+            \"description\": \"JWKS auth\",
+            \"config\": {
+                \"default_lease_ttl\": 30,
+                \"max_lease_ttl\": 30
+            }
+        }" http://${VAULT_HOST}:${VAULT_PORT}/v1/sys/auth/jwt;
+      for DOMAIN in ${KEYCLOAK_PROJECT_DOMAINS}; do 
+        curl -X POST -H "x-vault-token: ${VAULT_TOKEN}" -d "{
+            \"path\": \"${DOMAIN}\",
+            \"type\": \"kv\",
+            \"config\": {},
+            \"options\": {
+                \"version\": 1
+            },
+            \"generate_signing_key\": true
+        }" http://${VAULT_HOST}:${VAULT_PORT}/v1/sys/mounts/${DOMAIN};
+        curl -X POST -H "x-vault-token: ${VAULT_TOKEN}" -d "{
+            \"policy\": \"path \\\"${DOMAIN}/*\\\" { capabilities = [\\\"create\\\", \\\"read\\\", \\\"update\\\", \\\"delete\\\", \\\"list\\\"]}\"
+        }" http://${VAULT_HOST}:${VAULT_PORT}/v1/sys/policy/${DOMAIN};
+        curl -X POST -H "x-vault-token: ${VAULT_TOKEN}" -d "{
+            \"policies\": [
+                \"${DOMAIN}\"
+            ],
+            \"role_type\": \"jwt\",
+            \"bound_audiences\": \"account\",
+            \"user_claim\": \"email\",
+            \"groups_claim\": \"\",
+            \"bound_claims\": {
+                \"/resource_access/sodalite-ide/roles\": \"${DOMAIN}\"
+            }
+        }" http://${VAULT_HOST}:${VAULT_PORT}/v1/auth/jwt/role/${DOMAIN};
+      done;
+      curl -X POST -H "x-vault-token: ${VAULT_TOKEN}" -d "{
+            \"jwks_url\": \"http://${KEYCLOAK_HOST}:8080/auth/realms/SODALITE/protocol/openid-connect/certs\"
+        }" http://${VAULT_HOST}:${VAULT_PORT}/v1/sys/auth/jwt/config;']
+    env:
+    - name: KEYCLOAK_HOST
+      value: keycloak.sodalite-services.svc.cluster.local
+    - name: VAULT_HOST
+      value: vault.sodalite-services.svc.cluster.local
+    - name: VAULT_PORT
+      value: "8200"
+    - name: VAULT_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: vault-token
+          key: vault-token
+    - name: KEYCLOAK_PROJECT_DOMAINS
+      value: "snow clinical vehicle pds"
   containers:
   - name: keycloak
     image: jboss/keycloak
