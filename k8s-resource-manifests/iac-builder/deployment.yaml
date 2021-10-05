@@ -18,10 +18,7 @@ spec:
         name: iac-builder
         env:
         - name: XOPERA_ENDPOINT
-          valueFrom:
-            configMapKeyRef:
-              name: xopera
-              key: XOPERA_ENDPOINT
+          value: xopera-rest-api.sodalite-services.svc.cluster.local
         ports:
         - containerPort: 8081
           protocol: TCP

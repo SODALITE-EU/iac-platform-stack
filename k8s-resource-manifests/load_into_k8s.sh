@@ -89,7 +89,7 @@ $KUBECTL apply -f vault/secret-token.yaml
 
 # And start applying other services. k8s will take care of anything that
 # isn't quite up/in the wrong order, so we can just batch apply things
-for CDIR in keycloak vault-secret-uploader platform-discovery-service xopera-postgres xopera-rest-api
+for CDIR in keycloak vault-secret-uploader xopera-postgres xopera-rest-api iac-builder
 do
 for YAML in $(find $CDIR -name '*.yaml')
 do
