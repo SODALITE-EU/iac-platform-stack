@@ -20,6 +20,6 @@ spec:
         - name: XOPERA_ENDPOINT
           value: xopera-rest-api.sodalite-services.svc.cluster.local
         ports:
-        - containerPort: 8081
+        - containerPort: 80
           protocol: TCP
  
