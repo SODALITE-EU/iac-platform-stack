@@ -44,7 +44,7 @@ spec:
                 name: xopera-postgres
                 key: POSTGRES_DB
         volumeMounts:
-          - mountPath: "/var/lib/postgresql/data"
+          - mountPath: "/var/lib/postgresql"
             name: xopera-postgres
   volumeClaimTemplates:
   - metadata:
