@@ -87,6 +87,13 @@ done
 
 $KUBECTL apply -f vault/secret-token.yaml
 
+# Apply our changes to the Scaleway instance of traefik2.
+$KUBECTL apply -f scaleway-traefik-daemonSet.yaml
+$KUBECTL apply -f scaleway-traefik-loadBalancer.yaml
+
+# We also want to delete all traefik pods to force them to restart with the right config
+kubectl -n kube-system delete pod -l app.kubernetes.io/name=traefik
+
 # And start applying other services. k8s will take care of anything that
 # isn't quite up/in the wrong order, so we can just batch apply things
 for CDIR in keycloak vault-secret-uploader xopera-postgres xopera-rest-api iac-builder
