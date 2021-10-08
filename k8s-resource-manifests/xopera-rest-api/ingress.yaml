@@ -13,4 +13,4 @@ spec:
           service:
             name: xopera-rest-api
             port:
-              number: 8080
+              name: http
