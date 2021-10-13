@@ -37,7 +37,8 @@ spec:
         - --entryPoints.traefik.address=:9000
         - --entryPoints.web.address=:8000
         - --entryPoints.websecure.address=:8443
-        - --entryPoints.xopera.address=:8080
+        - --entryPoints.semantic-web.address=:8080
+        - --entryPoints.iac-builder.address=:8081
         - --api.dashboard=true
         - --ping=true
         - --providers.kubernetescrd
@@ -66,6 +67,14 @@ spec:
         - containerPort: 8443
           hostPort: 443
           name: websecure
+          protocol: TCP
+        - containerPort: 8080
+          hostPort: 8080
+          name: semantic-web
+          protocol: TCP
+        - containerPort: 8081
+          hostPort: 8081
+          name: iac-builder
           protocol: TCP
         readinessProbe:
           failureThreshold: 1

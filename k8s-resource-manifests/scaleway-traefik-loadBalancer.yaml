@@ -12,8 +12,11 @@ spec:
       name: http
       targetPort: 80
     - port: 8080
-      name: xopera
+      name: semantic-web
       targetPort: 8080
+    - port: 8081
+      name: iac-builder
+      targetPort: 8081
     - port: 443
       name: https
       targetPort: 8443

@@ -64,6 +64,7 @@ then
     export KEYCLOAK_ADMIN_PASSWORD=$(genpw)
     export GRAFANA_ADMIN_PASSWORD=$(genpw)
     export XOPERA_POSTGRES_PASSWORD=$(genpw)
+    export KB_PASSWORD=$(genpw)
     
     # Generate keys for xopera
     XOPERA_KEY_FILE=$(mktemp -u)
@@ -96,11 +97,11 @@ kubectl -n kube-system delete pod -l app.kubernetes.io/name=traefik
 
 # And start applying other services. k8s will take care of anything that
 # isn't quite up/in the wrong order, so we can just batch apply things
-for CDIR in keycloak vault-secret-uploader xopera-postgres xopera-rest-api iac-builder
+for CDIR in keycloak vault-secret-uploader xopera-postgres xopera-rest-api iac-builder knowledge-db semantic-web tosca-smells
 do
 for YAML in $(find $CDIR -name '*.yaml')
 do
-    if [ -z "$(grep "sodalite-services" $YAML)" ]
+    if [ -z "$(grep -i "namespace: sodalite-services" $YAML)" ]
     then
         echo "$YAML is not deployed in the sodalite-services namespace! Refusing to deploy"
         exit 1
