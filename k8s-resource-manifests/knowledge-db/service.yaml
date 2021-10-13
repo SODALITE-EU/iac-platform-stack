@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: graph-db
+  name: knowledge-db
   namespace: sodalite-services
 spec:
   ports:
-  - name: graph-db
+  - name: knowledge-db
     port: 7200 
     protocol: TCP
     targetPort: 7200
   selector:
-    app: graph-db
+    app: knowledge-db
   sessionAffinity: None
   type: ClusterIP
