@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: xopera-rest-api-ingress
+  name: iac-builder-ingress
   namespace: sodalite-services
 spec:
   rules:
@@ -11,6 +11,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: xopera-rest-api
+            name: iac-builder
             port:
-              name: http
+              name: iac-builder
