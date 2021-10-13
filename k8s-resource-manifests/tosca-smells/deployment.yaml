@@ -20,23 +20,12 @@ spec:
         - containerPort: 8080
           protocol: TCP
         env:
-        - name: environment
-          valueFrom: 
-            configMapKeyRef:
-              name: semantic-web
-              key: environment
         - name: WAIT_HOSTS
-          valueFrom: 
-            configMapKeyRef:
-              name: semantic-web
-              key: WAIT_HOSTS
+          value: graphdb.sodalite-services.svc.cluster.local
         - name: graphdb
-          value: http://graph-db:7200
+          value: http://knowledge-db.sodalite-services.svc.cluster.local:7200
         - name: kbUsername
-          valueFrom:
-            secretKeyRef:
-              name: semantic-web
-              key: kb_username
+          value: admin
         - name: kbPassword
           valueFrom:
             secretKeyRef:
