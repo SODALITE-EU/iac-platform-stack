@@ -28,14 +28,14 @@ spec:
               name: keycloak
               key: client-secret
         - name: VAULT_ADDRESS
-          value: vault:8200
+          value: "vault:8200"
         - name: VAULT_ADMIN_TOKEN
           valueFrom:
             secretKeyRef:
-              name: vault
+              name: vault-token
               key: vault-token
         - name: VAULT_SECRET_UPLOADER_PORT
-          value: 8202
+          value: "8202"
         ports:
         - containerPort: 8202
           protocol: TCP

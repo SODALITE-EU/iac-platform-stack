@@ -14,52 +14,35 @@ spec:
         app: semantic-web
     spec:
       containers:
-      - image: sodaliteh2020/semantic-web:M30Release
+      - image: sodaliteh2020/semantic_web:M24Release
         name: semantic-web
         env:
         - name: WAIT_HOSTS
-          valueFrom:
-            configMapKeyRef:
-              name: semantic-web
-              key: WAIT_HOSTS
-        - name: environment
-          valueFrom:
-            configMapKeyRef:
-              name: semantic-web
-              key: environment
+          value: knowledge-db.sodalite-services.svc.cluster.local:7200
         - name: graphdb
-          value: http://graph-db:7200
+          value: http://knowledge-db.sodalite-services.svc.cluster.local:7200
         - name: bugPredictorServer
-          value: http://tosca-smells:8080/
+          value: http://tosca-smells.sodalite-services.svc.cluster.local:8082/
         - name: ansiblePath
-          valueFrom:
-            configMapKeyRef:
-              name: semantic-web
-              key: ansiblePath
+          value: /usr/local/tomcat/webapps/Ansibles/
         - name: reasonerServer
-          value: http://semantic-web:8080/
+          value: http://semantic-web.sodalite-services.svc.cluster.local:8080/
         - name: kbUsername
-          valueFrom:
-            secretKeyRef:
-              name: semantic-web
-              key: kb_username
+          value: admin
         - name: kbPassword
           valueFrom:
             secretKeyRef:
               name: semantic-web
               key: kb_password
         - name: keycloak
-          value: http://keycloak/
+          value: http://keycloak.sodalite-services.svc.cluster.local:8100/
         - name: keycloakClientId
-          valueFrom:
-            secretKeyRef:
-              name: keycloak
-              key: client-id
+          value: sodalite-ide
         - name: keycloakClientSecret
           valueFrom:
             secretKeyRef:
-              name: keycloak
-              key: client-secret
+              name: semantic-web
+              key: keycloakClientSecret
         ports:
         - containerPort: 8080
           protocol: TCP

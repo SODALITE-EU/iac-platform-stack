@@ -1,0 +1,112 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: xopera-rest-api
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: xopera-rest-api
+  serviceName: xopera-rest-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: xopera-rest-api
+    spec:
+      initContainers:
+      - name: copy-ssh-keys
+        image: busybox
+        command: ['sh', '-c', 'cp /tmp/ssh-keys-src/* /root/.ssh/']
+        volumeMounts:
+          - mountPath: "/tmp/ssh-keys-src"
+            name: ssh-keys
+          - mountPath: "/root/.ssh"
+            name: ssh-target
+      containers:
+      - name: xopera-rest-api
+        image: sodaliteh2020/xopera-rest-api
+        resources:
+          limits:
+            cpu: "2"
+            memory: "2G"
+          requests:
+            cpu: "1"
+            memory: "1G"
+        ports:
+        - containerPort: 8080
+        env:
+          - name: DEBUG
+            value: "false"
+          - name: LOG_LEVEL
+            value: debug
+          - name: PYTHONBUFFERED
+            value: "1"
+          - name: INVOCATION_SERVICE_WORKERS
+            value: "10"
+          - name: XOPERA_GIT_TYPE
+            value: gitlab
+          - name: XOPERA_GIT_URL
+            value: https://gitlab.com
+          - name: XOPERA_GIT_AUTH_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: xopera-rest-api
+                key: git-auth-token
+          - name: XOPERA_DATABASE_IP
+            value: xopera-postgres.sodalite-services.svc.cluster.local
+          - name: XOPERA_DATABASE_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: xopera-postgres
+                key: POSTGRES_DB
+          - name: XOPERA_DATABASE_USER
+            valueFrom:
+              configMapKeyRef:
+                name: xopera-postgres
+                key: POSTGRES_USER
+          - name: XOPERA_DATABASE_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: xopera-postgres
+                key: POSTGRES_PASSWORD
+          - name: OIDC_INTROSPECTION_ENDPOINT
+            value: "http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect"
+          - name: OIDC_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: xopera-rest-api
+                key: keycloak-client-secret
+          - name: AUTH_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: xopera-rest-api
+                key: auth-api-key
+          - name: VAULT_LOGIN_URI
+            value: http://vault:8200/v1/auth/jwt/login
+          - name: VAULT_SECRET_URI
+            value: http://vault:8200/v1/
+          - name: ANSIBLE_TIMEOUT
+            value: "60"
+        volumeMounts:
+          - mountPath: "/var/lib/postgresql/data"
+            name: xopera-rest-api
+          - mountPath: "/root/.ssh"
+            name: ssh-target
+      volumes:
+      - name: ssh-keys
+        secret:
+          secretName: xopera-rest-api-ssh-keys
+          defaultMode: 0400
+      - name: ssh-target
+        emptyDir: {}
+  volumeClaimTemplates:
+  - metadata:
+      name: xopera-rest-api
+      namespace: sodalite-services
+    spec:
+      accessModes: [ ReadWriteOnce ]
+      resources:
+        requests:
+          storage: 1Gi

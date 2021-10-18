@@ -1,5 +1,11 @@
 .env
 keycloak/admin-password.yaml
 keycloak/config-secret.yaml
+keycloak/secret-realm.yaml
+keycloak/secret.yaml
 vault/secret-token.yaml
+grafana/secret.yaml
+xopera-postgres/configmap.yaml
+semantic-web/secret.yaml
 */secret*.yaml
+xopera-rest-api/ssh-key.yaml

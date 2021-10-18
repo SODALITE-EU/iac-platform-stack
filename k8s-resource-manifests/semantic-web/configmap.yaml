@@ -4,6 +4,5 @@ metadata:
   name: semantic-web
   namespace: sodalite-services
 data:
-  WAIT_HOSTS: graph-db:7200
-  environment:
+  WAIT_HOSTS: graph-db.sodalite-services.svc.cluster.local:7200
   ansiblePath: /usr/local/tomcat/webapps/Ansibles/

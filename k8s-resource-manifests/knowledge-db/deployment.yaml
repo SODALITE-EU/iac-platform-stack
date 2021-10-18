@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: knowledge-db
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: knowledge-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: knowledge-db
+    spec:
+      containers:
+      - image: sodaliteh2020/graph_db:192
+        name: knowledge-db
+        ports:
+        - containerPort: 7200
+          protocol: TCP
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: init-knowdb
+  namespace: sodalite-services
+spec:
+  template:
+    spec:
+      restartPolicy: "OnFailure"
+      containers:
+      - name: init-knowdb
+        image: curlimages/curl
+        command: ['sh', '-c', 
+          '
+          set -xe
+          #curl --show-error http://${REASONER_ADDRESS}:${REASONER_PORT}/reasoner-api/v0.6/testReasoner;
+          #curl --show-error -X PUT -H "x-graphdb-password: ${KB_PASSWORD}" -H "x-graphdb-repository: admin" -H "Content-Type: application/json" -d "{\"grantedAuthorities\": [\"ROLE_ADMIN\"],\"appSettings\": {\"DEFAULT_INFERENCE\": true, \"DEFAULT_SAMEAS\": true, \"IGNORE_SHARED_QUERIES\": false, \"EXECUTE_COUNT\": true }" http://${ADDRESS}:${PORT}/rest/security/user/admin;
+          #curl -f --show-error -X POST -d "true" http://${ADDRESS}:${PORT}/rest/security;
+          ']
+        env:
+        - name: ADDRESS
+          value: knowledge-db.sodalite-services.svc.cluster.local
+        - name: PORT
+          value: "7200"
+        - name: REASONER_ADDRESS
+          value: knowledge-db.sodalite-services.svc.cluster.local
+        - name: REASONER_PORT
+          value: "8080"
+        - name: KB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: graphdb-password
+              key: password
