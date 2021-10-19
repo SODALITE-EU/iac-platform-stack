@@ -39,6 +39,10 @@ spec:
         - --entryPoints.websecure.address=:8443
         - --entryPoints.semantic-web.address=:8080
         - --entryPoints.iac-builder.address=:8081
+        - --entryPoints.prometheus.address=:9090
+        - --entryPoints.consul.address=:8500
+        - --entryPoints.consul-disco.address=:8600
+        - --entryPoints.alertmanager.address=:8600
         - --api.dashboard=true
         - --ping=true
         - --providers.kubernetescrd
@@ -75,6 +79,22 @@ spec:
         - containerPort: 8081
           hostPort: 8081
           name: iac-builder
+          protocol: TCP
+        - containerPort: 9090
+          hostPort: 9090
+          name: prometheus
+          protocol: TCP
+        - containerPort: 8500
+          hostPort: 8500
+          name: consul
+          protocol: TCP
+        - containerPort: 8600
+          hostPort: 8600
+          name: consul-disco
+          protocol: UDP
+        - containerPort: 9093
+          hostPort: 9093
+          name: alertmanager
           protocol: TCP
         readinessProbe:
           failureThreshold: 1
