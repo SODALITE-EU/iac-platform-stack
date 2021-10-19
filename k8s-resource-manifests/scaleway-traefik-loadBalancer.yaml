@@ -29,6 +29,9 @@ spec:
     - port: 9093
       name: alertmanager
       targetPort: 9093
+    - port: 9092
+      name: ruleserver
+      targetPort: 9092
     - port: 443
       name: https
       targetPort: 8443

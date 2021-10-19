@@ -1,18 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   name: ruleserver
   namespace: sodalite-services
 spec:
   ports:
   - name: ruleserver
-    port: 80 
+    port: 9092
     protocol: TCP
     targetPort: 9092
   selector:
     app: ruleserver
   sessionAffinity: None
   type: ClusterIP
-status:
-  loadBalancer: {}

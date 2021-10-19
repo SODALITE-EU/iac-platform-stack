@@ -42,7 +42,8 @@ spec:
         - --entryPoints.prometheus.address=:9090
         - --entryPoints.consul.address=:8500
         - --entryPoints.consul-disco.address=:8600
-        - --entryPoints.alertmanager.address=:8600
+        - --entryPoints.alertmanager.address=:9093
+        - --entryPoints.ruleserver.address=:9092
         - --api.dashboard=true
         - --ping=true
         - --providers.kubernetescrd
@@ -95,6 +96,10 @@ spec:
         - containerPort: 9093
           hostPort: 9093
           name: alertmanager
+          protocol: TCP
+        - containerPort: 9092
+          hostPort: 9092
+          name: ruleserver
           protocol: TCP
         readinessProbe:
           failureThreshold: 1

@@ -20,7 +20,7 @@ spec:
         - name: GUNICORN_WORKERS
           value: "4"
         - name: RULESERVER_PORT
-          value: 9092
+          value: "9092"
         ports:
         - containerPort: 9092
           protocol: TCP
