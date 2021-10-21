@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: prometheus-skydive-connector
+  namespace: sodalite-services
+spec:
+  serviceName: prometheus-skydive-connector
+  selector:
+    matchLabels:
+      app: prometheus-skydive-connector
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: prometheus-skydive-connector
+    spec:
+      securityContext:
+        fsGroup: 65534
+      containers:
+      - image: sodaliteh2020/prometheus-skydive-connector:1
+        name: prometheus-skydive-connector
+        #command: [ "/etc/prom_sky_con.yml" ]
+        ports:
+        - containerPort: 9100
+          protocol: TCP
+        volumeMounts:
+        - name: prometheus-skydive-storage
+          mountPath: /prometheus
+        env:
+        - name: SKYDIVE_PIPELINE_SUBSCRIBER_URL
+          value: ws://skydive-analyzer.sodalite-services.svc.cluster.local:8082/ws/subscriber/flow
+  volumeClaimTemplates:
+  - metadata:
+      name: prometheus-skydive-storage
+      namespace: sodalite-services
+    spec:
+      accessModes: [ ReadWriteOnce ]
+      resources:
+        requests:
+          storage: 10Gi

@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skydive-analyzer
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: skydive-analyzer
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: skydive-analyzer
+    spec:
+      containers:
+      - image: skydive/skydive:0.27.0
+        name: skydive-analyzer
+        args: [ "analyzer" ]
+        ports:
+        - containerPort: 8082
+          protocol: TCP

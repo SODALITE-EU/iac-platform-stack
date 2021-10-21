@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-skydrive-connector
+  namespace: sodalite-services
+spec:
+  ports:
+  - name: prometheus
+    port: 9101
+    protocol: TCP
+    targetPort: 9100
+  selector:
+    app: prometheus-skydive-connector
+  sessionAffinity: None
+  type: ClusterIP
