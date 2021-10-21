@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: platform-discovery-service
+  namespace: sodalite-services
+data:
+  SECRET_VAULT_LOGIN_URI: http://vault:8200/v1/auth/jwt/login
+  SECRET_VAULT_URI: http://vault:8200/v1/
+  OIDC_INTROSPECTION_ENDPOINT: http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect
+  OIDC_CLIENT_SECRET: 61ccd004-ec2b-45fd-b275-132341ebf698
