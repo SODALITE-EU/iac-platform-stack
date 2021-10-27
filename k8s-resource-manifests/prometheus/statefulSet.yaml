@@ -1,9 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: prometheus
   namespace: sodalite-services
 spec:
+  serviceName: prometheus
   selector:
     matchLabels:
       app: prometheus
@@ -13,6 +14,8 @@ spec:
       labels:
         app: prometheus
     spec:
+      securityContext:
+        fsGroup: 65534
       containers:
       - image: prom/prometheus:v2.23.0
         args: [--web.enable-lifecycle] 
@@ -21,10 +24,13 @@ spec:
         - containerPort: 9090
           protocol: TCP
         volumeMounts:
-        - name: config
+        - name: prometheus-config
           mountPath: /etc/prometheus
-        - name: storage
-          mountPath: /etc/prometheus
+        - name: prometheus-storage
+          mountPath: /prometheus
+        - name: prometheus-rules
+          mountPath: /etc/prometheus/rules/
+          subPath: rules
       volumes:
       - name: prometheus-config
         configMap:
@@ -32,6 +38,16 @@ spec:
           items:
             - key: prometheus.yml
               path: prometheus.yml
-      - name: prometheus-storage
+      - name: prometheus-rules
         persistentVolumeClaim:
-          claimName: prometheus
+          claimName: prometheus-rules
+          readOnly: true
+  volumeClaimTemplates:
+  - metadata:
+      name: prometheus-storage
+      namespace: sodalite-services
+    spec:
+      accessModes: [ ReadWriteOnce ]
+      resources:
+        requests:
+          storage: 10Gi

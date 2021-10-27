@@ -14,5 +14,3 @@ spec:
     app: prometheus
   sessionAffinity: None
   type: ClusterIP
-status:
-  loadBalancer: {}

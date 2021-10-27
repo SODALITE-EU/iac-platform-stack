@@ -20,8 +20,15 @@ spec:
         - name: GUNICORN_WORKERS
           value: "4"
         - name: RULESERVER_PORT
-          value: 9092
+          value: "9092"
         ports:
         - containerPort: 9092
           protocol: TCP
- 
+        volumeMounts:
+        - name: prometheus-rules
+          mountPath: /etc/prometheus/rules/
+          subPath: rules
+      volumes:
+      - name: prometheus-rules
+        persistentVolumeClaim:
+          claimName: prometheus-rules

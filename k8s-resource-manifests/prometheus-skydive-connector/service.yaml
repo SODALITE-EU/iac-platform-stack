@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ruleserver
+  name: prometheus-skydrive-connector
   namespace: sodalite-services
 spec:
   ports:
-  - name: ruleserver
-    port: 9092
+  - name: prometheus
+    port: 9101
     protocol: TCP
-    targetPort: 9092
+    targetPort: 9100
   selector:
-    app: ruleserver
+    app: prometheus-skydive-connector
   sessionAffinity: None
   type: ClusterIP

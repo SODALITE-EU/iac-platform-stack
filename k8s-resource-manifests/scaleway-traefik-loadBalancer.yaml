@@ -17,6 +17,21 @@ spec:
     - port: 8081
       name: iac-builder
       targetPort: 8081
+    - port: 8500
+      name: consul
+      targetPort: 8500
+    - port: 8600
+      name: consul-disco
+      targetPort: 8600
+    - port: 9090
+      name: prometheus
+      targetPort: 9090
+    - port: 9093
+      name: alertmanager
+      targetPort: 9093
+    - port: 9092
+      name: ruleserver
+      targetPort: 9092
     - port: 443
       name: https
       targetPort: 8443
