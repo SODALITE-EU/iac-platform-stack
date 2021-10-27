@@ -15,6 +15,7 @@ spec:
     spec:
       containers:
       - image: prom/prometheus:v2.23.0
+        args: [--web.enable-lifecycle] 
         name: prometheus
         ports:
         - containerPort: 9090
