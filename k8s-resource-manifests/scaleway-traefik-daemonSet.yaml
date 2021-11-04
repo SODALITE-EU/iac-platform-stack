@@ -31,6 +31,8 @@ spec:
         - --global.sendanonymoususage
         - --entryPoints.traefik.address=:9000
         - --entryPoints.web.address=:8000
+        - --entrypoints.web.http.redirections.entryPoint.scheme=https
+        - --entryPoints.web.http.redirections.entryPoint.to=:443
         - --entryPoints.websecure.address=:8443
         - --api.dashboard=true
         - --ping=true
