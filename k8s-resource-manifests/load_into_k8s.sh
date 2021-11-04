@@ -88,6 +88,22 @@ done
 
 $KUBECTL apply -f vault/secret-token.yaml
 
+# Set up lets encrypt per https://www.scaleway.com/en/docs/tutorials/traefik-v2-cert-manager/
+$KUBECTL apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.6.1/cert-manager.yaml
+echo "Waiting for cert-manager to be ready..."
+date
+RES=1
+while [ $RES != 0 ]
+do
+    sleep 10
+    set +x
+    $KUBECTL apply -f cert-issuer.yaml 2>/dev/null
+    RES=$?
+    set -x
+done
+date
+$KUBECTL apply -f cert-issuer-test.yaml
+
 # Apply our changes to the Scaleway instance of traefik2.
 $KUBECTL apply -f scaleway-traefik-daemonSet.yaml
 $KUBECTL apply -f scaleway-traefik-loadBalancer.yaml
@@ -97,7 +113,7 @@ kubectl -n kube-system delete pod -l app.kubernetes.io/name=traefik
 
 # And start applying other services. k8s will take care of anything that
 # isn't quite up/in the wrong order, so we can just batch apply things
-for CDIR in keycloak vault-secret-uploader xopera-postgres xopera-rest-api iac-builder knowledge-db semantic-web tosca-smells consul alertmanager prometheus ruleserver prometheus-skydive-connector skydive-analyzer registry
+for CDIR in keycloak vault-secret-uploader xopera-postgres xopera-rest-api iac-builder knowledge-db semantic-web tosca-smells consul alertmanager prometheus ruleserver prometheus-skydive-connector skydive-analyzer registry whoami
 do
 for YAML in $(find $CDIR -name '*.yaml')
 do
