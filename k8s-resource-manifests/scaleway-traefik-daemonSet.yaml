@@ -2,10 +2,8 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   annotations:
-    deprecated.daemonset.template.generation: "2"
     meta.helm.sh/release-name: kapsule-ingress
     meta.helm.sh/release-namespace: kube-system
-  generation: 2
   labels:
     app.kubernetes.io/instance: traefik
     app.kubernetes.io/managed-by: Helm
@@ -13,9 +11,6 @@ metadata:
     k8s.scw.cloud/ingress: traefik2
     k8s.scw.cloud/object: DaemonSet
     k8s.scw.cloud/system: ingress
-    manager: kube-controller-manager
-    operation: Update
-    subresource: status
   name: traefik
   namespace: kube-system
 spec:
@@ -37,13 +32,6 @@ spec:
         - --entryPoints.traefik.address=:9000
         - --entryPoints.web.address=:8000
         - --entryPoints.websecure.address=:8443
-        - --entryPoints.semantic-web.address=:8080
-        - --entryPoints.iac-builder.address=:8081
-        - --entryPoints.prometheus.address=:9090
-        - --entryPoints.consul.address=:8500
-        - --entryPoints.consul-disco.address=:8600
-        - --entryPoints.alertmanager.address=:9093
-        - --entryPoints.ruleserver.address=:9092
         - --api.dashboard=true
         - --ping=true
         - --providers.kubernetescrd
@@ -72,34 +60,6 @@ spec:
         - containerPort: 8443
           hostPort: 443
           name: websecure
-          protocol: TCP
-        - containerPort: 8080
-          hostPort: 8080
-          name: semantic-web
-          protocol: TCP
-        - containerPort: 8081
-          hostPort: 8081
-          name: iac-builder
-          protocol: TCP
-        - containerPort: 9090
-          hostPort: 9090
-          name: prometheus
-          protocol: TCP
-        - containerPort: 8500
-          hostPort: 8500
-          name: consul
-          protocol: TCP
-        - containerPort: 8600
-          hostPort: 8600
-          name: consul-disco
-          protocol: UDP
-        - containerPort: 9093
-          hostPort: 9093
-          name: alertmanager
-          protocol: TCP
-        - containerPort: 9092
-          hostPort: 9092
-          name: ruleserver
           protocol: TCP
         readinessProbe:
           failureThreshold: 1
