@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: semantic-web-cert
+  namespace: sodalite-services
+spec:
+  commonName: semantic-web.public-testbed.sodalite.eu
+  secretName: semantic-web-cert
+  dnsNames:
+    - semantic-web.public-testbed.sodalite.eu
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
