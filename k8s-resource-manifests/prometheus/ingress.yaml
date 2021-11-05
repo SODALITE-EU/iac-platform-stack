@@ -1,43 +1,43 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: iac-builder-ingress
+  name: prometheus-ingress
   namespace: sodalite-services
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: "sodalite-services-force-https-middleware@kubernetescrd"
 spec:
   rules:
-    - host: iac-builder.public-testbed.sodalite.eu
+    - host: prometheus.public-testbed.sodalite.eu
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: iac-builder
+                name: prometheus
                 port:
-                  number: 8081
+                  number: 9090
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: iac-builder-ingress-tls
+  name: prometheus-ingress-tls
   namespace: sodalite-services
   annotations:
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   tls:
   - hosts:
-      - iac-builder.public-testbed.sodalite.eu
-    secretName: iac-builder-cert
+      - prometheus.public-testbed.sodalite.eu
+    secretName: prometheus-cert
   rules:
-    - host: iac-builder.public-testbed.sodalite.eu
+    - host: prometheus.public-testbed.sodalite.eu
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: iac-builder
+                name: prometheus
                 port:
-                  number: 8081
+                  number: 9090

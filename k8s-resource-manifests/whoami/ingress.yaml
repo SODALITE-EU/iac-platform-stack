@@ -1,43 +1,43 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: iac-builder-ingress
+  name: whoami-ingress
   namespace: sodalite-services
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: "sodalite-services-force-https-middleware@kubernetescrd"
 spec:
   rules:
-    - host: iac-builder.public-testbed.sodalite.eu
+    - host: whoami.public-testbed.sodalite.eu
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: iac-builder
+                name: whoami
                 port:
-                  number: 8081
+                  number: 80
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: iac-builder-ingress-tls
+  name: whoami-ingress-tls
   namespace: sodalite-services
   annotations:
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   tls:
   - hosts:
-      - iac-builder.public-testbed.sodalite.eu
-    secretName: iac-builder-cert
+      - whoami.public-testbed.sodalite.eu
+    secretName: whoami-cert
   rules:
-    - host: iac-builder.public-testbed.sodalite.eu
+    - host: whoami.public-testbed.sodalite.eu
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: iac-builder
+                name: whoami
                 port:
-                  number: 8081
+                  number: 80

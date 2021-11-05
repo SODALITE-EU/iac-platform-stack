@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: whoami
+  namespace: sodalite-services
+  labels:
+    app.kubernetes.io/name: whoami
+spec:
+  containers:
+  - name: whoami
+    image: traefik/whoami
+    ports:
+    - name: http
+      containerPort: 80

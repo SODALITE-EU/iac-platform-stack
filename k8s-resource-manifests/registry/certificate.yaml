@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: registry-cert
+  namespace: sodalite-services
+spec:
+  commonName: registry.public-testbed.sodalite.eu
+  secretName: registry-cert
+  dnsNames:
+    - registry.public-testbed.sodalite.eu
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

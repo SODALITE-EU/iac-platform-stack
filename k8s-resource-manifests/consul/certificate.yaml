@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: consul-cert
+  namespace: sodalite-services
+spec:
+  commonName: consul.public-testbed.sodalite.eu
+  secretName: consul-cert
+  dnsNames:
+    - consul.public-testbed.sodalite.eu
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

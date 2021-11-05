@@ -1,43 +1,43 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: iac-builder-ingress
+  name: consul-ingress
   namespace: sodalite-services
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: "sodalite-services-force-https-middleware@kubernetescrd"
 spec:
   rules:
-    - host: iac-builder.public-testbed.sodalite.eu
+    - host: consul.public-testbed.sodalite.eu
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: iac-builder
+                name: consul
                 port:
-                  number: 8081
+                  number: 8500
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: iac-builder-ingress-tls
+  name: consul-ingress-tls
   namespace: sodalite-services
   annotations:
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   tls:
   - hosts:
-      - iac-builder.public-testbed.sodalite.eu
-    secretName: iac-builder-cert
+      - consul.public-testbed.sodalite.eu
+    secretName: consul-cert
   rules:
-    - host: iac-builder.public-testbed.sodalite.eu
+    - host: consul.public-testbed.sodalite.eu
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: iac-builder
+                name: consul
                 port:
-                  number: 8081
+                  number: 8500
