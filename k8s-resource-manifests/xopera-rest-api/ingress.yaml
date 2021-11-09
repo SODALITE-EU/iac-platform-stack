@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: xopera-rest-api-ingress
+  namespace: sodalite-services
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: "sodalite-services-force-https-middleware@kubernetescrd"
+spec:
+  rules:
+    - host: xopera-rest-api.public-testbed.sodalite.eu
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: xopera-rest-api
+                port:
+                  number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: xopera-rest-api-ingress-tls
+  namespace: sodalite-services
+  annotations:
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  tls:
+  - hosts:
+      - xopera-rest-api.public-testbed.sodalite.eu
+    secretName: xopera-rest-api-cert
+  rules:
+    - host: xopera-rest-api.public-testbed.sodalite.eu
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: xopera-rest-api
+                port:
+                  number: 8080
