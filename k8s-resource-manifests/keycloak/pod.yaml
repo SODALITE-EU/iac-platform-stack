@@ -88,6 +88,8 @@ spec:
         value: admin
       - name: KEYCLOAK_IMPORT
         value: /home/secret/sodalite-realm.json
+      - name: PROXY_ADDRESS_FORWARDING
+        value: "true"
       - name: KEYCLOAK_PASSWORD
         valueFrom:
           secretKeyRef:
