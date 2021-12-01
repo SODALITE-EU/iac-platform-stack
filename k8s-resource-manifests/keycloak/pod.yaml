@@ -66,7 +66,7 @@ spec:
       value: "snow clinical vehicle pds"
   containers:
   - name: keycloak
-    image: jboss/keycloak
+    image: sodaliteh2020/keycloak
     resources:
       limits:
         cpu: "1"
