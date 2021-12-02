@@ -83,9 +83,9 @@ source .env
 # all our templates
 for TMPL in $(find . -name '*.tmpl')
 do
-    if [ "$TMPL" == "keycloak/secret-realm.yaml.tmpl" ]
+    if [ "$TMPL" == "./keycloak/secret-realm.yaml.tmpl" ]
     then
-        envsubst KEYCLOAK_REALM=$KEYCLOAK_REALM KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET < $TMPL > $(echo $TMPL | sed 's/.tmpl//' )
+        envsubst "KEYCLOAK_REALM=$KEYCLOAK_REALM KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET" < $TMPL > $(echo $TMPL | sed 's/.tmpl//' )
     else
         envsubst < $TMPL > $(echo $TMPL | sed 's/.tmpl//' )
     fi
