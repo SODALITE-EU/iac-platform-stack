@@ -72,7 +72,7 @@ spec:
                 name: xopera-postgres
                 key: POSTGRES_PASSWORD
           - name: OIDC_INTROSPECTION_ENDPOINT
-            value: "http://keycloak:8080/auth/realms/SODALITE/protocol/openid-connect/token/introspect"
+            value: "https://keycloak.public-testbed.sodalite.eu/auth/realms/SODALITE/protocol/openid-connect/token/introspect"
           - name: OIDC_CLIENT_SECRET
             valueFrom:
               secretKeyRef:
