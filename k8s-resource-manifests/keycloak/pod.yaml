@@ -95,6 +95,21 @@ spec:
           secretKeyRef:
             name: keycloak
             key: keycloak-admin-pw
+      - name: DB_VENDOR
+        value: POSTGRES
+      - name: DB_ADDR
+        value: keycloak-postgres.sodalite-services.svc.cluster.local
+      - name: DB_DATABASE
+        value: keycloak
+      - name: DB_USER
+        value: keycloak
+      - name: DB_SCHEMA
+        value: public
+      - name: DB_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: keycloak
+            key: keycloak-db-pw
   volumes:
     - name: keycloak-realm
       secret:
