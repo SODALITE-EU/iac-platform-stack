@@ -18,7 +18,7 @@ spec:
         fsGroup: 65534
       containers:
       - image: prom/prometheus:v2.23.0
-        args: [--web.enable-lifecycle] 
+        args: [--web.enable-lifecycle,--config.file=/etc/prometheus/prometheus.yml] 
         name: prometheus
         ports:
         - containerPort: 9090
