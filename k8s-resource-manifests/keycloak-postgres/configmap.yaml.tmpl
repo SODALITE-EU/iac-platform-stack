@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-postgres
+  namespace: sodalite-services
+  labels:
+    app: keycloak-postgres
+data:
+  POSTGRES_USER: keycloak
+  POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+  POSTGRES_DB: keycloak
+  

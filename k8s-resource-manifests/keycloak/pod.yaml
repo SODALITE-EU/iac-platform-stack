@@ -66,7 +66,7 @@ spec:
       value: "snow clinical vehicle pds"
   containers:
   - name: keycloak
-    image: jboss/keycloak
+    image: sodaliteh2020/keycloak
     resources:
       limits:
         cpu: "1"
@@ -77,6 +77,10 @@ spec:
     volumeMounts:
       - name: keycloak-realm
         mountPath: "/home/secret/"
+        readOnly: true
+      - name: profileproperties
+        mountPath: "/opt/jboss/keycloak/standalone/configuration/profile.properties"
+        subPath: "profile.properties"
         readOnly: true
     ports:
     - name: http
@@ -95,6 +99,21 @@ spec:
           secretKeyRef:
             name: keycloak
             key: keycloak-admin-pw
+      - name: DB_VENDOR
+        value: POSTGRES
+      - name: DB_ADDR
+        value: keycloak-postgres.sodalite-services.svc.cluster.local
+      - name: DB_DATABASE
+        value: keycloak
+      - name: DB_USER
+        value: keycloak
+      - name: DB_SCHEMA
+        value: public
+      - name: DB_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: keycloak
+            key: keycloak-db-pw
   volumes:
     - name: keycloak-realm
       secret:
@@ -103,3 +122,6 @@ spec:
           - key: sodalite-realm.json
             path: sodalite-realm.json
             mode: 0444
+    - name: profileproperties
+      configMap:
+        name: keycloak-profile
