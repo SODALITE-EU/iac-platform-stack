@@ -33,5 +33,5 @@ spec:
               name: image-builder-api
               key: LOG_LEVEL
         ports:
-        - containerPort: ???
+        - containerPort: 8080
           protocol: TCP
