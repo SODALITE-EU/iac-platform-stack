@@ -8,6 +8,6 @@ spec:
   selector:
     app: registry
   ports:
-  - port: 443
+  - port: 4430
     protocol: TCP
     name: websecure

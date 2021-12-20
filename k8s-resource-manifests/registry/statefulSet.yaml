@@ -14,18 +14,46 @@ spec:
       labels:
         app: registry
     spec:
+      initContainers:
+      - image: library/alpine
+        name: init-certs
+        command: ['sh', '-c', 
+        '
+        set -xe;
+        apk add jq curl;
+        echo "-----BEGIN CERTIFICATE-----" > /opt/certs/root.pem;
+        curl https://keycloak.public-testbed.sodalite.eu/auth/realms/SODALITE/protocol/openid-connect/certs | jq -r ".keys[0][\"x5c\"][0]" >> /opt/certs/root.pem;
+        echo "-----END CERTIFICATE-----" >> /opt/certs/root.pem;
+        ' ]
+        volumeMounts:
+        - name: certificates
+          mountPath: /opt/certs
       containers:
       - image: library/registry:2
         name: registry
         ports:
-        - containerPort: 443
+        - containerPort: 4430
           protocol: TCP
         volumeMounts:
         - name: registry-storage
           mountPath: /var/lib/registry
         env:
         - name: REGISTRY_HTTP_ADDR
-          value: 0.0.0.0:443
+          value: 0.0.0.0:4430
+        - name: REGISTRY_AUTH_TOKEN_REALM
+          value: https://keycloak.public-testbed.sodalite.eu/auth/realms/SODALITE/protocol/docker-v2/auth
+        - name: REGISTRY_AUTH_TOKEN_SERVICE
+          value: docker-registry
+        - name: REGISTRY_AUTH_TOKEN_ISSUER
+          value: https://keycloak.public-testbed.sodalite.eu/auth/realms/SODALITE
+        - name: REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE
+          value: "/opt/certs/root.pem"
+        volumeMounts:
+        - name: certificates
+          mountPath: /opt/certs
+      volumes:
+      - name: certificates
+        emptyDir: {}
   volumeClaimTemplates:
   - metadata:
       name: registry-storage
