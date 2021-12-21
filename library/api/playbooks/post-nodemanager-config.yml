@@ -1,0 +1,18 @@
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+    - name: Create request data
+      set_fact:
+        request:
+          orchestrator: "{{ orchestrator }}"
+          containers_manager: "{{ containers_manager }}"
+          controller: "{{ controller }}"
+          dispatcher: "{{ dispatcher }}"
+
+    - name: Send request to NodeManager
+      uri:
+        url: "{{ nodemanager_endpoint }}"
+        method: POST
+        body_format: json
+        body: "{{ request }}"

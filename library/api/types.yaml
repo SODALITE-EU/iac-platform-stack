@@ -1,5 +1,91 @@
 tosca_definitions_version: tosca_simple_yaml_1_3
 
+data_types:
+  sodalite.datatypes.nodemanager.config.orchestrator:
+    derived_from: tosca.datatypes.Root
+    properties:
+      actuator_image:
+        type: string
+        required: true
+      actuator_port:
+        type: integer
+        required: true
+      containers_manager:
+        type: string
+        required: true
+      requests_store:
+        required: true
+        type: string
+      dispatcher:
+        required: true
+        type: string
+      controller:
+        required: true
+        type: string
+      tfs_init_image:
+        required: true
+        type: string
+      tfs_config_endpoint:
+        required: true
+        type: string
+      tfs_models_url:
+        required: true
+        type: string
+      k8s_service_type:
+        required: true
+        type: string
+      k8s_image_pull_policy:
+        required: true
+        type: string
+      k8s_host_network:
+        required: true
+        type: boolean
+  sodalite.datatypes.nodemanager.config.containers_manager:
+    derived_from: tosca.datatypes.Root
+    properties:
+      init_quota:
+        required: true
+        type: integer
+  sodalite.datatypes.nodemanager.config.controller:
+    derived_from: tosca.datatypes.Root
+    properties:
+      min_cores:
+        required: true
+        type: integer
+      max_cores:
+        required: true
+        type: integer
+      control_period:
+        required: true
+        type: integer
+      control_type:
+        required: true
+        type: string
+      dry_run:
+        required: true
+        type: boolean
+  sodalite.datatypes.nodemanager.config.dispatcher:
+    derived_from: tosca.datatypes.Root
+    properties:
+      gpu_queues_policy:
+        required: true
+        type: integer
+      max_log_consumers:
+        required: true
+        type: integer
+      max_polling_threads:
+        required: true
+        type: integer
+      max_consumers_cpu:
+        required: true
+        type: integer
+      max_consumers_gpu:
+        required: true
+        type: integer
+      verbose:
+        required: true
+        type: integer
+
 node_types:
   sodalite.nodes.VaultApiConfiguration:
     derived_from: tosca.nodes.SoftwareComponent
@@ -13,7 +99,7 @@ node_types:
         description: Port of the web API
         required: True
         type: integer
-        default: 8200          
+        default: 8200
       template_name:
         description: Filename of configuration template
         required: True
@@ -34,11 +120,21 @@ node_types:
         operations:
           create:
             inputs:
-              address:                 { type: string, default: { get_property: [ SELF, address ] } }
-              port:                    { type: string, default: { get_property: [ SELF, port ] } }
-              template_name:           { type: string, default: { get_property: [ SELF, template_name ] } }
-              token:                   { type: string, default: { get_property: [ SELF, api_token ] } }
-              project_domains:         { type: list, default: { get_property: [ SELF, project_domains ] } }
+              address:
+                { type: string, default: { get_property: [SELF, address] } }
+              port: { type: string, default: { get_property: [SELF, port] } }
+              template_name:
+                {
+                  type: string,
+                  default: { get_property: [SELF, template_name] },
+                }
+              token:
+                { type: string, default: { get_property: [SELF, api_token] } }
+              project_domains:
+                {
+                  type: list,
+                  default: { get_property: [SELF, project_domains] },
+                }
             implementation:
               primary: playbooks/api_calls.yml
               dependencies:
@@ -48,7 +144,7 @@ node_types:
           capability: tosca.capabilities.Node
           node: tosca.nodes.Compute
           relationship: tosca.relationships.DependsOn
-          occurrences: [ 1, 1 ]
+          occurrences: [1, 1]
 
   sodalite.nodes.KBApiConfiguration:
     derived_from: tosca.nodes.SoftwareComponent
@@ -62,7 +158,7 @@ node_types:
         description: Port of the web API
         required: True
         type: integer
-        default: 7200     
+        default: 7200
       reasoner_address:
         description: Address of the reasoner web API
         required: True
@@ -72,7 +168,7 @@ node_types:
         description: Port of the reasoner web API
         required: True
         type: integer
-        default: 8080                 
+        default: 8080
       template_name:
         description: Filename of configuration template
         required: True
@@ -88,12 +184,26 @@ node_types:
         operations:
           create:
             inputs:
-              address:                 { type: string, default: { get_property: [ SELF, address ] } }
-              port:                    { type: string, default: { get_property: [ SELF, port ] } }
-              reasoner_address:        { type: string, default: { get_property: [ SELF, reasoner_address ] } }
-              reasoner_port:           { type: string, default: { get_property: [ SELF, reasoner_port ] } }              
-              template_name:           { type: string, default: { get_property: [ SELF, template_name ] } }
-              kb_password:             { type: string, default: { get_property: [ SELF, kb_password ] } }
+              address:
+                { type: string, default: { get_property: [SELF, address] } }
+              port: { type: string, default: { get_property: [SELF, port] } }
+              reasoner_address:
+                {
+                  type: string,
+                  default: { get_property: [SELF, reasoner_address] },
+                }
+              reasoner_port:
+                {
+                  type: string,
+                  default: { get_property: [SELF, reasoner_port] },
+                }
+              template_name:
+                {
+                  type: string,
+                  default: { get_property: [SELF, template_name] },
+                }
+              kb_password:
+                { type: string, default: { get_property: [SELF, kb_password] } }
             implementation:
               primary: playbooks/api_calls.yml
               dependencies:
@@ -103,6 +213,58 @@ node_types:
           capability: tosca.capabilities.Node
           node: tosca.nodes.Compute
           relationship: tosca.relationships.DependsOn
-          occurrences: [ 1, 1 ]          
-            
+          occurrences: [1, 1]
 
+  sodalite.nodes.nodemanager.config:
+    derived_from: tosca.nodes.Root
+    properties:
+      endpoint:
+        type: string
+        required: true
+      orchestrator:
+        type: map
+        required: true
+        entry_schema:
+          type: sodalite.datatypes.nodemanager.config.orchestrator
+      containers_manager:
+        type: map
+        required: true
+        entry_schema:
+          type: sodalite.datatypes.nodemanager.config.containers_manager
+      controller:
+        type: map
+        required: true
+        entry_schema:
+          type: sodalite.datatypes.nodemanager.config.controller
+      dispatcher:
+        type: map
+        required: true
+        entry_schema:
+          type: sodalite.datatypes.nodemanager.config.dispatcher
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              orchestrator:
+                { type: map, default: { get_property: [SELF, orchestrator] } }
+              containers_manager:
+                {
+                  type: map,
+                  default: { get_property: [SELF, containers_manager] },
+                }
+              controller:
+                { type: map, default: { get_property: [SELF, controller] } }
+              dispatcher:
+                { type: map, default: { get_property: [SELF, dispatcher] } }
+              nodemanager_endpoint:
+                { type: map, default: { get_property: [SELF, endpoint] } }
+            implementation:
+              primary: playbooks/post-nodemanager-config.yml
+    requirements:
+      - server:
+          capability: tosca.capabilities.Node
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.DependsOn
+          occurrences: [1, 1]
