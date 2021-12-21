@@ -14,7 +14,7 @@ spec:
         app: vault-secret-uploader
     spec:
       containers:
-      - image: sodaliteh2020/iac-blueprint-builder
+      - image: sodaliteh2020/vault-secret-uploader
         name: vault-secret-uploader
         env:
         - name: OIDC_INTROSPECTION_ENDPOINT
@@ -22,13 +22,15 @@ spec:
             secretKeyRef:
               name: keycloak
               key: introspect-url
-        - name: OIDC_INTROSPECTION_SECRET
+        - name: OIDC_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
               name: keycloak
               key: client-secret
         - name: VAULT_ADDRESS
-          value: "vault:8200"
+          value: "vault"
+        - name: VAULT_PORT
+          value: "8200"
         - name: VAULT_ADMIN_TOKEN
           valueFrom:
             secretKeyRef:
