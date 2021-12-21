@@ -988,7 +988,7 @@ topology_template:
         - network: docker-network
 
     # NODE MANAGER
-    https://github.com/SODALITE-EU/refactoring-ct
+    # https://github.com/SODALITE-EU/refactoring-ct
     node-manager-containers_manager:
       type: sodalite.nodes.DockerizedComponent
       properties:
