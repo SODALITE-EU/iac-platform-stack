@@ -996,7 +996,7 @@ topology_template:
       properties:
         alias: node-manager-containers_manager
         docker_network_name: { get_property: [SELF, network, name] }
-        image_name: sodaliteh2020/node-manager-containers_manager:M24Release-7-g5aec274
+        image_name: sodaliteh2020/node-manager-containers_manager
         restart_policy: always
         ports: ["8090:5001"]
       requirements:
@@ -1008,7 +1008,7 @@ topology_template:
       properties:
         alias: node-manager-requests_store
         docker_network_name: { get_property: [SELF, network, name] }
-        image_name: sodaliteh2020/node-manager-requests_store:M24Release-7-g5aec274
+        image_name: sodaliteh2020/node-manager-requests_store
         restart_policy: always
         ports: ["8091:5002"]
       requirements:
@@ -1020,7 +1020,7 @@ topology_template:
       properties:
         alias: node-manager-controller
         docker_network_name: { get_property: [SELF, network, name] }
-        image_name: sodaliteh2020/node-manager-controller:M24Release-7-g5aec274
+        image_name: sodaliteh2020/node-manager-controller
         restart_policy: always
         ports: ["8092:5003"]
       requirements:
@@ -1032,7 +1032,7 @@ topology_template:
       properties:
         alias: node-manager-dispatcher
         docker_network_name: { get_property: [SELF, network, name] }
-        image_name: sodaliteh2020/node-manager-dispatcher:M24Release-7-g5aec274
+        image_name: sodaliteh2020/node-manager-dispatcher
         restart_policy: always
         ports: ["8093:8000"]
       requirements:
@@ -1044,7 +1044,7 @@ topology_template:
       properties:
         alias: node-manager-orchestrator
         docker_network_name: { get_property: [SELF, network, name] }
-        image_name: sodaliteh2020/node-manager-orchestrator:M24Release-7-g5aec274
+        image_name: sodaliteh2020/node-manager-orchestrator
         restart_policy: always
         ports: ["8094:5000"]
       requirements:
@@ -1056,7 +1056,7 @@ topology_template:
       properties:
         alias: node-manager-dashboard
         docker_network_name: { get_property: [SELF, network, name] }
-        image_name: sodaliteh2020/node-manager-dashboard:M24Release-7-g5aec274
+        image_name: sodaliteh2020/node-manager-dashboard
         restart_policy: always
         ports: ["8095:8080"]
       requirements:
