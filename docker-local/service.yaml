@@ -1057,7 +1057,7 @@ topology_template:
       properties:
         alias: node-manager-dashboard
         docker_network_name: { get_property: [SELF, network, name] }
-        image_name: sodaliteh2020/node-manager-dashboard
+        image_name: sodaliteh2020/nodemanager_dashboard
         restart_policy: always
         ports: ["8095:8080"]
       requirements:
