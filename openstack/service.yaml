@@ -1133,19 +1133,20 @@ topology_template:
       properties:
         alias: node-manager-containers_manager
         docker_network_name: { get_property: [SELF, network, name] }
-        image_name: sodaliteh2020/node-manager-containers_manager:M24Release-7-g5aec274
+        image_name: sodaliteh2020/node-manager-containers_manager
         restart_policy: always
         ports: ["8090:5001"]
       requirements:
         - host: docker-host
         - network: docker-network
         - registry: docker-public-registry
+
     node-manager-requests_store:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: node-manager-requests_store
         docker_network_name: { get_property: [SELF, network, name] }
-        image_name: sodaliteh2020/node-manager-requests_store:M24Release-7-g5aec274
+        image_name: sodaliteh2020/node-manager-requests_store
         restart_policy: always
         ports: ["8091:5002"]
       requirements:
@@ -1157,7 +1158,7 @@ topology_template:
       properties:
         alias: node-manager-controller
         docker_network_name: { get_property: [SELF, network, name] }
-        image_name: sodaliteh2020/node-manager-controller:M24Release-7-g5aec274
+        image_name: sodaliteh2020/node-manager-controller
         restart_policy: always
         ports: ["8092:5003"]
       requirements:
@@ -1169,7 +1170,7 @@ topology_template:
       properties:
         alias: node-manager-dispatcher
         docker_network_name: { get_property: [SELF, network, name] }
-        image_name: sodaliteh2020/node-manager-dispatcher:M24Release-7-g5aec274
+        image_name: sodaliteh2020/node-manager-dispatcher
         restart_policy: always
         ports: ["8093:8000"]
       requirements:
@@ -1181,7 +1182,7 @@ topology_template:
       properties:
         alias: node-manager-orchestrator
         docker_network_name: { get_property: [SELF, network, name] }
-        image_name: sodaliteh2020/node-manager-orchestrator:M24Release-7-g5aec274
+        image_name: sodaliteh2020/nodemanager_orchestrator
         restart_policy: always
         ports: ["8094:5000"]
       requirements:
@@ -1193,28 +1194,84 @@ topology_template:
       properties:
         alias: node-manager-dashboard
         docker_network_name: { get_property: [SELF, network, name] }
-        image_name: sodaliteh2020/node-manager-dashboard:M24Release-7-g5aec274
+        image_name: sodaliteh2020/nodemanager_dashboard
         restart_policy: always
         ports: ["8095:8080"]
       requirements:
         - host: docker-host
         - network: docker-network
         - registry: docker-public-registry
-    
+
     node-manager-config:
       type: sodalite.nodes.nodemanager.config
       properties:
-        endpoint: { concat: ["http://", { get_attribute: [ SELF, server, public_address ] }, ":8094/configuration"] } 
+        endpoint:
+          {
+            concat:
+              [
+                "http://",
+                { get_attribute: [SELF, server, public_address] },
+                ":8094/configuration",
+              ],
+          }
         orchestrator:
           actuator_image: "sodaliteh2020/nodemanager_actuator:latest"
           actuator_port: 5000
-          containers_manager:  { concat: ["http://", { get_attribute: [ SELF, server, public_address ] }, ":8090"] } 
-          requests_store: { concat: ["http://", { get_attribute: [ SELF, server, public_address ] }, ":8091"] }  
-          dispatcher: { concat: ["http://", { get_attribute: [ SELF, server, public_address ] }, ":8093"] }  
-          controller: { concat: ["http://", { get_attribute: [ SELF, server, public_address ] }, ":8092"] }  
+          containers_manager:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8090",
+                ],
+            }
+          requests_store:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8091",
+                ],
+            }
+          dispatcher:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8093",
+                ],
+            }
+          controller:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8092",
+                ],
+            }
           tfs_init_image: "sodaliteh2020/nodemanager_tfs_init"
-          tfs_config_endpoint: { concat: ["http://", { get_attribute: [ SELF, server, public_address ] }, ":8094/configuration/tfs"] } 
-          tfs_models_url: { concat: ["http://", { get_attribute: [ SELF, server, public_address ] }, ":8094/configuration/tfs"] } 
+          tfs_config_endpoint:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8094/configuration/tfs",
+                ],
+            }
+          tfs_models_url:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8094/configuration/tfs",
+                ],
+            }
           k8s_service_type: "NodePort"
           k8s_image_pull_policy: "Never"
           k8s_host_network: true
@@ -1240,7 +1297,6 @@ topology_template:
         - dependency: node-manager-dispatcher
         - dependency: node-manager-controller
         - server: sodalite-vm
-
 
 
 

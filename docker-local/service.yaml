@@ -829,70 +829,70 @@ topology_template:
         - network: docker-network
         - dependency: prometheus-config
 
-    # grafana-config:
-    #   type: sodalite.nodes.monitoring-system-grafana.config
-    #   properties:
-    #     dest_conf: /etc/grafana/grafana.ini
-    #     dest_conf_datasources: /etc/grafana/conf-datasources/datasources.yaml
-    #     prometheus_endpoint: prometheus:9090
-    #     keycloak_endpoint: 77.231.202.214:8080
-    #     keycloak_realm: SODALITE
-    #     keycloak_secret: { get_input: keycloak_client_secret }
-    #     gf_admin_pw: { get_input: gf_admin_pw }
-    #   requirements:
-    #     - dependency: monitoring-system-prometheus
-    #     - host: sodalite-vm
+    grafana-config:
+      type: sodalite.nodes.monitoring-system-grafana.config
+      properties:
+        dest_conf: /etc/grafana/grafana.ini
+        dest_conf_datasources: /etc/grafana/conf-datasources/datasources.yaml
+        prometheus_endpoint: prometheus:9090
+        keycloak_endpoint: 77.231.202.214:8080
+        keycloak_realm: SODALITE
+        keycloak_secret: { get_input: keycloak_client_secret }
+        gf_admin_pw: { get_input: gf_admin_pw }
+      requirements:
+        - dependency: monitoring-system-prometheus
+        - host: sodalite-vm
 
-    # monitoring-system-grafana:
-    #   type: sodalite.nodes.DockerizedComponent
-    #   properties:
-    #     alias: grafana
-    #     image_name: grafana/grafana:7.3.7
-    #     restart_policy: always
-    #     ports: ["3000:3000"]
-    #     exposed_ports: ["3000"]
-    #     docker_network_name: { get_property: [SELF, network, name] }
-    #     env:
-    #       GF_SECURITY_ADMIN_USER: { get_input: gf_admin_user }
-    #       GF_SECURITY_ADMIN_PASSWORD: { get_input: gf_admin_pw }
-    #     volumes:
-    #       - "/etc/grafana/conf-datasources:/etc/grafana/provisioning/datasources"
-    #       - "/etc/grafana:/etc/grafana"
-    #       - "grafana:/var/lib/grafana"
-    #   requirements:
-    #     - dependency: monitoring-system-prometheus
-    #     - host: docker-host
-    #     - registry: docker-public-registry
-    #     - network: docker-network
-    #     - dependency: grafana-config
-    #     - dependency: keycloak-container
+    monitoring-system-grafana:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: grafana
+        image_name: grafana/grafana:7.3.7
+        restart_policy: always
+        ports: ["3000:3000"]
+        exposed_ports: ["3000"]
+        docker_network_name: { get_property: [SELF, network, name] }
+        env:
+          GF_SECURITY_ADMIN_USER: { get_input: gf_admin_user }
+          GF_SECURITY_ADMIN_PASSWORD: { get_input: gf_admin_pw }
+        volumes:
+          - "/etc/grafana/conf-datasources:/etc/grafana/provisioning/datasources"
+          - "/etc/grafana:/etc/grafana"
+          - "grafana:/var/lib/grafana"
+      requirements:
+        - dependency: monitoring-system-prometheus
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: grafana-config
+        - dependency: keycloak-container
 
-    # grafana-registry:
-    #   type: sodalite.nodes.DockerizedComponent
-    #   properties:
-    #     alias: grafana-registry
-    #     image_name: sodaliteh2020/grafana-registry
-    #     restart_policy: always
-    #     ports: ["3001:3001"]
-    #     exposed_ports: ["3001"]
-    #     docker_network_name: { get_property: [SELF, network, name] }
-    #     env:
-    #       GF_ADMIN_USER: { get_input: gf_admin_user }
-    #       GF_ADMIN_PW: { get_input: gf_admin_pw }
-    #       GF_PORT: { get_input: gf_port }
-    #       GF_REGISTRY_GUNICORN_WORKERS: "4"
-    #       OIDC_INTROSPECTION_ENDPOINT:
-    #         { get_input: oidc_introspection_endpoint }
-    #       OIDC_CLIENT_SECRET: { get_input: keycloak_client_secret }
-    #       FLASK_RUN_PORT: { get_input: gf_registry_port }
-    #     volumes:
-    #       - "/var/lib/grafana-registry:/app/data"
-    #   requirements:
-    #     - host: docker-host
-    #     - registry: docker-public-registry
-    #     - network: docker-network
-    #     - dependency: monitoring-system-grafana
-    #     - dependency: keycloak-container
+    grafana-registry:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: grafana-registry
+        image_name: sodaliteh2020/grafana-registry
+        restart_policy: always
+        ports: ["3001:3001"]
+        exposed_ports: ["3001"]
+        docker_network_name: { get_property: [SELF, network, name] }
+        env:
+          GF_ADMIN_USER: { get_input: gf_admin_user }
+          GF_ADMIN_PW: { get_input: gf_admin_pw }
+          GF_PORT: { get_input: gf_port }
+          GF_REGISTRY_GUNICORN_WORKERS: "4"
+          OIDC_INTROSPECTION_ENDPOINT:
+            { get_input: oidc_introspection_endpoint }
+          OIDC_CLIENT_SECRET: { get_input: keycloak_client_secret }
+          FLASK_RUN_PORT: { get_input: gf_registry_port }
+        volumes:
+          - "/var/lib/grafana-registry:/app/data"
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: monitoring-system-grafana
+        - dependency: keycloak-container
 
     # Register prometheus-skydive-connector with prometheus consul
     prometheus-skydive-connector-registration:
@@ -991,7 +991,7 @@ topology_template:
 
     # NODE MANAGER
     # https://github.com/SODALITE-EU/refactoring-ct
-    node-manager-containers_manager:
+   node-manager-containers_manager:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: node-manager-containers_manager
@@ -1159,7 +1159,7 @@ topology_template:
         - dependency: node-manager-requests_store
         - dependency: node-manager-dispatcher
         - dependency: node-manager-controller
-        - server: sodalite-vm
+        - server: sodalite-vm 
 
     # IDE
     # https://github.com/SODALITE-EU/ide
