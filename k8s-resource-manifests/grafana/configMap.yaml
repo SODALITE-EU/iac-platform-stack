@@ -4,7 +4,7 @@ metadata:
   name: grafana-registry
   namespace: sodalite-services
 data:
-  GF_SERVER_DOMAIN: https://grafana.sodalite.eu
+  GF_SERVER_DOMAIN: https://grafana.public-testbed.sodalite.eu
   GF_USERS_ALLOW_SIGN_UP: "false"
   GF_USERS_DISABLE_LOGIN_FORM: "true"
   GF_USERS_OAUTH_AUTO_LOGIN: "true"

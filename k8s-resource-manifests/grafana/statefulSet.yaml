@@ -1,5 +1,6 @@
+---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: grafana
   namespace: sodalite-services
@@ -7,6 +8,7 @@ spec:
   selector:
     matchLabels:
       app: grafana
+  serviceName: grafana
   replicas: 1
   template:
     metadata:
@@ -60,65 +62,71 @@ spec:
         - name: GF_SERVER_DOMAIN
           valueFrom:
             configMapKeyRef:
-              name: grafana
+              name: grafana-registry
               key: GF_SERVER_DOMAIN
         - name: GF_USERS_ALLOW_SIGN_UP
           valueFrom:
             configMapKeyRef:
-              name: grafana
+              name: grafana-registry
               key: GF_USERS_ALLOW_SIGN_UP
         - name: GF_USERS_DISABLE_LOGIN_FORM
           valueFrom:
             configMapKeyRef:
-              name: grafana
+              name: grafana-registry
               key: GF_USERS_DISABLE_LOGIN_FORM      
         - name: GF_USERS_OAUTH_AUTO_LOGIN
           valueFrom:
             configMapKeyRef:
-              name: grafana
+              name: grafana-registry
               key: GF_USERS_OAUTH_AUTO_LOGIN     
         - name: GF_USERS_SIGNOUT_REDIRECT_URL
           valueFrom:
             configMapKeyRef:
-              name: grafana
+              name: grafana-registry
               key: GF_USERS_SIGNOUT_REDIRECT_URL     
         - name: GF_GENERIC_OAUTH_ENABLED
           valueFrom:
             configMapKeyRef:
-              name: grafana
+              name: grafana-registry
               key: GF_GENERIC_OAUTH_ENABLED     
         - name: GF_GENERIC_OAUTH_ALLOW_SIGN_UP
           valueFrom:
             configMapKeyRef:
-              name: grafana
+              name: grafana-registry
               key: GF_GENERIC_OAUTH_ALLOW_SIGN_UP    
         - name: GF_GENERIC_OAUTH_NAME
           valueFrom:
             configMapKeyRef:
-              name: grafana
+              name: grafana-registry
               key: GF_GENERIC_OAUTH_NAME   
         - name: GF_GENERIC_OAUTH_SCOPES
           valueFrom:
             configMapKeyRef:
-              name: grafana
+              name: grafana-registry
               key: GF_GENERIC_OAUTH_SCOPES      
         ports:
         - containerPort: 3000
           protocol: TCP
         volumeMounts:
-        - name: provisioning
-          mountPath: /etc/grafana/provisioning
-        - name: dashboards
-          mountPath: /var/lib/grafana/dashboards
+          - name: grafana-dashboards
+            mountPath: "/etc/grafana/provisioning/dashboards"
+          - name: provisioning
+            mountPath: "/etc/grafana/provisioning"
       volumes:
       - name: provisioning
         configMap:
-          name: grafana
+          name: grafana-registry
           items:
             - key: datasources
               path: datasources/datasources.yaml
             - key: dashboards
               path: dashboards/dashboards.yaml
-      - name: dashboards
-        persistentVolumeClaim:
-          claimName: grafana
+  volumeClaimTemplates:
+  - metadata:
+      name: grafana-dashboards
+      namespace: sodalite-services
+    spec:
+      accessModes: [ ReadWriteOnce ]
+      resources:
+        requests:
+          storage: 1Gi
