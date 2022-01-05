@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modak
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: modak
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: modak
+    spec:
+      containers:
+      - image: sodaliteh2020/modak
+        name: modak
+        ports:
+        - containerPort: 80
+          protocol: TCP
+ 

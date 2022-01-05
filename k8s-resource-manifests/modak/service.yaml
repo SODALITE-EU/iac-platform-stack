@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: modak
+  namespace: sodalite-services
+spec:
+  ports:
+  - name: modak
+    port: 8081
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: modak
+  sessionAffinity: None
+  type: ClusterIP
