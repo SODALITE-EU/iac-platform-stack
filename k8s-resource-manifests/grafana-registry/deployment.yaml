@@ -28,7 +28,7 @@ spec:
               name: grafana
               key: admin-pw
         - name: GF_PORT
-          value: 80
+          value: "80"
         - name: GF_REGISTRY_GUNICORN_WORKERS
           value: "4"
         - name: OIDC_INTROSPECTION_ENDPOINT
@@ -49,14 +49,14 @@ spec:
         - name: PROMETHEUS_ADDRESS
           value: prometheus
         - name: PROMETHEUS_PORT
-          value: 9090
+          value: "9090"
         - name: GF_ADDRESS
           valueFrom:
             configMapKeyRef:
               name: grafana
               key: GF_SERVER_DOMAIN
         - name: FLASK_RUN_PORT
-          value: 3001
+          value: "3001"
         ports:
         - containerPort: 3001
           protocol: TCP
