@@ -62,47 +62,47 @@ spec:
         - name: GF_SERVER_DOMAIN
           valueFrom:
             configMapKeyRef:
-              name: grafana-registry
+              name: grafana
               key: GF_SERVER_DOMAIN
         - name: GF_USERS_ALLOW_SIGN_UP
           valueFrom:
             configMapKeyRef:
-              name: grafana-registry
+              name: grafana
               key: GF_USERS_ALLOW_SIGN_UP
         - name: GF_USERS_DISABLE_LOGIN_FORM
           valueFrom:
             configMapKeyRef:
-              name: grafana-registry
+              name: grafana
               key: GF_USERS_DISABLE_LOGIN_FORM      
         - name: GF_USERS_OAUTH_AUTO_LOGIN
           valueFrom:
             configMapKeyRef:
-              name: grafana-registry
+              name: grafana
               key: GF_USERS_OAUTH_AUTO_LOGIN     
         - name: GF_USERS_SIGNOUT_REDIRECT_URL
           valueFrom:
             configMapKeyRef:
-              name: grafana-registry
+              name: grafana
               key: GF_USERS_SIGNOUT_REDIRECT_URL     
         - name: GF_GENERIC_OAUTH_ENABLED
           valueFrom:
             configMapKeyRef:
-              name: grafana-registry
+              name: grafana
               key: GF_GENERIC_OAUTH_ENABLED     
         - name: GF_GENERIC_OAUTH_ALLOW_SIGN_UP
           valueFrom:
             configMapKeyRef:
-              name: grafana-registry
+              name: grafana
               key: GF_GENERIC_OAUTH_ALLOW_SIGN_UP    
         - name: GF_GENERIC_OAUTH_NAME
           valueFrom:
             configMapKeyRef:
-              name: grafana-registry
+              name: grafana
               key: GF_GENERIC_OAUTH_NAME   
         - name: GF_GENERIC_OAUTH_SCOPES
           valueFrom:
             configMapKeyRef:
-              name: grafana-registry
+              name: grafana
               key: GF_GENERIC_OAUTH_SCOPES      
         ports:
         - containerPort: 3000
@@ -115,7 +115,7 @@ spec:
       volumes:
       - name: provisioning
         configMap:
-          name: grafana-registry
+          name: grafana
           items:
             - key: datasources
               path: datasources/datasources.yaml
