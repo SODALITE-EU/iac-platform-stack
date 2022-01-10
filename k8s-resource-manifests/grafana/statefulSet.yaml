@@ -29,32 +29,32 @@ spec:
             secretKeyRef:
               name: grafana
               key: admin-pw
-        - name: GF_GENERIC_OAUTH_CLIENT_ID
+        - name: GF_AUTH_GENERIC_OAUTH_CLIENT_ID
           valueFrom:
             secretKeyRef:
               name: keycloak
               key: client-id
-        - name: GF_GENERIC_OAUTH_CLIENT_SECRET
+        - name: GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
               name: keycloak
               key: client-secret
-        - name: GF_GENERIC_OAUTH_AUTH_URL
+        - name: GF_AUTH_GENERIC_OAUTH_AUTH_URL
           valueFrom:
             secretKeyRef:
               name: keycloak
               key: auth-url
-        - name: GF_GENERIC_OAUTH_TOKEN_URL
+        - name: GF_AUTH_GENERIC_OAUTH_TOKEN_URL
           valueFrom:
             secretKeyRef:
               name: keycloak
               key: token-url
-        - name: GF_GENERIC_OAUTH_API_URL
+        - name: GF_AUTH_GENERIC_OAUTH_API_URL
           valueFrom:
             secretKeyRef:
               name: keycloak
               key: api-url
-        - name: GF_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH
+        - name: GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH
           valueFrom:
             secretKeyRef:
               name: grafana
@@ -79,26 +79,26 @@ spec:
             configMapKeyRef:
               name: grafana
               key: GF_USERS_SIGNOUT_REDIRECT_URL     
-        - name: GF_GENERIC_OAUTH_ENABLED
+        - name: GF_AUTH_GENERIC_OAUTH_ENABLED
           valueFrom:
             configMapKeyRef:
               name: grafana
-              key: GF_GENERIC_OAUTH_ENABLED     
-        - name: GF_GENERIC_OAUTH_ALLOW_SIGN_UP
+              key: GF_AUTH_GENERIC_OAUTH_ENABLED     
+        - name: GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP
           valueFrom:
             configMapKeyRef:
               name: grafana
-              key: GF_GENERIC_OAUTH_ALLOW_SIGN_UP    
-        - name: GF_GENERIC_OAUTH_NAME
+              key: GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP    
+        - name: GF_AUTH_GENERIC_OAUTH_NAME
           valueFrom:
             configMapKeyRef:
               name: grafana
-              key: GF_GENERIC_OAUTH_NAME   
-        - name: GF_GENERIC_OAUTH_SCOPES
+              key: GF_AUTH_GENERIC_OAUTH_NAME   
+        - name: GF_AUTH_GENERIC_OAUTH_SCOPES
           valueFrom:
             configMapKeyRef:
               name: grafana
-              key: GF_GENERIC_OAUTH_SCOPES  
+              key: GF_AUTH_GENERIC_OAUTH_SCOPES  
         - name: GF_SERVER_DOMAIN
           value: "grafana.public-testbed.sodalite.eu"
         - name: GF_SERVER_ROOT_URL
