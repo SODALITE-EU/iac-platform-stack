@@ -59,11 +59,6 @@ spec:
             secretKeyRef:
               name: grafana
               key: role-attribute-path
-        - name: GF_SERVER_DOMAIN
-          valueFrom:
-            configMapKeyRef:
-              name: grafana-registry
-              key: GF_SERVER_DOMAIN
         - name: GF_USERS_ALLOW_SIGN_UP
           valueFrom:
             configMapKeyRef:
@@ -103,7 +98,11 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: grafana-registry
-              key: GF_GENERIC_OAUTH_SCOPES      
+              key: GF_GENERIC_OAUTH_SCOPES  
+        - name: GF_SERVER_DOMAIN
+          value: "grafana.public-testbed.sodalite.eu"
+        - name: GF_SERVER_ROOT_URL
+          value: "http://grafana.public-testbed.sodalite.eu/"
         ports:
         - containerPort: 3000
           protocol: TCP

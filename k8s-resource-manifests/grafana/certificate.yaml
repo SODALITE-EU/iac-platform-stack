@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana-cert
+  namespace: sodalite-services
+spec:
+  commonName: grafana.public-testbed.sodalite.eu
+  secretName: grafana-cert
+  dnsNames:
+    - grafana.public-testbed.sodalite.eu
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
