@@ -97,7 +97,7 @@ spec:
         - name: GF_GENERIC_OAUTH_SCOPES
           valueFrom:
             configMapKeyRef:
-              name: grafana-registry
+              name: grafana
               key: GF_GENERIC_OAUTH_SCOPES  
         - name: GF_SERVER_DOMAIN
           value: "grafana.public-testbed.sodalite.eu"
