@@ -15,6 +15,7 @@ spec:
     spec:
       containers:
       - image: sodaliteh2020/modak
+        imagePullPolicy: Always
         name: modak
         ports:
         - containerPort: 80
