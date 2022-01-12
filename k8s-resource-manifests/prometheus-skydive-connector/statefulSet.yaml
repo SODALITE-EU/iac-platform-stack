@@ -16,10 +16,16 @@ spec:
     spec:
       securityContext:
         fsGroup: 65534
+      initContainers:
+      - name: init-vault
+        image: curlimages/curl
+        command: [ 'sh', '-c', '
+          set -xe
+          curl -X PUT -d "{ \"Name\": \"consul-registered-skydive-exporters\", \"ID\": \"fakeuniqueid-skydive-exporter\", \"Address\": \"prometheus-skydive-connector.sodalite-services.svc.cluster.local\", \"Port\": 9100 }" consul.sodalite-services.svc.cluster.local:8500/v1/agent/service/register' ]
       containers:
       - image: sodaliteh2020/prometheus-skydive-connector:1
         name: prometheus-skydive-connector
-        #command: [ "/etc/prom_sky_con.yml" ]
+        args: [ "/etc/prom_sky_con.yml" ]
         ports:
         - containerPort: 9100
           protocol: TCP
