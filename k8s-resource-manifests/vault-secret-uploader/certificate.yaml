@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: vault-secret-uploader-cert
+  namespace: sodalite-services
+spec:
+  commonName: vault-secret-uploader.public-testbed.sodalite.eu
+  secretName: vault-secret-uploader-cert
+  dnsNames:
+    - vault-secret-uploader.public-testbed.sodalite.eu
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
