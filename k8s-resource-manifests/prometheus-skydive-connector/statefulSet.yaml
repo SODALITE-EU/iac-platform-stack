@@ -23,7 +23,7 @@ spec:
           set -xe
           curl -X PUT -d "{ \"Name\": \"consul-registered-skydive-exporters\", \"ID\": \"fakeuniqueid-skydive-exporter\", \"Address\": \"prometheus-skydive-connector.sodalite-services.svc.cluster.local\", \"Port\": 9100 }" consul.sodalite-services.svc.cluster.local:8500/v1/agent/service/register' ]
       containers:
-      - image: sodaliteh2020/prometheus-skydive-connector:1
+      - image: sodaliteh2020/prometheus-skydive-connector:latest
         name: prometheus-skydive-connector
         args: [ "/etc/prom_sky_con.yml" ]
         ports:
@@ -35,6 +35,8 @@ spec:
         env:
         - name: SKYDIVE_PIPELINE_SUBSCRIBER_URL
           value: ws://skydive-analyzer.sodalite-services.svc.cluster.local:8082/ws/subscriber/flow
+        - name: SKYDIVE_ANALYZERS
+          value: skydive-analyzer.sodalite-services.svc.cluster.local:8082
   volumeClaimTemplates:
   - metadata:
       name: prometheus-skydive-storage

@@ -6,7 +6,7 @@ metadata:
 spec:
   ports:
   - name: prometheus
-    port: 9101
+    port: 9100
     protocol: TCP
     targetPort: 9100
   selector:

@@ -16,7 +16,7 @@ spec:
               service:
                 name: prometheus-skydive-connector
                 port:
-                  number: 9101
+                  number: 9100
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -40,4 +40,4 @@ spec:
               service:
                 name: prometheus-skydive-connector
                 port:
-                  number: 9101
+                  number: 9100
