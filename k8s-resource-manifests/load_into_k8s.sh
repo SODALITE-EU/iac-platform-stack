@@ -63,6 +63,7 @@ then
     export KEYCLOAK_CLIENT_SECRET=$(uuid)
     export KEYCLOAK_ADMIN_PASSWORD=$(genpw)
     export KEYCLOAK_DB_PASSWORD=$(genpw)
+    export IMAGE_BUILDER_API_DB_PASSWORD=$(genpw)
     export GRAFANA_ADMIN_PASSWORD=$(genpw)
     export XOPERA_POSTGRES_PASSWORD=$(genpw)
     export KB_PASSWORD=$(genpw)
