@@ -18,7 +18,6 @@ imports:
   - library/grafana/grafana_config.yaml
 
 node_types:
-
   sodalite.nodes.SodaliteVM:
     derived_from: tosca.nodes.Compute
     properties:
@@ -29,7 +28,6 @@ node_types:
         description: Name of machine. Used to write into registry certificate
 
 topology_template:
-
   inputs:
     username:
       type: string
@@ -96,7 +94,6 @@ topology_template:
       type: string
 
   node_templates:
-
     sodalite-vm:
       type: sodalite.nodes.SodaliteVM
       properties:
@@ -131,10 +128,10 @@ topology_template:
     docker-private-registry-server-certs:
       type: sodalite.nodes.RegistryServerCertificate
       properties:
-        country_name:               { get_input: docker-registry-cert-country-name }
-        organization_name:          { get_input: docker-registry-cert-organization-name }
-        email_address:              { get_input: docker-registry-cert-email-address }
-        cert_ipv4_address:          { get_input: local_ipv4_address }
+        country_name: { get_input: docker-registry-cert-country-name }
+        organization_name: { get_input: docker-registry-cert-organization-name }
+        email_address: { get_input: docker-registry-cert-email-address }
+        cert_ipv4_address: { get_input: local_ipv4_address }
         cert_path: "/home/registry/certs"
         cert_files_prefix: registry
         domain_name: "SODALITE platform stack Registry"
@@ -145,10 +142,10 @@ topology_template:
     docker-private-registry-client-certificate:
       type: sodalite.nodes.RegistryCertificate
       properties:
-        registry_ip:        { get_input: local_ipv4_address }
-        country_name:       { get_input: docker-registry-cert-country-name }
-        organization_name:  { get_input: docker-registry-cert-organization-name }
-        email_address:      { get_input: docker-registry-cert-email-address }
+        registry_ip: { get_input: local_ipv4_address }
+        country_name: { get_input: docker-registry-cert-country-name }
+        organization_name: { get_input: docker-registry-cert-organization-name }
+        email_address: { get_input: docker-registry-cert-email-address }
       requirements:
         - host: sodalite-vm
         - dependency: docker-host
@@ -174,7 +171,7 @@ topology_template:
           REGISTRY_HTTP_TLS_CLIENTCAS: "[/certs/ca.crt]"
           REGISTRY_HTTP_TLS_CERTIFICATE: "/certs/registry.crt"
           REGISTRY_HTTP_TLS_KEY: "/certs/registry.key"
-        docker_network_name: { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
       requirements:
         - host: docker-host
         - registry: docker-public-registry
@@ -184,9 +181,9 @@ topology_template:
     traefik-tls-certs:
       type: sodalite.nodes.TLS.Certificate
       properties:
-        country_name:        { get_input: docker-registry-cert-country-name }
-        organization_name:   { get_input: docker-registry-cert-organization-name }
-        email_address:       { get_input: docker-registry-cert-email-address }
+        country_name: { get_input: docker-registry-cert-country-name }
+        organization_name: { get_input: docker-registry-cert-organization-name }
+        email_address: { get_input: docker-registry-cert-email-address }
         cert_path: "/home/nginx/certs"
       requirements:
         - host: sodalite-vm
@@ -195,7 +192,8 @@ topology_template:
     proxy-tls-config:
       type: sodalite.nodes.Configuration.NginxConfig
       properties:
-        cert_files_prefix: { get_attribute: [ SELF, dependency, cert_files_prefix ] }
+        cert_files_prefix:
+          { get_attribute: [SELF, dependency, cert_files_prefix] }
         dir: /home/nginx
         filename: certificates.toml
         template_name: "certificates.toml.j2"
@@ -207,7 +205,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: proxy
-        docker_network_name: { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
         image_name: library/traefik:v2.3.4
         command:
           - "--accesslog=true"
@@ -226,7 +224,7 @@ topology_template:
           # dashboard
           - "--api.dashboard=true"
         restart_policy: always
-        ports: [ '5000:5000', '5001:5001', '5002:5002', '8888:8888', '5432:5432' ]
+        ports: ["5000:5000", "5001:5001", "5002:5002", "8888:8888", "5432:5432"]
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock:ro
           - /home/nginx/certificates.toml:/configuration/certificates.toml:ro
@@ -265,10 +263,10 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: keycloak
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
         image_name: jboss/keycloak
         restart_policy: always
-        ports:  ['8100:8080', '8443:8443']
+        ports: ["8100:8080", "8443:8443"]
         env:
           KEYCLOAK_USER: admin
           KEYCLOAK_PASSWORD: { get_input: keycloak_admin_password }
@@ -285,11 +283,11 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: vault
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
         image_name: library/vault
         restart_policy: always
-        ports:  ['8200:8200', '8201:8201']
-        capabilities: ['IPC_LOCK']
+        ports: ["8200:8200", "8201:8201"]
+        capabilities: ["IPC_LOCK"]
         env:
           VAULT_LOCAL_CONFIG: '{"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "16h", "max_lease_ttl": "72h"}'
           VAULT_DEV_ROOT_TOKEN_ID: { get_input: vault_token }
@@ -303,7 +301,7 @@ topology_template:
     vault-config:
       type: sodalite.nodes.VaultApiConfiguration
       properties:
-        address: { get_attribute: [ SELF, server, public_address ] }
+        address: { get_attribute: [SELF, server, public_address] }
         port: 8200
         api_token: { get_input: vault_token }
         project_domains: { get_input: project_domains }
@@ -316,11 +314,12 @@ topology_template:
       properties:
         image_name: sodaliteh2020/vault-secret-uploader:latest
         restart_policy: always
-        ports: [ '8202:8202' ]
-        exposed_ports: [ '8202' ]
-        docker_network_name: { get_property: [ SELF, network, name ] }
+        ports: ["8202:8202"]
+        exposed_ports: ["8202"]
+        docker_network_name: { get_property: [SELF, network, name] }
         env:
-          OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
+          OIDC_INTROSPECTION_ENDPOINT:
+            { get_input: oidc_introspection_endpoint }
           OIDC_INTROSPECTION_SECRET: { get_input: keycloak_client_secret }
           VAULT_ADDRESS: { get_input: vault_address }
           VAULT_ADMIN_TOKEN: { get_input: vault_token }
@@ -339,14 +338,15 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: pds
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
         image_name: sodaliteh2020/platform-discovery-service
         restart_policy: always
-        ports:  ['8089:8081']
+        ports: ["8089:8081"]
         env:
           SECRET_VAULT_LOGIN_URI: http://vault:8200/v1/auth/jwt/login
           SECRET_VAULT_URI: http://vault:8200/v1/
-          OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
+          OIDC_INTROSPECTION_ENDPOINT:
+            { get_input: oidc_introspection_endpoint }
           OIDC_CLIENT_SECRET: { get_input: keycloak_client_secret }
       requirements:
         - host: docker-host
@@ -378,7 +378,7 @@ topology_template:
           POSTGRES_USER: { get_input: sodalite_db_username }
           POSTGRES_PASSWORD: { get_input: sodalite_db_password }
           POSTGRES_DB: postgres
-        docker_network_name: { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
         labels:
           traefik.enable: "true"
           traefik.tcp.services.xopera-postgres.loadbalancer.server.port: "5432"
@@ -394,7 +394,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: xopera-rest-api
-        docker_network_name: { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
         image_name: sodaliteh2020/xopera-rest-api:2.4.0
         restart_policy: always
         volumes:
@@ -426,7 +426,8 @@ topology_template:
           XOPERA_DATABASE_USER: { get_input: sodalite_db_username }
           XOPERA_DATABASE_PASSWORD: { get_input: sodalite_db_password }
           # OIDC SETTINGS
-          OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
+          OIDC_INTROSPECTION_ENDPOINT:
+            { get_input: oidc_introspection_endpoint }
           OIDC_CLIENT_SECRET: { get_input: keycloak_client_secret }
           AUTH_API_KEY: { get_input: xopera_auth_api_key }
           VAULT_LOGIN_URI: http://vault:8200/v1/auth/jwt/login
@@ -445,7 +446,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: xopera-ui
-        docker_network_name: { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
         image_name: swaggerapi/swagger-ui:v3.37.0
         restart_policy: always
         volumes:
@@ -479,7 +480,7 @@ topology_template:
       properties:
         alias: iac-builder
         image_name: sodaliteh2020/iac-blueprint-builder:M24Release
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
         restart_policy: always
         ports:
           - "8081:80"
@@ -496,8 +497,8 @@ topology_template:
     image-builder-api:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name:  sodaliteh2020/image-builder-api:1.0.0
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        image_name: sodaliteh2020/image-builder-api:1.0.0
+        docker_network_name: { get_property: [SELF, network, name] }
         env:
           REGISTRY_IP: { get_input: registry_ip_address }
           DEBUG: "false"
@@ -514,7 +515,7 @@ topology_template:
           traefik.http.routers.image-builder.entrypoints: "image-builder"
           traefik.http.routers.image-builder.tls: "true"
       requirements:
-        - host:  docker-host
+        - host: docker-host
         - registry: docker-public-registry
         - network: docker-network
 
@@ -524,11 +525,11 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: graph-db
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
         image_name: sodaliteh2020/graph_db:192
         restart_policy: always
-        ports:  ['7200:7200']
-        exposed_ports:  ['7200']
+        ports: ["7200:7200"]
+        exposed_ports: ["7200"]
       requirements:
         - host: docker-host
         - registry: docker-public-registry
@@ -538,14 +539,14 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: semantic-web
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
         image_name: sodaliteh2020/semantic_web:M24Release
         restart_policy: always
         env:
           WAIT_HOSTS: graph-db:7200
           environment: docker
-          graphdb:  http://graph-db:7200
-          bugPredictorServer:  http://tosca-smells:8080/
+          graphdb: http://graph-db:7200
+          bugPredictorServer: http://tosca-smells:8080/
           ansiblePath: /usr/local/tomcat/webapps/Ansibles/
           reasonerServer: http://semantic-web:8080/
           kbUsername: admin
@@ -553,7 +554,7 @@ topology_template:
           keycloak: http://keycloak:8080/
           keycloakClientId: sodalite-ide
           keycloakClientSecret: { get_input: keycloak_client_secret }
-        ports:  ['8080:8080']
+        ports: ["8080:8080"]
         volumes:
           - "/tmp/tomcat/webapps/Ansibles:/usr/local/tomcat/webapps/Ansibles"
       requirements:
@@ -566,9 +567,9 @@ topology_template:
     know-db-config:
       type: sodalite.nodes.KBApiConfiguration
       properties:
-        address: { get_attribute: [ SELF, server, public_address ] }
+        address: { get_attribute: [SELF, server, public_address] }
         port: 7200
-        reasoner_address: { get_attribute: [ SELF, server, public_address ] }
+        reasoner_address: { get_attribute: [SELF, server, public_address] }
         reasoner_port: 8080
         kb_password: { get_input: kb_password }
       requirements:
@@ -584,7 +585,7 @@ topology_template:
         alias: iac-metrics
         image_name: sodaliteh2020/iacmetrics:8
         restart_policy: always
-        ports:  ['5003:5000']
+        ports: ["5003:5000"]
       requirements:
         - host: docker-host
         - registry: docker-public-registry
@@ -595,7 +596,7 @@ topology_template:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: tosca-smells
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
         image_name: sodaliteh2020/toscasmells:349
         restart_policy: always
         env:
@@ -604,8 +605,8 @@ topology_template:
           graphdb: http://graph-db:7200
           kbUsername: admin
           kbPassword: { get_input: kb_password }
-        ports:  ['8082:8080']
-        exposed_ports:  ['8080']
+        ports: ["8082:8080"]
+        exposed_ports: ["8080"]
       requirements:
         - host: docker-host
         - registry: docker-public-registry
@@ -618,7 +619,7 @@ topology_template:
         alias: ansible-smells
         image_name: sodaliteh2020/ansiblesmells:349
         restart_policy: always
-        ports:  ['5004:5000']
+        ports: ["5004:5000"]
       requirements:
         - host: docker-host
         - registry: docker-public-registry
@@ -631,7 +632,7 @@ topology_template:
         alias: tosca-syntax
         image_name: sodaliteh2020/toscasynverifier:8
         restart_policy: always
-        ports:  ['5005:5000']
+        ports: ["5005:5000"]
       requirements:
         - host: docker-host
         - registry: docker-public-registry
@@ -642,7 +643,7 @@ topology_template:
         alias: workflow-verifier
         image_name: sodaliteh2020/workflowverifier:8
         restart_policy: always
-        ports:  ['5006:5000']
+        ports: ["5006:5000"]
       requirements:
         - host: docker-host
         - registry: docker-public-registry
@@ -655,8 +656,8 @@ topology_template:
         alias: rule-based-refactorer
         image_name: sodaliteh2020/rule_based_refactorer:49
         restart_policy: always
-        ports:  ['8083:8080']
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        ports: ["8083:8080"]
+        docker_network_name: { get_property: [SELF, network, name] }
         env:
           prometheus: http://prometheus:9090
           xopera: http://proxy:5000
@@ -676,8 +677,8 @@ topology_template:
         alias: performance-predictor-refactoring
         image_name: sodaliteh2020/fo_perf_predictor_api:49
         restart_policy: always
-        ports:  ['5007:5000']
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        ports: ["5007:5000"]
+        docker_network_name: { get_property: [SELF, network, name] }
         env:
           prometheus: http://prometheus:9090
           xopera: http://proxy:5000
@@ -697,10 +698,10 @@ topology_template:
         alias: refactoring-option-discoverer
         image_name: sodaliteh2020/refactoring_option_discoverer:60
         restart_policy: always
-        ports:  ['8084:8080']
+        ports: ["8084:8080"]
         env:
           graphdb: http://graph-db:7200
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
       requirements:
         - host: docker-host
         - registry: docker-public-registry
@@ -712,13 +713,13 @@ topology_template:
     skydive-analyzer:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name:  skydive/skydive:0.27.0
+        image_name: skydive/skydive:0.27.0
         command: analyzer
-        docker_network_name:  { get_property: [ SELF, network, name ] }
-        ports:  ['8088:8082', '8088:8082/udp']
+        docker_network_name: { get_property: [SELF, network, name] }
+        ports: ["8088:8082", "8088:8082/udp"]
         alias: skydive-analyzer
       requirements:
-        - host:  docker-host
+        - host: docker-host
         - registry: docker-public-registry
         - network: docker-network
 
@@ -727,15 +728,15 @@ topology_template:
     skydive-capture:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name:  skydive/skydive:0.27.0
+        image_name: skydive/skydive:0.27.0
         command: client capture create --extra-tcp-metric --gremlin "G.V()"
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
         env:
           SKYDIVE_ANALYZER: skydive-analyzer:8082
         alias: skydive-capture
         restart_policy: no
       requirements:
-        - host:  docker-host
+        - host: docker-host
         - registry: docker-public-registry
         - network: docker-network
         - dependency: skydive-analyzer
@@ -747,16 +748,15 @@ topology_template:
       properties:
         image_name: sodaliteh2020/prometheus-skydive-connector:1
         command: /etc/prom_sky_con.yml
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
         env:
           SKYDIVE_PIPELINE_SUBSCRIBER_URL: ws://skydive-analyzer:8082/ws/subscriber/flow
-        ports:  ['9101:9100']
+        ports: ["9101:9100"]
         alias: prometheus-skydive-connector
       requirements:
-        - host:  docker-host
+        - host: docker-host
         - registry: docker-public-registry
         - network: docker-network
-
 
     # MONITORING-SYSTEM
     # https://github.com/SODALITE-EU/monitoring-system
@@ -767,9 +767,9 @@ topology_template:
         alias: consul
         image_name: library/consul:1.9.1
         restart_policy: always
-        ports:  ['8500:8500','8600:8600/udp']
-        exposed_ports:  ['8500','8600/udp']
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        ports: ["8500:8500", "8600:8600/udp"]
+        exposed_ports: ["8500", "8600/udp"]
+        docker_network_name: { get_property: [SELF, network, name] }
       requirements:
         - host: docker-host
         - registry: docker-public-registry
@@ -789,9 +789,9 @@ topology_template:
         alias: alertmanager
         image_name: prom/alertmanager:v0.21.0
         restart_policy: always
-        ports:  ['9093:9093']
-        exposed_ports:  ['9093']
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        ports: ["9093:9093"]
+        exposed_ports: ["9093"]
+        docker_network_name: { get_property: [SELF, network, name] }
         volumes:
           - "/etc/alertmananger:/etc/alertmanager"
       requirements:
@@ -817,9 +817,9 @@ topology_template:
         alias: prometheus
         image_name: prom/prometheus:v2.23.0
         restart_policy: always
-        ports:  ['9090:9090']
-        exposed_ports:  ['9090']
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        ports: ["9090:9090"]
+        exposed_ports: ["9090"]
+        docker_network_name: { get_property: [SELF, network, name] }
         volumes:
           - "/etc/prometheus:/etc/prometheus"
           - rules-volume:/etc/prometheus/rules
@@ -849,9 +849,9 @@ topology_template:
         alias: grafana
         image_name: grafana/grafana:7.3.7
         restart_policy: always
-        ports:  ['3000:3000']
-        exposed_ports:  ['3000']
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        ports: ["3000:3000"]
+        exposed_ports: ["3000"]
+        docker_network_name: { get_property: [SELF, network, name] }
         env:
           GF_SECURITY_ADMIN_USER: { get_input: gf_admin_user }
           GF_SECURITY_ADMIN_PASSWORD: { get_input: gf_admin_pw }
@@ -873,15 +873,16 @@ topology_template:
         alias: grafana-registry
         image_name: sodaliteh2020/grafana-registry
         restart_policy: always
-        ports:  ['3001:3001']
-        exposed_ports:  ['3001']
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        ports: ["3001:3001"]
+        exposed_ports: ["3001"]
+        docker_network_name: { get_property: [SELF, network, name] }
         env:
           GF_ADMIN_USER: { get_input: gf_admin_user }
           GF_ADMIN_PW: { get_input: gf_admin_pw }
           GF_PORT: { get_input: gf_port }
           GF_REGISTRY_GUNICORN_WORKERS: "4"
-          OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
+          OIDC_INTROSPECTION_ENDPOINT:
+            { get_input: oidc_introspection_endpoint }
           OIDC_CLIENT_SECRET: { get_input: keycloak_client_secret }
           FLASK_RUN_PORT: { get_input: gf_registry_port }
         volumes:
@@ -898,8 +899,8 @@ topology_template:
       type: sodalite.nodes.Tests.Text.Command
       properties:
         # localhost should really be replaced with something like {{ monitoring-system-consul }}; should use concat
-        command: " curl -X PUT -d ' { \"Name\": \"consul-registered-skydive-exporters\", \"ID\": \"fakeuniqueid-skydive-exporter\", \"Address\": \"prometheus-skydive-connector\", \"Port\": 9100 } ' localhost:8500/v1/agent/service/register "
-        comparable_string: '.*'
+        command: ' curl -X PUT -d '' { "Name": "consul-registered-skydive-exporters", "ID": "fakeuniqueid-skydive-exporter", "Address": "prometheus-skydive-connector", "Port": 9100 } '' localhost:8500/v1/agent/service/register '
+        comparable_string: ".*"
         regex: true
       requirements:
         - dependency: prometheus-skydive-connector
@@ -912,11 +913,12 @@ topology_template:
         alias: hpc-exporter
         image_name: sodaliteh2020/hpc-exporter-mt
         restart_policy: always
-        ports:  ['9110:9110']
-        exposed_ports:  ['9110']
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        ports: ["9110:9110"]
+        exposed_ports: ["9110"]
+        docker_network_name: { get_property: [SELF, network, name] }
         env:
-          OIDC_INTROSPECTION_ENDPOINT: { get_input: oidc_introspection_endpoint }
+          OIDC_INTROSPECTION_ENDPOINT:
+            { get_input: oidc_introspection_endpoint }
           OIDC_INTROSPECTION_SECRET: { get_input: keycloak_client_secret }
           VAULT_ADDRESS: { get_input: vault_address }
       requirements:
@@ -931,9 +933,9 @@ topology_template:
       properties:
         image_name: sodaliteh2020/monitoring-system-ruleserver:latest
         restart_policy: always
-        ports: [ '9092:9092' ]
-        exposed_ports: [ '9092' ]
-        docker_network_name: { get_property: [ SELF, network, name ] }
+        ports: ["9092:9092"]
+        exposed_ports: ["9092"]
+        docker_network_name: { get_property: [SELF, network, name] }
         env:
           GUNICORN_WORKERS: "8"
           RULESERVER_PORT: { get_input: ruleserver_port }
@@ -955,13 +957,13 @@ topology_template:
         alias: modak-api
         image_name: sodaliteh2020/modak-api:0.1.2-dev
         restart_policy: always
-        ports:  ['55000:5000']
-        exposed_ports:  ['55000']
+        ports: ["55000:5000"]
+        exposed_ports: ["55000"]
         env:
           MODAK_DATABASE_PASSWORD: { get_input: sodalite_db_password }
           MODAK_DATABASE_HOST: modak-db
           MODAK_DATABASE_PORT: "3306"
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
       requirements:
         - host: docker-host
         - registry: docker-public-registry
@@ -974,19 +976,190 @@ topology_template:
         alias: modak-db
         image_name: sodaliteh2020/modak-py3-mysql:0.1.2-dev
         restart_policy: always
-        ports:  ['32000:3306']
-        exposed_ports:  ['32000']
+        ports: ["32000:3306"]
+        exposed_ports: ["32000"]
         volumes:
           - /docker-entrypoint-initdb.d/
         env:
           MYSQL_ROOT_HOST: "%"
           MYSQL_ROOT_PASSWORD: { get_input: sodalite_db_password }
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+        docker_network_name: { get_property: [SELF, network, name] }
       requirements:
         - host: docker-host
         - registry: docker-public-registry
         - network: docker-network
 
+    # NODE MANAGER
+    # https://github.com/SODALITE-EU/refactoring-ct
+   node-manager-containers_manager:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: node-manager-containers_manager
+        docker_network_name: { get_property: [SELF, network, name] }
+        image_name: sodaliteh2020/node-manager-containers_manager
+        restart_policy: always
+        ports: ["8090:5001"]
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+
+    node-manager-requests_store:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: node-manager-requests_store
+        docker_network_name: { get_property: [SELF, network, name] }
+        image_name: sodaliteh2020/node-manager-requests_store
+        restart_policy: always
+        ports: ["8091:5002"]
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+    node-manager-controller:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: node-manager-controller
+        docker_network_name: { get_property: [SELF, network, name] }
+        image_name: sodaliteh2020/node-manager-controller
+        restart_policy: always
+        ports: ["8092:5003"]
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+    node-manager-dispatcher:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: node-manager-dispatcher
+        docker_network_name: { get_property: [SELF, network, name] }
+        image_name: sodaliteh2020/node-manager-dispatcher
+        restart_policy: always
+        ports: ["8093:8000"]
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+    node-manager-orchestrator:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: node-manager-orchestrator
+        docker_network_name: { get_property: [SELF, network, name] }
+        image_name: sodaliteh2020/nodemanager_orchestrator
+        restart_policy: always
+        ports: ["8094:5000"]
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+    node-manager-dashboard:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: node-manager-dashboard
+        docker_network_name: { get_property: [SELF, network, name] }
+        image_name: sodaliteh2020/nodemanager_dashboard
+        restart_policy: always
+        ports: ["8095:8080"]
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+
+    node-manager-config:
+      type: sodalite.nodes.nodemanager.config
+      properties:
+        endpoint:
+          {
+            concat:
+              [
+                "http://",
+                { get_attribute: [SELF, server, public_address] },
+                ":8094/configuration",
+              ],
+          }
+        orchestrator:
+          actuator_image: "sodaliteh2020/nodemanager_actuator:latest"
+          actuator_port: 5000
+          containers_manager:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8090",
+                ],
+            }
+          requests_store:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8091",
+                ],
+            }
+          dispatcher:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8093",
+                ],
+            }
+          controller:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8092",
+                ],
+            }
+          tfs_init_image: "sodaliteh2020/nodemanager_tfs_init"
+          tfs_config_endpoint:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8094/configuration/tfs",
+                ],
+            }
+          tfs_models_url:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8094/configuration/tfs",
+                ],
+            }
+          k8s_service_type: "NodePort"
+          k8s_image_pull_policy: "Never"
+          k8s_host_network: true
+        containers_manager:
+          init_quota: 2
+        controller:
+          min_cores: 0.1
+          max_cores: 2
+          control_period: 5
+          control_type: "CT"
+          dry_run: true
+        dispatcher:
+          gpu_queues_policy: 2
+          max_log_consumers: 1
+          max_polling_threads: 1
+          max_consumers_cpu: 100
+          max_consumers_gpu: 100
+          verbose: 1
+      requirements:
+        - dependency: node-manager-containers_manager
+        - dependency: node-manager-orchestrator
+        - dependency: node-manager-requests_store
+        - dependency: node-manager-dispatcher
+        - dependency: node-manager-controller
+        - server: sodalite-vm 
 
     # IDE
     # https://github.com/SODALITE-EU/ide

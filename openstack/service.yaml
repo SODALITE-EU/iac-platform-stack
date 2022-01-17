@@ -202,6 +202,12 @@ topology_template:
             port_range_max: 3001
             remote_ip_prefix: 0.0.0.0/0
             protocol: tcp
+          grafana-registry:
+            port_range_min: 8090
+            port_range_max: 8095
+            remote_ip_prefix: 0.0.0.0/0
+            protocol: tcp
+          
         group_name:  sodalite-uc
         group_description:  Sodalite UC security group
 
@@ -1119,5 +1125,178 @@ topology_template:
         - host: docker-host
         - registry: docker-public-registry
         - network: docker-network
+
+    # NODE MANAGER
+    # https://github.com/SODALITE-EU/refactoring-ct
+    node-manager-containers_manager:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: node-manager-containers_manager
+        docker_network_name: { get_property: [SELF, network, name] }
+        image_name: sodaliteh2020/node-manager-containers_manager
+        restart_policy: always
+        ports: ["8090:5001"]
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+
+    node-manager-requests_store:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: node-manager-requests_store
+        docker_network_name: { get_property: [SELF, network, name] }
+        image_name: sodaliteh2020/node-manager-requests_store
+        restart_policy: always
+        ports: ["8091:5002"]
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+    node-manager-controller:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: node-manager-controller
+        docker_network_name: { get_property: [SELF, network, name] }
+        image_name: sodaliteh2020/node-manager-controller
+        restart_policy: always
+        ports: ["8092:5003"]
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+    node-manager-dispatcher:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: node-manager-dispatcher
+        docker_network_name: { get_property: [SELF, network, name] }
+        image_name: sodaliteh2020/node-manager-dispatcher
+        restart_policy: always
+        ports: ["8093:8000"]
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+    node-manager-orchestrator:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: node-manager-orchestrator
+        docker_network_name: { get_property: [SELF, network, name] }
+        image_name: sodaliteh2020/nodemanager_orchestrator
+        restart_policy: always
+        ports: ["8094:5000"]
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+    node-manager-dashboard:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: node-manager-dashboard
+        docker_network_name: { get_property: [SELF, network, name] }
+        image_name: sodaliteh2020/nodemanager_dashboard
+        restart_policy: always
+        ports: ["8095:8080"]
+      requirements:
+        - host: docker-host
+        - network: docker-network
+        - registry: docker-public-registry
+
+    node-manager-config:
+      type: sodalite.nodes.nodemanager.config
+      properties:
+        endpoint:
+          {
+            concat:
+              [
+                "http://",
+                { get_attribute: [SELF, server, public_address] },
+                ":8094/configuration",
+              ],
+          }
+        orchestrator:
+          actuator_image: "sodaliteh2020/nodemanager_actuator:latest"
+          actuator_port: 5000
+          containers_manager:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8090",
+                ],
+            }
+          requests_store:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8091",
+                ],
+            }
+          dispatcher:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8093",
+                ],
+            }
+          controller:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8092",
+                ],
+            }
+          tfs_init_image: "sodaliteh2020/nodemanager_tfs_init"
+          tfs_config_endpoint:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8094/configuration/tfs",
+                ],
+            }
+          tfs_models_url:
+            {
+              concat:
+                [
+                  "http://",
+                  { get_attribute: [SELF, server, public_address] },
+                  ":8094/configuration/tfs",
+                ],
+            }
+          k8s_service_type: "NodePort"
+          k8s_image_pull_policy: "Never"
+          k8s_host_network: true
+        containers_manager:
+          init_quota: 2
+        controller:
+          min_cores: 0.1
+          max_cores: 2
+          control_period: 5
+          control_type: "CT"
+          dry_run: true
+        dispatcher:
+          gpu_queues_policy: 2
+          max_log_consumers: 1
+          max_polling_threads: 1
+          max_consumers_cpu: 100
+          max_consumers_gpu: 100
+          verbose: 1
+      requirements:
+        - dependency: node-manager-containers_manager
+        - dependency: node-manager-orchestrator
+        - dependency: node-manager-requests_store
+        - dependency: node-manager-dispatcher
+        - dependency: node-manager-controller
+        - server: sodalite-vm
+
 
 
