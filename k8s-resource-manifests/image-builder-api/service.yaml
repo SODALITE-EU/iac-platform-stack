@@ -7,9 +7,9 @@ metadata:
 spec:
   ports:
   - name: image-builder-api
-    port: ??? 
+    port: 8080
     protocol: TCP
-    targetPort: ???
+    targetPort: 8080
   selector:
     app: image-builder-api
   sessionAffinity: None

@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: image-builder-api-cert
+  namespace: sodalite-services
+spec:
+  commonName: image-builder-api.public-testbed.sodalite.eu
+  secretName: image-builder-api-cert
+  dnsNames:
+    - image-builder-api.public-testbed.sodalite.eu
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

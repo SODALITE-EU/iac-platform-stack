@@ -1,0 +1,57 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: image-builder-api-postgres
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: image-builder-api-postgres
+  serviceName: image-builder-api-postgres
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: image-builder-api-postgres
+    spec:
+      containers:
+      - name: image-builder-api-postgres
+        image: library/postgres:13
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1G"
+          requests:
+            cpu: "0.5"
+            memory: "512M"
+        ports:
+        - containerPort: 5432
+        env:
+          - name: POSTGRES_USER
+            valueFrom:
+              configMapKeyRef:
+                name: image-builder-api-postgres
+                key: POSTGRES_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: image-builder-api-postgres
+                key: POSTGRES_PASSWORD
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: image-builder-api-postgres
+                key: POSTGRES_DB
+        volumeMounts:
+          - mountPath: "/var/lib/postgresql"
+            name: image-builder-api-postgres
+  volumeClaimTemplates:
+  - metadata:
+      name: image-builder-api-postgres
+      namespace: sodalite-services
+    spec:
+      accessModes: [ ReadWriteOnce ]
+      resources:
+        requests:
+          storage: 1Gi

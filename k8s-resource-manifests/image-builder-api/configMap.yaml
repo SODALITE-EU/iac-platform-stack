@@ -4,6 +4,6 @@ metadata:
   name: image-builder-api
   namespace: sodalite-services
 data:
-  REGISTRY_IP: 
+  REGISTRY_IP: registry.sodalite-services.svc.cluster.local
   DEBUG: "false"
   LOG_LEVEL: debug

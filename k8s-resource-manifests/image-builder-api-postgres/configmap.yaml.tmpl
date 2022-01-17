@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: image-builder-api-postgres
+  namespace: sodalite-services
+  labels:
+    app: image-builder-api-postgres
+data:
+  POSTGRES_USER: image-builder-api
+  POSTGRES_PASSWORD: ${IMAGE_BUILDER_API_DB_PASSWORD}
+  POSTGRES_DB: image-builder-api
+  
