@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tosca-smells-cert
+  namespace: sodalite-services
+spec:
+  commonName: tosca-smells.public-testbed.sodalite.eu
+  secretName: tosca-smells-cert
+  dnsNames:
+    - tosca-smells.public-testbed.sodalite.eu
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

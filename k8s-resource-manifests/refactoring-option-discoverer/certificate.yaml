@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: refactoring-option-discoverer-cert
+  namespace: sodalite-services
+spec:
+  commonName: refactoring-option-discoverer.public-testbed.sodalite.eu
+  secretName: refactoring-option-discoverer-cert
+  dnsNames:
+    - refactoring-option-discoverer.public-testbed.sodalite.eu
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

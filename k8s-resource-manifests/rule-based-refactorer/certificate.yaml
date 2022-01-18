@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: rule-based-refactorer-cert
+  namespace: sodalite-services
+spec:
+  commonName: rule-based-refactorer.public-testbed.sodalite.eu
+  secretName: rule-based-refactorer-cert
+  dnsNames:
+    - rule-based-refactorer.public-testbed.sodalite.eu
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

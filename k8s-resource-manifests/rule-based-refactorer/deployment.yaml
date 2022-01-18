@@ -15,18 +15,51 @@ spec:
     spec:
       containers:
       - image: sodaliteh2020/rule_based_refactorer:49
+        imagePullPolicy: Always
         name: rule-based-refactorer
         ports:
         - containerPort: 8080
           protocol: TCP
         env:
-        - name: prometheus
-          value: http://prometheus:9090
-        - name: xopera
-          value: http://xopera
-        - name: refacopdiscoverer
-          value: http://refactoring-option-discoverer:8084
-        - name: perfpredictor
-          value: http://rule-based-refactorer:5007
-          
+          - name: prometheus
+            value: http://prometheus.sodalite-services.svc.cluster.local:9090
+          - name: xopera
+            value: http://xopera-rest-api.sodalite-services.svc.cluster.local:8080
+          - name: refacopdiscoverer
+            value: http://refactoring-option-discoverer.sodalite-services.svc.cluster.local:8080
+          - name: perfpredictor
+            value: http://fo_perf_predictor_api:5000
+          - name: forecaster
+            value: http://forecast-api:5000
+          - name: reasoner
+            value: http://semantic-reasoner.sodalite-services.svc.cluster.local:5000/reasoner-api/v0.6/
+          - name: authapi
+            value: http://authapi:5000/
+          - name: iacbuilder
+            value: http://iacbuilder-api:5000/
+          - name: username
+            value: indika
+          - name: client_id
+            valueFrom:
+              secretKeyRef:
+                name: keycloak
+                key: client-id
+          - name: client_secret
+            valueFrom:
+              secretKeyRef:
+                name: keycloak
+                key: client-secret
+          - name: password
+            valueFrom:
+              secretKeyRef:
+                name: rule-based-refactorer
+                key: password
+          - name: apikey
+            value: test
+          - name: graphdb
+            value: http://192.168.2.97:7200/
+          - name: pdsUri
+            value: http://192.168.2.133:4444/
+          - name: refactorer
+            value: http://192.168.2.166:8080/rule-based-refactorer/v0.1/api/
        

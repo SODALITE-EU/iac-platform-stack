@@ -21,9 +21,13 @@ spec:
           protocol: TCP
         env:
         - name: WAIT_HOSTS
-          value: graphdb.sodalite-services.svc.cluster.local
+          value: knowledge-db.sodalite-services.svc.cluster.local
+        - name: environment
+          value: docker
         - name: graphdb
-          value: http://knowledge-db.sodalite-services.svc.cluster.local:7200
+          value: http://knowledge-db.sodalite-services.svc.cluster.local:7200/
+        - name: reasoner
+          value: http://semantic-web.sodalite-services.svc.cluster.local:8080/reasoner-api/v0.6/
         - name: kbUsername
           value: admin
         - name: kbPassword
