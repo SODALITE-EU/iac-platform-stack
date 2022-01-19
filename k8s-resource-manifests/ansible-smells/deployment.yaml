@@ -14,9 +14,9 @@ spec:
         app: ansible-smells
     spec:
       containers:
-      - image: sodaliteh2020/ansiblesmells:349
+      - image: sodaliteh2020/ansiblesmells:latest
+        imagePullPolicy: Always
         name: ansible-smells
         ports:
         - containerPort: 5000
           protocol: TCP
- 

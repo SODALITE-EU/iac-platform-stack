@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ansible-smells-ingress
+  namespace: sodalite-services
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: "sodalite-services-force-https-middleware@kubernetescrd"
+spec:
+  rules:
+    - host: ansible-smells.public-testbed.sodalite.eu
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ansible-smells
+                port:
+                  number: 5000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ansible-smells-ingress-tls
+  namespace: sodalite-services
+  annotations:
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  tls:
+  - hosts:
+      - ansible-smells.public-testbed.sodalite.eu
+    secretName: ansible-smells-cert
+  rules:
+    - host: ansible-smells.public-testbed.sodalite.eu
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ansible-smells
+                port:
+                  number: 5000
