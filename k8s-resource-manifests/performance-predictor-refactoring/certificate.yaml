@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: performance-predictor-refactoring-cert
+  namespace: sodalite-services
+spec:
+  commonName: performance-predictor-refactoring.public-testbed.sodalite.eu
+  secretName: performance-predictor-refactoring-cert
+  dnsNames:
+    - performance-predictor-refactoring.public-testbed.sodalite.eu
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fo-perf-predictor-api-ingress
+  namespace: sodalite-services
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: "sodalite-services-force-https-middleware@kubernetescrd"
+spec:
+  rules:
+    - host: fo-perf-predictor-api.public-testbed.sodalite.eu
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: fo-perf-predictor-api
+                port:
+                  number: 5000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fo-perf-predictor-api-ingress-tls
+  namespace: sodalite-services
+  annotations:
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  tls:
+  - hosts:
+      - fo-perf-predictor-api.public-testbed.sodalite.eu
+    secretName: fo-perf-predictor-api-cert
+  rules:
+    - host: fo-perf-predictor-api.public-testbed.sodalite.eu
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: fo-perf-predictor-api
+                port:
+                  number: 5000

@@ -14,19 +14,12 @@ spec:
         app: performance-predictor-refactoring
     spec:
       containers:
-      - image: sodaliteh2020/fo_perf_predictor_api:49
+      - image: sodaliteh2020/toscasmells:349
         name: performance-predictor-refactoring
         ports:
-        - containerPort: 5000
+        - containerPort: 8080
           protocol: TCP
         env:
-        - name: prometheus
-          value: http://prometheus:9090
-        - name: xopera
-          value: http://xopera
-        - name: refacopdiscoverer
-          value: http://refactoring-option-discoverer:8084
-        - name: perfpredictor
-          value: http://performance-predictor-refactoring:5007
+        - name: graphdb
+          value: http://knowledge-db.sodalite-services.svc.cluster.local:7200
           
-       
