@@ -14,7 +14,8 @@ spec:
         app: tosca-syntax
     spec:
       containers:
-      - image: sodaliteh2020/toscasynverifier:8
+      - image: sodaliteh2020/toscasynverifier:latest
+        imagePullPolicy: Always
         name: tosca-syntax
         ports:
         - containerPort: 5000
