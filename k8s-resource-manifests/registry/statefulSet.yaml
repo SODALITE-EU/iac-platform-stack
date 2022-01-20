@@ -40,14 +40,14 @@ spec:
         env:
         - name: REGISTRY_HTTP_ADDR
           value: 0.0.0.0:4430
-        - name: REGISTRY_AUTH_TOKEN_REALM
-          value: https://keycloak.public-testbed.sodalite.eu/auth/realms/SODALITE/protocol/docker-v2/auth
-        - name: REGISTRY_AUTH_TOKEN_SERVICE
-          value: docker-registry
-        - name: REGISTRY_AUTH_TOKEN_ISSUER
-          value: https://keycloak.public-testbed.sodalite.eu/auth/realms/SODALITE
-        - name: REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE
-          value: "/opt/certs/root.pem"
+        # - name: REGISTRY_AUTH_TOKEN_REALM
+        #   value: https://keycloak.public-testbed.sodalite.eu/auth/realms/SODALITE/protocol/docker-v2/auth
+        # - name: REGISTRY_AUTH_TOKEN_SERVICE
+        #   value: docker-registry
+        # - name: REGISTRY_AUTH_TOKEN_ISSUER
+        #   value: https://keycloak.public-testbed.sodalite.eu/auth/realms/SODALITE
+        # - name: REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE
+        #   value: "/opt/certs/root.pem"
         volumeMounts:
         - name: certificates
           mountPath: /opt/certs
