@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: semantic-web
   namespace: sodalite-services
@@ -7,6 +7,7 @@ spec:
   selector:
     matchLabels:
       app: semantic-web
+  serviceName: semantic-web
   replicas: 1
   template:
     metadata:
@@ -14,20 +15,20 @@ spec:
         app: semantic-web
     spec:
       containers:
-      - image: sodaliteh2020/semantic_web:0.6.1
+      - image: sodaliteh2020/semantic_web:latest
         imagePullPolicy: Always
         name: semantic-web
         env:
         - name: WAIT_HOSTS
-          value: knowledge-db.sodalite-services.svc.cluster.local:7200
+          value: knowledge-db.public-testbed.sodalite.eu
         - name: graphdb
-          value: http://knowledge-db.sodalite-services.svc.cluster.local:7200
+          value: https://knowledge-db.public-testbed.sodalite.eu/
         - name: bugPredictorServer
-          value: http://tosca-smells.sodalite-services.svc.cluster.local:8082/
+          value: https://tosca-smells.public-testbed.sodalite.eu/
         - name: ansiblePath
           value: /usr/local/tomcat/webapps/Ansibles/
         - name: reasonerServer
-          value: http://semantic-web.sodalite-services.svc.cluster.local:8080/
+          value: https://semantic-web.public-testbed.sodalite.eu/
         - name: kbUsername
           value: admin
         - name: kbPassword
@@ -35,16 +36,29 @@ spec:
             secretKeyRef:
               name: semantic-web
               key: kb_password
-        - name: keycloak
-          # value: http://keycloak.sodalite-services.svc.cluster.local:8100/
-          value: https://keycoak.public-testbed.sodalite.eu
-        - name: keycloakClientId
-          value: sodalite-ide
-        - name: keycloakClientSecret
-          valueFrom:
-            secretKeyRef:
-              name: semantic-web
-              key: keycloakClientSecret
+        # - name: keycloak
+        #   value: https://keycloak.public-testbed.sodalite.eu
+        # - name: keycloakClientId
+        #   value: sodalite-ide
+        # - name: keycloakClientSecret
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: semantic-web
+        #       key: keycloakClientSecret
+        - name: environment
+          value: docker
         ports:
         - containerPort: 8080
           protocol: TCP
+        volumeMounts:
+          - mountPath: "/usr/local/tomcat/webapps/Ansibles"
+            name: semantic-web-ansibles
+  volumeClaimTemplates:
+  - metadata:
+      name: semantic-web-ansibles
+      namespace: sodalite-services
+    spec:
+      accessModes: [ ReadWriteOnce ]
+      resources:
+        requests:
+          storage: 5Gi
