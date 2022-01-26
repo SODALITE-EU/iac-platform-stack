@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: knowledge-db
   namespace: sodalite-services
@@ -7,18 +7,92 @@ spec:
   selector:
     matchLabels:
       app: knowledge-db
+  serviceName: knowledge-db
   replicas: 1
   template:
     metadata:
       labels:
         app: knowledge-db
     spec:
+      initContainers:
+      - image: sodaliteh2020/graph_db:latest
+        imagePullPolicy: Always
+        name: semantic-web-certs
+        command: ['sh', '-c', 
+          'set -xe;
+          apk update;
+          apk add java-cacerts;' ]
+        volumeMounts:
+        - mountPath: /etc/ssl/certs/java/
+          name: cacerts
       containers:
-      - image: sodaliteh2020/graph_db:192
+      - image: sodaliteh2020/graph_db:latest
+        imagePullPolicy: Always
+        # command: [ 'sh', '-c', '
+        # set -x;
+        # apk update;
+        # apk add java-cacerts;
+        # /opt/graphdb/dist/bin/graphdb -Dgraphdb.home=/opt/graphdb/home -Ddefault.min.distinct.threshold=10485760 -Djava.security.egd=file:/dev/./urandom -Xmx10G -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+        # ']
+        # command: [ 
+        #   "/opt/graphdb/dist/bin/graphdb",
+        #   "-Dgraphdb.home=/opt/graphdb/home", 
+        #   "-Ddefault.min.distinct.threshold=10485760", 
+        #   "-Djava.security.egd=file:/dev/./urandom",
+        #   "-Xmx10G",
+          # "-Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts" ]
+        args: 
         name: knowledge-db
         ports:
         - containerPort: 7200
           protocol: TCP
+        resources:
+          limits:
+            cpu: "3"
+            memory: "3G"
+          requests:
+            cpu: "2"
+            memory: "1G"
+        env:
+        - name: JAVA_TOOL_OPTIONS
+          value: "-Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts"
+        - name: keycloak
+          value: https://keycloak.public-testbed.sodalite.eu
+        - name: keycloakClientId
+          value: sodalite-ide
+        - name: graphdb
+          value: http://knowledge-db.sodalite-services.svc.cluster.local:7200/
+        - name: environment
+          value: docker
+        - name: keycloakClientSecret
+          valueFrom:
+            secretKeyRef:
+              name: keycloak
+              key: client-secret
+        - name: kbUsername
+          value: admin
+        - name: kbPassword
+          valueFrom:
+            secretKeyRef:
+              name: semantic-web
+              key: kb_password
+        volumeMounts:
+        - mountPath: /etc/ssl/certs/java/
+          name: cacerts
+        - mountPath: "/opt/graphdb/home"
+          name: knowledge-db-home
+      volumes:
+      - name: cacerts
+        emptyDir: {}
+  volumeClaimTemplates:
+  - metadata:
+      name: knowledge-db-home
+      namespace: sodalite-services
+    spec:
+      accessModes: [ ReadWriteOnce ]
+      resources:
+        requests:
+          storage: 5Gi
 ---
 apiVersion: batch/v1
 kind: Job
@@ -26,6 +100,7 @@ metadata:
   name: init-knowdb
   namespace: sodalite-services
 spec:
+  backoffLimit: 1
   template:
     spec:
       restartPolicy: "OnFailure"
@@ -34,10 +109,10 @@ spec:
         image: curlimages/curl
         command: ['sh', '-c', 
           '
-          set -xe
-          #curl --show-error http://${REASONER_ADDRESS}:${REASONER_PORT}/reasoner-api/v0.6/testReasoner;
-          #curl --show-error -X PUT -H "x-graphdb-password: ${KB_PASSWORD}" -H "x-graphdb-repository: admin" -H "Content-Type: application/json" -d "{\"grantedAuthorities\": [\"ROLE_ADMIN\"],\"appSettings\": {\"DEFAULT_INFERENCE\": true, \"DEFAULT_SAMEAS\": true, \"IGNORE_SHARED_QUERIES\": false, \"EXECUTE_COUNT\": true }" http://${ADDRESS}:${PORT}/rest/security/user/admin;
-          #curl -f --show-error -X POST -d "true" http://${ADDRESS}:${PORT}/rest/security;
+          set -xe;
+          curl -v -f --show-error http://${REASONER_ADDRESS}:${REASONER_PORT}/reasoner-api/v0.6/testReasoner;
+          curl -v -f --show-error -X PUT -H "x-graphdb-password: ${KB_PASSWORD}" -H "x-graphdb-repository: admin" -H "Content-Type: application/json" -d "{\"grantedAuthorities\": [\"ROLE_ADMIN\"],\"appSettings\": {\"DEFAULT_INFERENCE\": true, \"DEFAULT_SAMEAS\": true, \"IGNORE_SHARED_QUERIES\": false, \"EXECUTE_COUNT\": true }" http://${ADDRESS}:${PORT}/rest/security/user/admin;
+          curl -v -f --show-error -X POST -d "\"true\"" http://${ADDRESS}:${PORT}/rest/security;
           ']
         env:
         - name: ADDRESS
@@ -45,7 +120,7 @@ spec:
         - name: PORT
           value: "7200"
         - name: REASONER_ADDRESS
-          value: knowledge-db.sodalite-services.svc.cluster.local
+          value: semantic-web.sodalite-services.svc.cluster.local
         - name: REASONER_PORT
           value: "8080"
         - name: KB_PASSWORD
