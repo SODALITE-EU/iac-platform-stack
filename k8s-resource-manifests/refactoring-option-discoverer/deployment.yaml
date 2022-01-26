@@ -14,12 +14,12 @@ spec:
         app: refactoring-option-discoverer
     spec:
       containers:
-      - image: sodaliteh2020/toscasmells:349
+      - image: sodaliteh2020/refactoring_option_discoverer:latest
         name: refactoring-option-discoverer
         ports:
         - containerPort: 8080
           protocol: TCP
         env:
         - name: graphdb
-          value: http://knowledge-db.sodalite-services.svc.cluster.local:7200
+          value: https://knowledge-db.public-testbed.sodalite.eu/
           
