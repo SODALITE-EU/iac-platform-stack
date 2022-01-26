@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skydive-capture
+  namespace: sodalite-services
+spec:
+  selector:
+    matchLabels:
+      app: skydive-capture
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: skydive-capture
+    spec:
+      containers:
+      - image: skydive/skydive:0.27.0
+        name: skydive-capture
+        args: [ "client", "capture", "create", "--extra-tcp-metric", "--gremlin", "G.V()" ]
+        env:
+        - name: SKYDIVE_ANALYZER
+          value: skydive-analyzer.sodalite-services.svc.cluster.local:8082
