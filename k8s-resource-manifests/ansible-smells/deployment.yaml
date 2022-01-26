@@ -20,3 +20,10 @@ spec:
         ports:
         - containerPort: 5000
           protocol: TCP
+        resources:
+          limits:
+            cpu: "1.5"
+            memory: "1G"
+          requests:
+            cpu: "0.75"
+            memory: "512M"
