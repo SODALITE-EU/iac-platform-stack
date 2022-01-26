@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-registry-ingress
+  namespace: sodalite-services
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: sodalite-services-force-https-middleware@kubernetescrd
+spec:
+  rules:
+    - host: grafana-registry.public-testbed.sodalite.eu
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana-registry
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-registry-ingress-tls
+  namespace: sodalite-services
+  annotations:
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  tls:
+  - hosts:
+      - grafana-registry.public-testbed.sodalite.eu
+    secretName: grafana-registry-cert
+  rules:
+    - host: grafana-registry.public-testbed.sodalite.eu
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana-registry
+                port:
+                  number: 80
