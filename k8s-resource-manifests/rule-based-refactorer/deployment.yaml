@@ -14,7 +14,7 @@ spec:
         app: rule-based-refactorer
     spec:
       containers:
-      - image: sodaliteh2020/rule_based_refactorer:49
+      - image: sodaliteh2020/rule_based_refactorer:latest
         imagePullPolicy: Always
         name: rule-based-refactorer
         ports:
@@ -22,21 +22,21 @@ spec:
           protocol: TCP
         env:
           - name: prometheus
-            value: http://prometheus.sodalite-services.svc.cluster.local:9090
+            value: https://prometheus.public-testbed.sodalite.eu/
           - name: xopera
-            value: http://xopera-rest-api.sodalite-services.svc.cluster.local:8080
+            value: https://xopera-rest-api.public-testbed.sodalite.eu/
           - name: refacopdiscoverer
-            value: http://refactoring-option-discoverer.sodalite-services.svc.cluster.local:8080
+            value: https://refactoring-option-discoverer.public-testbed.sodalite.eu
           - name: perfpredictor
             value: http://fo_perf_predictor_api:5000
           - name: forecaster
             value: http://forecast-api:5000
           - name: reasoner
-            value: http://semantic-reasoner.sodalite-services.svc.cluster.local:5000/reasoner-api/v0.6/
+            value: https://semantic-web.public-testbed.sodalite.eu/reasoner-api/v0.6/
           - name: authapi
-            value: http://authapi:5000/
+            value: https://keycloak.public-testbed.sodalite.eu
           - name: iacbuilder
-            value: http://iacbuilder-api:5000/
+            value: https://iac-builder.public-testbed.sodalite.eu/
           - name: username
             value: indika
           - name: client_id
@@ -57,9 +57,9 @@ spec:
           - name: apikey
             value: test
           - name: graphdb
-            value: http://192.168.2.97:7200/
+            value: https://knowledge-db.public-testbed.sodalite.eu/
           - name: pdsUri
-            value: http://192.168.2.133:4444/
+            value: http://pds_api:5000/
           - name: refactorer
-            value: http://192.168.2.166:8080/rule-based-refactorer/v0.1/api/
+            value: https://rule-based-refactorer.public-testbed.sodalite.eu/rule-based-refactorer/v0.1/api/
        
