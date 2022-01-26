@@ -26,7 +26,7 @@ spec:
             name: ssh-target
       containers:
       - name: xopera-rest-api
-        image: sodaliteh2020/xopera-rest-api
+        image: sodaliteh2020/xopera-rest-api:latest
         resources:
           limits:
             cpu: "2"
@@ -37,9 +37,9 @@ spec:
         ports:
         - containerPort: 8080
         # Add for OpenVPN
-        #securityContext:
-        #  capabilities:
-        #    add: ["NET_ADMIN"]
+        securityContext:
+         capabilities:
+           add: ["NET_ADMIN"]
         env:
           - name: DEBUG
             value: "false"
@@ -114,3 +114,13 @@ spec:
       resources:
         requests:
           storage: 1Gi
+
+# Starting OpenVPn in the container:
+# ```shell
+# # apk update; apk add openvpn sudo
+# # mkdir -p /dev/net
+# # mknod /dev/net/tun c 10 200
+# [ clone the repo with keys for VPN ]
+# $ cd sodalite/src/wp6/vpn.sodalite.eu/client
+# # ./connect.sh &
+# ```
