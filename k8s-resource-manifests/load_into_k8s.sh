@@ -120,7 +120,7 @@ kubectl -n kube-system delete pod -l app.kubernetes.io/name=traefik
 
 # And start applying other services. k8s will take care of anything that
 # isn't quite up/in the wrong order, so we can just batch apply things
-for CDIR in keycloak keycloak-postgres vault-secret-uploader xopera-postgres xopera-rest-api iac-builder knowledge-db semantic-web tosca-smells consul alertmanager prometheus ruleserver prometheus-skydive-connector skydive-analyzer skydive-capture registry grafana modak image-builder-api image-builder-api-postgres refactoring-option-discoverer fo-perf-predictor-api ansible-smells tosca-syntax
+for CDIR in keycloak keycloak-postgres vault-secret-uploader xopera-postgres xopera-rest-api iac-builder knowledge-db semantic-web tosca-smells consul alertmanager prometheus ruleserver prometheus-skydive-connector skydive-analyzer skydive-capture registry grafana modak image-builder-api image-builder-api-postgres refactoring-option-discoverer fo-perf-predictor-api ansible-smells tosca-syntax workflow-verifier
 do
 for YAML in $(find $CDIR -name '*.yaml')
 do
