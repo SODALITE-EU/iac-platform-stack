@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: workflow-verifier-ingress
+  namespace: sodalite-services
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: "sodalite-services-force-https-middleware@kubernetescrd"
+spec:
+  rules:
+    - host: workflow-verifier.public-testbed.sodalite.eu
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: workflow-verifier
+                port:
+                  number: 5000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: workflow-verifier-ingress-tls
+  namespace: sodalite-services
+  annotations:
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  tls:
+  - hosts:
+      - workflow-verifier.public-testbed.sodalite.eu
+    secretName: workflow-verifier-cert
+  rules:
+    - host: workflow-verifier.public-testbed.sodalite.eu
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: workflow-verifier
+                port:
+                  number: 5000

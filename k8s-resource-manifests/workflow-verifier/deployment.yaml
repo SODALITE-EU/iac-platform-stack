@@ -14,7 +14,8 @@ spec:
         app: workflow-verifier
     spec:
       containers:
-      - image: sodaliteh2020/workflowverifier:8
+      - image: sodaliteh2020/workflowverifier:latest
+        imagePullPolicy: Always
         name: workflow-verifier
         ports:
         - containerPort: 5000
