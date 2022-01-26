@@ -14,11 +14,12 @@ spec:
         app: iac-builder
     spec:
       containers:
-      - image: sodaliteh2020/iac-blueprint-builder:M24Release
+      - image: sodaliteh2020/iac-blueprint-builder:latest
         name: iac-builder
         env:
         - name: XOPERA_ENDPOINT
-          value: xopera-rest-api.sodalite-services.svc.cluster.local
+          value: https://xopera-rest-api.public-testbed.sodalite.eu
+          #value: http://xopera-rest-api.sodalite-services.svc.cluster.local
         ports:
         - containerPort: 80
           protocol: TCP
