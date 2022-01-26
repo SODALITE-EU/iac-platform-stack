@@ -3,6 +3,7 @@ keycloak/admin-password.yaml
 keycloak/config-secret.yaml
 keycloak/secret-realm.yaml
 keycloak/secret.yaml
+keycloak-postgres/configmap.yaml
 vault/secret-token.yaml
 grafana/secret.yaml
 xopera-postgres/configmap.yaml

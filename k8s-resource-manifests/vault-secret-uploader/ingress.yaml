@@ -1,43 +1,43 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: prometheus-skydive-connector-ingress
+  name: vault-secret-uploader-ingress
   namespace: sodalite-services
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: "sodalite-services-force-https-middleware@kubernetescrd"
 spec:
   rules:
-    - host: prometheus-skydive-connector.public-testbed.sodalite.eu
+    - host: vault-secret-uploader.public-testbed.sodalite.eu
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: prometheus-skydive-connector
+                name: vault-secret-uploader
                 port:
-                  number: 9100
+                  number: 80
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: prometheus-skydive-connector-ingress-tls
+  name: vault-secret-uploader-ingress-tls
   namespace: sodalite-services
   annotations:
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   tls:
   - hosts:
-      - prometheus-skydive-connector.public-testbed.sodalite.eu
-    secretName: prometheus-skydive-connector-cert
+      - vault-secret-uploader.public-testbed.sodalite.eu
+    secretName: vault-secret-uploader-cert
   rules:
-    - host: prometheus-skydive-connector.public-testbed.sodalite.eu
+    - host: vault-secret-uploader.public-testbed.sodalite.eu
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: prometheus-skydive-connector
+                name: vault-secret-uploader
                 port:
-                  number: 9100
+                  number: 80

@@ -1,43 +1,43 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: prometheus-skydive-connector-ingress
+  name: image-builder-api-ingress
   namespace: sodalite-services
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: "sodalite-services-force-https-middleware@kubernetescrd"
 spec:
   rules:
-    - host: prometheus-skydive-connector.public-testbed.sodalite.eu
+    - host: image-builder-api.public-testbed.sodalite.eu
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: prometheus-skydive-connector
+                name: image-builder-api
                 port:
-                  number: 9100
+                  number: 8080
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: prometheus-skydive-connector-ingress-tls
+  name: image-builder-api-ingress-tls
   namespace: sodalite-services
   annotations:
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   tls:
   - hosts:
-      - prometheus-skydive-connector.public-testbed.sodalite.eu
-    secretName: prometheus-skydive-connector-cert
+      - image-builder-api.public-testbed.sodalite.eu
+    secretName: image-builder-api-cert
   rules:
-    - host: prometheus-skydive-connector.public-testbed.sodalite.eu
+    - host: image-builder-api.public-testbed.sodalite.eu
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: prometheus-skydive-connector
+                name: image-builder-api
                 port:
-                  number: 9100
+                  number: 8080

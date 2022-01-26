@@ -14,7 +14,8 @@ spec:
         app: semantic-web
     spec:
       containers:
-      - image: sodaliteh2020/semantic_web:M24Release
+      - image: sodaliteh2020/semantic_web:0.6.1
+        imagePullPolicy: Always
         name: semantic-web
         env:
         - name: WAIT_HOSTS
@@ -35,7 +36,8 @@ spec:
               name: semantic-web
               key: kb_password
         - name: keycloak
-          value: http://keycloak.sodalite-services.svc.cluster.local:8100/
+          # value: http://keycloak.sodalite-services.svc.cluster.local:8100/
+          value: https://keycoak.public-testbed.sodalite.eu
         - name: keycloakClientId
           value: sodalite-ide
         - name: keycloakClientSecret

@@ -1,13 +1,13 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: iac-builder-cert
+  name: modak-cert
   namespace: sodalite-services
 spec:
-  commonName: iac-builder.public-testbed.sodalite.eu
-  secretName: iac-builder-cert
+  commonName: modak.public-testbed.sodalite.eu
+  secretName: modak-cert
   dnsNames:
-    - iac-builder.public-testbed.sodalite.eu
+    - modak.public-testbed.sodalite.eu
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer

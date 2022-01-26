@@ -1,43 +1,43 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: prometheus-skydive-connector-ingress
+  name: skydive-analyzer-ingress
   namespace: sodalite-services
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: "sodalite-services-force-https-middleware@kubernetescrd"
 spec:
   rules:
-    - host: prometheus-skydive-connector.public-testbed.sodalite.eu
+    - host: skydive-analyzer.public-testbed.sodalite.eu
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: prometheus-skydive-connector
+                name: skydive-analyzer
                 port:
-                  number: 9100
+                  number: 8082
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: prometheus-skydive-connector-ingress-tls
+  name: skydive-analyzer-ingress-tls
   namespace: sodalite-services
   annotations:
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   tls:
   - hosts:
-      - prometheus-skydive-connector.public-testbed.sodalite.eu
-    secretName: prometheus-skydive-connector-cert
+      - skydive-analyzer.public-testbed.sodalite.eu
+    secretName: skydive-analyzer-cert
   rules:
-    - host: prometheus-skydive-connector.public-testbed.sodalite.eu
+    - host: skydive-analyzer.public-testbed.sodalite.eu
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: prometheus-skydive-connector
+                name: skydive-analyzer
                 port:
-                  number: 9100
+                  number: 8082

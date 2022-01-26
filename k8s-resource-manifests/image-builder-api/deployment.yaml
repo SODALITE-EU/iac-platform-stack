@@ -3,6 +3,9 @@ kind: Deployment
 metadata:
   name: image-builder-api
   namespace: sodalite-services
+  annotations:
+    container.apparmor.security.beta.kubernetes.io/image-builder-api: unconfined
+    container.seccomp.security.alpha.kubernetes.io/image-builder-api: unconfined
 spec:
   selector:
     matchLabels:
@@ -14,14 +17,9 @@ spec:
         app: image-builder-api
     spec:
       containers:
-      - image: sodaliteh2020/image-builder-api:1.0.0
+      - image: sodaliteh2020/image-builder-api:latest
         name: image-builder-api
         env:
-        - name: REGISTRY_IP
-          valueFrom:
-            configMapKeyRef:
-              name: image-builder-api
-              key: REGISTRY_IP
         - name: DEBUG
           valueFrom:
             configMapKeyRef:
@@ -32,6 +30,41 @@ spec:
             configMapKeyRef:
               name: image-builder-api
               key: LOG_LEVEL
+        - name: OIDC_INTROSPECTION_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: keycloak
+              key: introspect-url
+        - name: OIDC_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: keycloak
+              key: client-id
+        - name: OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: keycloak
+              key: client-secret
+        - name: IMAGEBUILDER_DATABASE_URL
+          value: image-builder-api-postgres.sodalite-services.svc.cluster.local
+        - name: IMAGEBUILDER_DATABASE_DB
+          valueFrom:
+            configMapKeyRef:
+              name: image-builder-api-postgres
+              key: POSTGRES_DB
+        - name: IMAGEBUILDER_DATABASE_USER
+          valueFrom:
+            configMapKeyRef:
+              name: image-builder-api-postgres
+              key: POSTGRES_USER
+        - name: IMAGEBUILDER_DATABASE_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: image-builder-api-postgres
+              key: POSTGRES_PASSWORD
+        securityContext:
+          procMount: Unmasked
+          privileged: true
         ports:
         - containerPort: 8080
           protocol: TCP

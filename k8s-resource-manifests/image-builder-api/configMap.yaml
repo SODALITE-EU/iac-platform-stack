@@ -4,6 +4,5 @@ metadata:
   name: image-builder-api
   namespace: sodalite-services
 data:
-  REGISTRY_IP: 
   DEBUG: "false"
   LOG_LEVEL: debug
