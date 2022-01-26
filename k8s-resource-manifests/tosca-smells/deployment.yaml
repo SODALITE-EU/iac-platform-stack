@@ -19,14 +19,23 @@ spec:
         ports:
         - containerPort: 8080
           protocol: TCP
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1G"
+          requests:
+            cpu: "0.25"
+            memory: "256M"
         env:
         - name: WAIT_HOSTS
-          value: knowledge-db.sodalite-services.svc.cluster.local
+          #value: knowledge-db.sodalite-services.svc.cluster.local:7200
+          value: knowledge-db.public-testbed.sodalite.eu
         - name: environment
           value: docker
         - name: graphdb
-          value: http://knowledge-db.sodalite-services.svc.cluster.local:7200/
-        - name: reasoner
+          #value: http://knowledge-db.sodalite-services.svc.cluster.local:7200/
+          value: https://knowledge-db.public-testbed.sodalite.eu/
+        - name: reasonerServer
           value: http://semantic-web.sodalite-services.svc.cluster.local:8080/reasoner-api/v0.6/
         - name: kbUsername
           value: admin
