@@ -92,6 +92,14 @@ topology_template:
       type: list
     kb_password:
       type: string
+    nifi_ca_token:
+      type: string
+    nifi_sensitive_props_key:
+      type: string
+    nifi_oidc_admin:
+      type: string
+    nifi_gridftp_certificates_location:
+      type: string
 
   node_templates:
     sodalite-vm:
@@ -991,7 +999,7 @@ topology_template:
 
     # NODE MANAGER
     # https://github.com/SODALITE-EU/refactoring-ct
-   node-manager-containers_manager:
+    node-manager-containers_manager:
       type: sodalite.nodes.DockerizedComponent
       properties:
         alias: node-manager-containers_manager
@@ -1160,6 +1168,128 @@ topology_template:
         - dependency: node-manager-dispatcher
         - dependency: node-manager-controller
         - server: sodalite-vm 
+
+
+    # Apache NiFi
+    nifi-zookeper:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: zookeper
+        hostname: zookeeper
+        image_name: bitnami/zookeeper:latest
+        restart_policy: always
+        ports: ["2181:2181"]
+        env:
+          ALLOW_ANONYMOUS_LOGIN: yes
+        docker_network_name: { get_property: [SELF, network, name] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: keycloak-container
+
+    nifi-ca:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: nifi-ca
+        hostname: nifi-ca.nifi.cluster
+        image_name: apache/nifi-toolkit:1.15.3
+        restart_policy: always
+        ports: ["9443:9443"]
+        entrypoint:
+          - sh
+          - -c
+          - |
+            exec $${NIFI_TOOLKIT_HOME}/bin/tls-toolkit.sh server -c $$HOSTNAME -t $$NIFI_CA_TOKEN -p $$NIFI_CA_PORT
+        env:
+          NIFI_CA_TOKEN: { get_input: nifi_ca_token }
+          NIFI_CA_PORT: 9443
+        docker_network_name: { get_property: [SELF, network, name] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: nifi-zookeper
+
+    nifi-nifi1:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: nifi1
+        hostname: nifi1.nifi.cluster
+        image_name: sodaliteh2020/jglobus-nifi:1.15.3
+        restart_policy: always
+        ports: ["9543:9443"]
+        env:
+          NIFI_VERSION: 1.15.3
+          NIFI_INSTANCE_COUNT: 2
+          AUTH: tls
+          NIFI_WEB_HTTPS_HOST: nifi1.nifi.cluster
+          NIFI_WEB_HTTPS_PORT: 9443
+          NIFI_WEB_PROXY_HOST: nifi1.nifi.cluster:9543,localhost:9543
+          NIFI_SENSITIVE_PROPS_KEY: { get_input: nifi_sensitive_props_key }
+          INITIAL_ADMIN_IDENTITY: { get_input: nifi_oidc_admin }
+          NIFI_CLUSTER_IS_NODE: true
+          NIFI_CLUSTER_NODE_PROTOCOL_PORT: 9988
+          NIFI_CLUSTER_NODE_PROTOCOL_THREADS: 10
+          NIFI_CLUSTER_NODE_PROTOCOL_MAX_THREADS: 50
+          NIFI_ZK_CONNECT_STRING: zookeeper:2181
+          NIFI_ELECTION_MAX_WAIT: 1 min
+          NIFI_OIDC_DISCOVERY_URL: http://keycloak:8080/auth/realms/SODALITE/.well-known/openid-configuration
+          NIFI_OIDC_CLIENT_ID: sodalite-ide
+          NIFI_OIDC_CLIENT_SECRET: { get_input: keycloak_client_secret }
+          NIFI_OIDC_ADMIN: { get_input: nifi_oidc_admin }
+          NIFI_CA_TOKEN: { get_input: nifi_ca_token }
+          NIFI_CA_HOST: nifi-ca.nifi.cluster
+          NIFI_CA_PORT: 9443
+        docker_network_name: { get_property: [SELF, network, name] }
+        volumes:
+          - { concat: [ { get_input: nifi_gridftp_certificates_location }, ":", "/etc/grid-security/certificates" ] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: nifi-zookeper
+        - dependency: nifi-ca
+
+    nifi-nifi2:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: nifi2
+        hostname: nifi2.nifi.cluster
+        image_name: sodaliteh2020/jglobus-nifi:1.15.3
+        restart_policy: always
+        ports: ["9643:9443"]
+        env:
+          NIFI_VERSION: 1.15.3
+          NIFI_INSTANCE_COUNT: 2
+          AUTH: tls
+          NIFI_WEB_HTTPS_HOST: nifi2.nifi.cluster
+          NIFI_WEB_HTTPS_PORT: 9443
+          NIFI_WEB_PROXY_HOST: nifi2.nifi.cluster:9643,localhost:9643
+          NIFI_SENSITIVE_PROPS_KEY: { get_input: nifi_sensitive_props_key }
+          INITIAL_ADMIN_IDENTITY: { get_input: nifi_oidc_admin }
+          NIFI_CLUSTER_IS_NODE: true
+          NIFI_CLUSTER_NODE_PROTOCOL_PORT: 9988
+          NIFI_CLUSTER_NODE_PROTOCOL_THREADS: 10
+          NIFI_CLUSTER_NODE_PROTOCOL_MAX_THREADS: 50
+          NIFI_ZK_CONNECT_STRING: zookeeper:2181
+          NIFI_ELECTION_MAX_WAIT: 1 min
+          NIFI_OIDC_DISCOVERY_URL: http://keycloak:8080/auth/realms/SODALITE/.well-known/openid-configuration
+          NIFI_OIDC_CLIENT_ID: sodalite-ide
+          NIFI_OIDC_CLIENT_SECRET: { get_input: keycloak_client_secret }
+          NIFI_OIDC_ADMIN: { get_input: nifi_oidc_admin }
+          NIFI_CA_TOKEN: { get_input: nifi_ca_token }
+          NIFI_CA_HOST: nifi-ca.nifi.cluster
+          NIFI_CA_PORT: 9443
+        docker_network_name: { get_property: [SELF, network, name] }
+        volumes:
+          - { concat: [ { get_input: nifi_gridftp_certificates_location }, ":", "/etc/grid-security/certificates" ] }
+      requirements:
+        - host: docker-host
+        - registry: docker-public-registry
+        - network: docker-network
+        - dependency: nifi-zookeper
+        - dependency: nifi-ca
 
     # IDE
     # https://github.com/SODALITE-EU/ide
