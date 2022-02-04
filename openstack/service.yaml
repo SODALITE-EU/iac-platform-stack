@@ -625,6 +625,7 @@ topology_template:
           - "8081:80"
         env:
           XOPERA_ENDPOINT: http://proxy:5000
+          MODAK_ENDPOINT: http://modak-api:55000
       requirements:
         - host: docker-host
         - registry: docker-public-registry
