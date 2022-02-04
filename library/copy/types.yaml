@@ -1,0 +1,21 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+node_types:
+  sodalite.nodes.CopyToRemote:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      src:
+        type: string
+      dest:
+        type: string
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              ansible_user: { type: string, default: { get_property: [ SELF, host, username ] } } 
+              src: { type: string, default: { get_property: [ SELF, src ] } }
+              dest: { type: string, default: { get_property: [ SELF, dest ] } }
+            implementation:
+              primary: playbooks/copy_to_remote.yaml

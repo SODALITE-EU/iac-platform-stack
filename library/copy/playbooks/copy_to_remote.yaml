@@ -1,0 +1,11 @@
+---
+- hosts: all
+  tasks:
+    - name: Create dest directory
+      file:
+        path: "{{ dest }}"
+        state: directory
+    - name: Copy from local to remote
+      copy:
+        src: "{{ src if src[-1] == '/' else src + '/' }}"
+        dest: "{{ dest }}"
