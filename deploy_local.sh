@@ -305,7 +305,7 @@ if [[ -z "$REUSE_INPUT_FILE" ]]; then
   echo
   read -rp "[Optonal] Please enter the directory of GridFTP trusted certificates: " NIFI_GRIDFTP_CERTIFICATES_LOCATION_INPUT
   DEFAULT_GRIDFTP_CERTDIR=$(pwd)/docker-local/modules/gridftp-certdir/
-  [ -z "$NIFI_GRIDFTP_CERTIFICATES_LOCATION_INPUT" ] && mkdir -p $DEFAULT_GRIDFTP_CERTDIR
+  [ -z "$NIFI_GRIDFTP_CERTIFICATES_LOCATION_INPUT" ] && mkdir -p "$DEFAULT_GRIDFTP_CERTDIR"
   export NIFI_GRIDFTP_CERTIFICATES_LOCATION=${NIFI_GRIDFTP_CERTIFICATES_LOCATION_INPUT:-$DEFAULT_GRIDFTP_CERTDIR}
 
   export NIFI_CA_TOKEN=$(openssl rand -hex 20)
