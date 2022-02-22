@@ -4,7 +4,7 @@
 # Pinned versions
 
 OPERA_VERSION="0.6.6"
-IAC_MODULES_VERSION="3.4.1"
+IAC_MODULES_VERSION="3.6.0"
 
 # UUID regex for validation of uuid inputs
 UUID_pattern='^\{?[A-Z0-9a-z]{8}-[A-Z0-9a-z]{4}-[A-Z0-9a-z]{4}-[A-Z0-9a-z]{4}-[A-Z0-9a-z]{12}\}?$'
@@ -416,6 +416,18 @@ if [[ -z "$REUSE_INPUT_FILE" ]]; then
   read -rp "Please enter admin password for Grafana: " GF_ADMIN_PW_INPUT
   export GF_ADMIN_PW=$GF_ADMIN_PW_INPUT
 
+  echo
+  read -rp "Please enter OIDC username that will be used as the admin for NiFi: " NIFI_OIDC_ADMIN_INPUT
+  export NIFI_OIDC_ADMIN=$NIFI_OIDC_ADMIN_INPUT
+
+  echo
+  read -rp "[Optonal] Please enter the directory of GridFTP trusted certificates: " NIFI_GRIDFTP_CERTIFICATES_LOCATION_INPUT
+  DEFAULT_GRIDFTP_CERTDIR=$(pwd)/openstack/modules/gridftp-certdir/
+  [ -z "$NIFI_GRIDFTP_CERTIFICATES_LOCATION_INPUT" ] && mkdir -p "$DEFAULT_GRIDFTP_CERTDIR"
+  export NIFI_GRIDFTP_CERTIFICATES_LOCATION=${NIFI_GRIDFTP_CERTIFICATES_LOCATION_INPUT:-$DEFAULT_GRIDFTP_CERTDIR}
+
+  export NIFI_CA_TOKEN=$(openssl rand -hex 20)
+  export NIFI_SENSITIVE_PROPS_KEY=$(openssl rand -hex 20)
 
   # prepare inputs
   envsubst <./openstack/input.yaml.tmpl >./openstack/input.yaml || exit 1
@@ -434,6 +446,11 @@ if [[ -z "$REUSE_INPUT_FILE" ]]; then
   unset OS_NETWORK
   unset VM_SSH_KEY_NAME
   unset XOPERA_AUTH_API_KEY
+
+  unset NIFI_OIDC_ADMIN
+  unset NIFI_GRIDFTP_CERTIFICATES_LOCATION
+  unset NIFI_CA_TOKEN
+  unset NIFI_SENSITIVE_PROPS_KEY
 
 fi
 
